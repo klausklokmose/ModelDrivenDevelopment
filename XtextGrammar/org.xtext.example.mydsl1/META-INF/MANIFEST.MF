@@ -12,6 +12,20 @@ Require-Bundle: org.eclipse.xtext;visibility:=reexport,
  org.eclipse.emf.codegen.ecore;resolution:=optional,
  org.eclipse.emf.mwe.utils;resolution:=optional,
  org.eclipse.emf.mwe2.launch;resolution:=optional,
- featuremodel
-Import-Package: org.apache.log4j
+ featuremodel,
+ org.eclipse.xtext.util,
+ org.antlr.runtime,
+ org.eclipse.xtext.common.types,
+ org.objectweb.asm;bundle-version="[5.0.1,6.0.0)";resolution:=optional
+Import-Package: org.apache.log4j,
+ org.eclipse.xtext.xbase.lib
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Export-Package: org.xtext.example.mydsl1,
+ org.xtext.example.mydsl1.services,
+ org.xtext.example.mydsl1.serializer,
+ org.xtext.example.mydsl1.parser.antlr,
+ org.xtext.example.mydsl1.parser.antlr.internal,
+ org.xtext.example.mydsl1.validation,
+ org.xtext.example.mydsl1.scoping,
+ org.xtext.example.mydsl1.generator,
+ org.xtext.example.mydsl1.formatting

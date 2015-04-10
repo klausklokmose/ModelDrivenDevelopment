@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<genmodel:GenModel xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore"
+    xmlns:genmodel="http://www.eclipse.org/emf/2002/GenModel" modelDirectory="/featuremodel/src" modelPluginID="featuremodel"
+    modelName="FeatureModel" rootExtendsClass="org.eclipse.emf.ecore.impl.MinimalEObjectImpl$Container"
+    importerID="org.eclipse.emf.importer.ecore" complianceLevel="8.0" copyrightFields="false"
+    operationReflection="true" importOrganizing="true">
+  <foreignModel>featureModel.ecore</foreignModel>
+  <genPackages prefix="FeatureModel" resource="XML" disposableProviderFactory="true"
+      ecorePackage="featureModel.ecore#/">
+    <genEnums typeSafeEnumCompatible="false" ecoreEnum="featureModel.ecore#//SimpleType">
+      <genEnumLiterals ecoreEnumLiteral="featureModel.ecore#//SimpleType/boolean"/>
+      <genEnumLiterals ecoreEnumLiteral="featureModel.ecore#//SimpleType/int"/>
+      <genEnumLiterals ecoreEnumLiteral="featureModel.ecore#//SimpleType/double"/>
+      <genEnumLiterals ecoreEnumLiteral="featureModel.ecore#//SimpleType/String"/>
+    </genEnums>
+    <genEnums typeSafeEnumCompatible="false" ecoreEnum="featureModel.ecore#//BinaryOperator">
+      <genEnumLiterals ecoreEnumLiteral="featureModel.ecore#//BinaryOperator/Equals"/>
+      <genEnumLiterals ecoreEnumLiteral="featureModel.ecore#//BinaryOperator/Higher"/>
+      <genEnumLiterals ecoreEnumLiteral="featureModel.ecore#//BinaryOperator/Lower"/>
+      <genEnumLiterals ecoreEnumLiteral="featureModel.ecore#//BinaryOperator/And"/>
+      <genEnumLiterals ecoreEnumLiteral="featureModel.ecore#//BinaryOperator/Add"/>
+      <genEnumLiterals ecoreEnumLiteral="featureModel.ecore#//BinaryOperator/Subtract"/>
+      <genEnumLiterals ecoreEnumLiteral="featureModel.ecore#//BinaryOperator/Divide"/>
+      <genEnumLiterals ecoreEnumLiteral="featureModel.ecore#//BinaryOperator/Multiply"/>
+      <genEnumLiterals ecoreEnumLiteral="featureModel.ecore#//BinaryOperator/Or"/>
+    </genEnums>
+    <genEnums typeSafeEnumCompatible="false" ecoreEnum="featureModel.ecore#//UnaryOperator">
+      <genEnumLiterals ecoreEnumLiteral="featureModel.ecore#//UnaryOperator/Not"/>
+      <genEnumLiterals ecoreEnumLiteral="featureModel.ecore#//UnaryOperator/Minus"/>
+    </genEnums>
+    <genEnums typeSafeEnumCompatible="false" ecoreEnum="featureModel.ecore#//SolitaryType">
+      <genEnumLiterals ecoreEnumLiteral="featureModel.ecore#//SolitaryType/Optional"/>
+      <genEnumLiterals ecoreEnumLiteral="featureModel.ecore#//SolitaryType/Mandatory"/>
+    </genEnums>
+    <genClasses ecoreClass="featureModel.ecore#//SolitaryFeature">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute featureModel.ecore#//SolitaryFeature/required"/>
+    </genClasses>
+    <genClasses image="false" ecoreClass="featureModel.ecore#//Feature">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference featureModel.ecore#//Feature/groups"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference featureModel.ecore#//Feature/features"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference featureModel.ecore#//Feature/constraints"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute featureModel.ecore#//Feature/name"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute featureModel.ecore#//Feature/type"/>
+    </genClasses>
+    <genClasses ecoreClass="featureModel.ecore#//GroupedFeature"/>
+    <genClasses ecoreClass="featureModel.ecore#//Model">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference featureModel.ecore#//Model/RootFeature"/>
+    </genClasses>
+    <genClasses ecoreClass="featureModel.ecore#//Group">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference featureModel.ecore#//Group/groupedFeatures"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute featureModel.ecore#//Group/inclusive"/>
+    </genClasses>
+    <genClasses image="false" ecoreClass="featureModel.ecore#//Expression"/>
+    <genClasses ecoreClass="featureModel.ecore#//BinaryOperation">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference featureModel.ecore#//BinaryOperation/rexp"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference featureModel.ecore#//BinaryOperation/lexp"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute featureModel.ecore#//BinaryOperation/operator"/>
+    </genClasses>
+    <genClasses ecoreClass="featureModel.ecore#//UnaryOperation">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute featureModel.ecore#//UnaryOperation/operator"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference featureModel.ecore#//UnaryOperation/exp"/>
+    </genClasses>
+    <genClasses image="false" ecoreClass="featureModel.ecore#//Constant"/>
+    <genClasses ecoreClass="featureModel.ecore#//NULL"/>
+    <genClasses ecoreClass="featureModel.ecore#//Number">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute featureModel.ecore#//Number/value"/>
+    </genClasses>
+    <genClasses ecoreClass="featureModel.ecore#//Identifier">
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference featureModel.ecore#//Identifier/ref"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute featureModel.ecore#//Identifier/name"/>
+    </genClasses>
+  </genPackages>
+</genmodel:GenModel>

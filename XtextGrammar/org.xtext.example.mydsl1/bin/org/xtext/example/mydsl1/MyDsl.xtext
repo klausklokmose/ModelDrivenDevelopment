@@ -8,58 +8,57 @@ Model returns Model:
 	{Model}
 	'Model'
 	'{'
-		('RootFeature' '{' RootFeature+=Feature ( "," RootFeature+=Feature)* '}' )?
-	'}';
+		('Root' RootFeature+=Feature ( 'Root' RootFeature+=Feature)* )?
+	'}'
+;
 
 Feature returns Feature:
 	SolitaryFeature | GroupedFeature;
 
-
-
-
 Expression returns Expression:
 	BinaryOperation | UnaryOperation | NULL | Number | Identifier;
 
-Group returns Group:
-	inclusive?='inclusive'
-	'Group'
-	'{'
-		'groupedFeatures' '{' groupedFeatures+=GroupedFeature ( "," groupedFeatures+=GroupedFeature)* '}' 
-	'}';
 
 SolitaryFeature returns SolitaryFeature:
-	'SolitaryFeature'
+	'feature'
+	(required = SolitaryType)?
 	name=EString
-	'{'
+	(
+	'=>'
 		('type' type=SimpleType)?
-		'required' required=SolitaryType
-		('groups' '{' groups+=Group ( "," groups+=Group)* '}' )?
-		('features' '{' features+=SolitaryFeature ( "," features+=SolitaryFeature)* '}' )?
-		('constraints' '{' constraints+=Expression ( "," constraints+=Expression)* '}' )?
-	'}';
+		(groups += Group ( groups+=Group)* )?
+		(features += SolitaryFeature ( features += SolitaryFeature)* )?
+		('#' constraints+=Expression ( "," constraints += Expression)* '#' )?
+	';'
+	|
+	'=' constraints+=Expression)
+;
 
 EString returns ecore::EString:
 	STRING | ID;
 
-enum SimpleType returns SimpleType:
-				boolean = 'boolean' | int = 'int' | double = 'double' | String = 'String';
+Group returns Group:
+	(inclusive?='any')?
+	'=>'
+		groupedFeatures+=GroupedFeature ( groupedFeatures+=GroupedFeature)* 
+	';'
+;
 
 GroupedFeature returns GroupedFeature:
 	{GroupedFeature}
-	'GroupedFeature'
 	name=EString
-	'{'
+	(
+	'=>'
 		('type' type=SimpleType)?
 		('groups' '{' groups+=Group ( "," groups+=Group)* '}' )?
-		('features' '{' features+=SolitaryFeature ( "," features+=SolitaryFeature)* '}' )?
+		(features+=SolitaryFeature ( "," features+=SolitaryFeature)* )?
 		('constraints' '{' constraints+=Expression ( "," constraints+=Expression)* '}' )?
-	'}';
+	';'
+	|
+	'=' constraints+=Expression
+	)
+;
 
-EBoolean returns ecore::EBoolean:
-	'true' | 'false';
-
-enum SolitaryType returns SolitaryType:
-				Optional = 'Optional' | Mandatory = 'Mandatory';
 
 BinaryOperation returns BinaryOperation:
 	'BinaryOperation'
@@ -67,38 +66,48 @@ BinaryOperation returns BinaryOperation:
 		'operator' operator=BinaryOperator
 		'rexp' rexp=Expression
 		'lexp' lexp=Expression
-	'}';
+	'}'
+;
 
 UnaryOperation returns UnaryOperation:
 	'UnaryOperation'
 	'{'
 		'operator' operator=UnaryOperator
 		'exp' exp=Expression
-	'}';
+	'}'
+;
 
 NULL returns NULL:
 	{NULL}
 	'NULL'
-	;
+;
 
 Number returns Number:
-	'Number'
-	'{'
-		'value' value=EInt
-	'}';
+	value=EInt
+;
 
 Identifier returns Identifier:
 	'Identifier'
 	name=EString
 	'{'
 		'ref' ref=[Feature|EString]
-	'}';
+	'}'
+;
 
 enum BinaryOperator returns BinaryOperator:
-				Equals = 'Equals' | Higher = 'Higher' | Lower = 'Lower' | And = 'And' | Add = 'Add' | Subtract = 'Subtract' | Divide = 'Divide' | Multiply = 'Multiply' | Or = 'Or';
+	Equals = 'Equals' | Higher = 'Higher' | Lower = 'Lower' | And = 'And' | Add = 'Add' | Subtract = 'Subtract' | Divide = 'Divide' | Multiply = 'Multiply' | Or = 'Or';
 
 enum UnaryOperator returns UnaryOperator:
-				Not = 'Not' | Minus = 'Minus';
+	Not = 'Not' | Minus = 'Minus';
 
 EInt returns ecore::EInt:
 	'-'? INT;
+
+EBoolean returns ecore::EBoolean:
+	'true' | 'false';
+
+enum SimpleType returns SimpleType:
+	boolean = 'boolean' | int = 'int' | double = 'double' | String = 'String';
+
+enum SolitaryType returns SolitaryType:
+	Optional = 'Optional' | Mandatory = 'Mandatory';
