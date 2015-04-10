@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+
+<!--
+-->
+
+<plugin>
+
+   <extension point="org.eclipse.emf.ecore.generated_package">
+      <!-- @generated FeatureModel -->
+      <package
+            uri="http://www.itu.dk/dijkstra/dk.itu.model.featuremodel"
+            class="Model.ModelPackage"
+            genModel="model/FeatureModel.genmodel"/>
+   </extension>
+
+   <extension point="org.eclipse.emf.ecore.extension_parser">
+      <!-- @generated FeatureModel -->
+      <parser
+            type="model"
+            class="Model.util.ModelResourceFactoryImpl"/>
+   </extension>
+
+   <extension point="org.eclipse.emf.ecore.generated_package">
+      <!-- @generated featureModel -->
+      <package
+            uri="http://www.itu.dk/dijkstra/dk.itu.model.featuremodel"
+            class="featureModel.FeatureModelPackage"
+            genModel="model/featureModel.genmodel"/>
+   </extension>
+
+   <extension point="org.eclipse.emf.ecore.extension_parser">
+      <!-- @generated featureModel -->
+      <parser
+            type="featuremodel"
+            class="featureModel.util.FeatureModelResourceFactoryImpl"/>
+   </extension>
+</plugin>
