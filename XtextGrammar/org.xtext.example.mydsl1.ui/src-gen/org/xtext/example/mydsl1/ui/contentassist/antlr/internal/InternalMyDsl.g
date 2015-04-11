@@ -476,6 +476,32 @@ finally {
 
 
 
+// Entry rule entryRuleEBoolean
+entryRuleEBoolean 
+:
+{ before(grammarAccess.getEBooleanRule()); }
+	 ruleEBoolean
+{ after(grammarAccess.getEBooleanRule()); } 
+	 EOF 
+;
+
+// Rule EBoolean
+ruleEBoolean
+    @init {
+		int stackSize = keepStackSize();
+    }
+	:
+(
+{ before(grammarAccess.getEBooleanAccess().getAlternatives()); }
+(rule__EBoolean__Alternatives)
+{ after(grammarAccess.getEBooleanAccess().getAlternatives()); }
+)
+
+;
+finally {
+	restoreStackSize(stackSize);
+}
+
 
 
 
@@ -716,11 +742,42 @@ rule__AtomicExp__Alternatives
 { after(grammarAccess.getAtomicExpAccess().getUnaryOperationParserRuleCall_4()); }
 )
 
+    |(
+{ before(grammarAccess.getAtomicExpAccess().getEBooleanParserRuleCall_5()); }
+	ruleEBoolean
+{ after(grammarAccess.getAtomicExpAccess().getEBooleanParserRuleCall_5()); }
+)
+
 ;
 finally {
 	restoreStackSize(stackSize);
 }
 
+rule__EBoolean__Alternatives
+    @init {
+		int stackSize = keepStackSize();
+    }
+:
+(
+{ before(grammarAccess.getEBooleanAccess().getTrueKeyword_0()); }
+
+	'true' 
+
+{ after(grammarAccess.getEBooleanAccess().getTrueKeyword_0()); }
+)
+
+    |(
+{ before(grammarAccess.getEBooleanAccess().getFalseKeyword_1()); }
+
+	'false' 
+
+{ after(grammarAccess.getEBooleanAccess().getFalseKeyword_1()); }
+)
+
+;
+finally {
+	restoreStackSize(stackSize);
+}
 
 rule__LogicalOperator__Alternatives
     @init {

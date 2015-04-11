@@ -656,12 +656,13 @@ public class MyDslGrammarAccess extends AbstractGrammarElementFinder {
 		private final RuleCall cExpressionParserRuleCall_3_1 = (RuleCall)cGroup_3.eContents().get(1);
 		private final Keyword cRightParenthesisKeyword_3_2 = (Keyword)cGroup_3.eContents().get(2);
 		private final RuleCall cUnaryOperationParserRuleCall_4 = (RuleCall)cAlternatives.eContents().get(4);
+		private final RuleCall cEBooleanParserRuleCall_5 = (RuleCall)cAlternatives.eContents().get(5);
 		
 		//AtomicExp returns Expression:
-		//	NULL | Number | Identifier | "(" Expression ")" | UnaryOperation;
+		//	NULL | Number | Identifier | "(" Expression ")" | UnaryOperation | EBoolean;
 		public ParserRule getRule() { return rule; }
 
-		//NULL | Number | Identifier | "(" Expression ")" | UnaryOperation
+		//NULL | Number | Identifier | "(" Expression ")" | UnaryOperation | EBoolean
 		public Alternatives getAlternatives() { return cAlternatives; }
 
 		//NULL
@@ -687,6 +688,9 @@ public class MyDslGrammarAccess extends AbstractGrammarElementFinder {
 
 		//UnaryOperation
 		public RuleCall getUnaryOperationParserRuleCall_4() { return cUnaryOperationParserRuleCall_4; }
+
+		//EBoolean
+		public RuleCall getEBooleanParserRuleCall_5() { return cEBooleanParserRuleCall_5; }
 	}
 
 	public class NULLElements extends AbstractParserRuleElementFinder {
@@ -731,16 +735,10 @@ public class MyDslGrammarAccess extends AbstractGrammarElementFinder {
 		private final CrossReference cRefFeatureCrossReference_0 = (CrossReference)cRefAssignment.eContents().get(0);
 		private final RuleCall cRefFeatureEStringParserRuleCall_0_1 = (RuleCall)cRefFeatureCrossReference_0.eContents().get(1);
 		
-		////	'}'
-		//Identifier: //	'Identifier'
-		////	name=EString
-		////	'{'
+		//Identifier:
 		//	ref=[Feature|EString];
 		public ParserRule getRule() { return rule; }
 
-		////	'Identifier'
-		////	name=EString
-		////	'{'
 		//ref=[Feature|EString]
 		public Assignment getRefAssignment() { return cRefAssignment; }
 
@@ -1167,7 +1165,7 @@ public class MyDslGrammarAccess extends AbstractGrammarElementFinder {
 	}
 
 	//AtomicExp returns Expression:
-	//	NULL | Number | Identifier | "(" Expression ")" | UnaryOperation;
+	//	NULL | Number | Identifier | "(" Expression ")" | UnaryOperation | EBoolean;
 	public AtomicExpElements getAtomicExpAccess() {
 		return (pAtomicExp != null) ? pAtomicExp : (pAtomicExp = new AtomicExpElements());
 	}
@@ -1196,10 +1194,7 @@ public class MyDslGrammarAccess extends AbstractGrammarElementFinder {
 		return getNumberAccess().getRule();
 	}
 
-	////	'}'
-	//Identifier: //	'Identifier'
-	////	name=EString
-	////	'{'
+	//Identifier:
 	//	ref=[Feature|EString];
 	public IdentifierElements getIdentifierAccess() {
 		return (pIdentifier != null) ? pIdentifier : (pIdentifier = new IdentifierElements());

@@ -94,7 +94,7 @@ UnaryOperation returns UnaryOperation:
 ;
 
 AtomicExp returns Expression:
-	NULL | Number | Identifier | '(' Expression ')' | UnaryOperation
+	NULL | Number | Identifier | '(' Expression ')' | UnaryOperation | EBoolean
 ;
 
 

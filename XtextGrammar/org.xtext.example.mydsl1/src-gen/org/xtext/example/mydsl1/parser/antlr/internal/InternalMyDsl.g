@@ -1111,6 +1111,15 @@ ruleAtomicExp returns [EObject current=null]
         $current = $this_UnaryOperation_6.current; 
         afterParserOrEnumRuleCall();
     }
+
+    |
+    { 
+        newCompositeNode(grammarAccess.getAtomicExpAccess().getEBooleanParserRuleCall_5()); 
+    }
+ruleEBoolean
+    { 
+        afterParserOrEnumRuleCall();
+    }
 )
 ;
 
@@ -1255,6 +1264,38 @@ ruleEInt returns [AntlrDatatypeRuleToken current=new AntlrDatatypeRuleToken()]
     ;
 
 
+
+
+
+// Entry rule entryRuleEBoolean
+entryRuleEBoolean returns [String current=null] 
+	:
+	{ newCompositeNode(grammarAccess.getEBooleanRule()); } 
+	 iv_ruleEBoolean=ruleEBoolean 
+	 { $current=$iv_ruleEBoolean.current.getText(); }  
+	 EOF 
+;
+
+// Rule EBoolean
+ruleEBoolean returns [AntlrDatatypeRuleToken current=new AntlrDatatypeRuleToken()] 
+    @init { enterRule(); 
+    }
+    @after { leaveRule(); }:
+(
+	kw='true' 
+    {
+        $current.merge(kw);
+        newLeafNode(kw, grammarAccess.getEBooleanAccess().getTrueKeyword_0()); 
+    }
+
+    |
+	kw='false' 
+    {
+        $current.merge(kw);
+        newLeafNode(kw, grammarAccess.getEBooleanAccess().getFalseKeyword_1()); 
+    }
+)
+    ;
 
 
 
