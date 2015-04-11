@@ -170,7 +170,7 @@ public abstract class AbstractMyDslSemanticSequencer extends AbstractDelegatingS
 	
 	/**
 	 * Constraint:
-	 *     ref=[Feature|EString]
+	 *     (ref=[Feature|EString] ref=[Feature|EString]*)
 	 */
 	protected void sequence_Identifier(EObject context, Identifier semanticObject) {
 		genericSequencer.createSequence(context, semanticObject);
