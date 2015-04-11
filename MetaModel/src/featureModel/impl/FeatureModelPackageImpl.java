@@ -682,8 +682,8 @@ public class FeatureModelPackageImpl extends EPackageImpl implements FeatureMode
 		addEEnumLiteral(unaryOperatorEEnum, UnaryOperator.MINUS);
 
 		initEEnum(solitaryTypeEEnum, SolitaryType.class, "SolitaryType");
-		addEEnumLiteral(solitaryTypeEEnum, SolitaryType.OPTIONAL);
 		addEEnumLiteral(solitaryTypeEEnum, SolitaryType.MANDATORY);
+		addEEnumLiteral(solitaryTypeEEnum, SolitaryType.OPTIONAL);
 
 		// Create resource
 		createResource(eNS_URI);

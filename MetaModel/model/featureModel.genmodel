@@ -29,8 +29,8 @@
       <genEnumLiterals ecoreEnumLiteral="featureModel.ecore#//UnaryOperator/Minus"/>
     </genEnums>
     <genEnums typeSafeEnumCompatible="false" ecoreEnum="featureModel.ecore#//SolitaryType">
-      <genEnumLiterals ecoreEnumLiteral="featureModel.ecore#//SolitaryType/Optional"/>
       <genEnumLiterals ecoreEnumLiteral="featureModel.ecore#//SolitaryType/Mandatory"/>
+      <genEnumLiterals ecoreEnumLiteral="featureModel.ecore#//SolitaryType/Optional"/>
     </genEnums>
     <genClasses ecoreClass="featureModel.ecore#//SolitaryFeature">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute featureModel.ecore#//SolitaryFeature/required"/>

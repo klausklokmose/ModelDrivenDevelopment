@@ -19,16 +19,6 @@ import org.eclipse.emf.common.util.Enumerator;
  */
 public enum SolitaryType implements Enumerator {
 	/**
-	 * The '<em><b>Optional</b></em>' literal object.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #OPTIONAL_VALUE
-	 * @generated
-	 * @ordered
-	 */
-	OPTIONAL(0, "Optional", "Optional"),
-
-	/**
 	 * The '<em><b>Mandatory</b></em>' literal object.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -36,22 +26,15 @@ public enum SolitaryType implements Enumerator {
 	 * @generated
 	 * @ordered
 	 */
-	MANDATORY(1, "Mandatory", "Mandatory");
-
-	/**
-	 * The '<em><b>Optional</b></em>' literal value.
+	MANDATORY(0, "Mandatory", "Mandatory"), /**
+	 * The '<em><b>Optional</b></em>' literal object.
 	 * <!-- begin-user-doc -->
-	 * <p>
-	 * If the meaning of '<em><b>Optional</b></em>' literal object isn't clear,
-	 * there really should be more of a description here...
-	 * </p>
 	 * <!-- end-user-doc -->
-	 * @see #OPTIONAL
-	 * @model name="Optional"
+	 * @see #OPTIONAL_VALUE
 	 * @generated
 	 * @ordered
 	 */
-	public static final int OPTIONAL_VALUE = 0;
+	OPTIONAL(1, "Optional", "Optional");
 
 	/**
 	 * The '<em><b>Mandatory</b></em>' literal value.
@@ -66,7 +49,22 @@ public enum SolitaryType implements Enumerator {
 	 * @generated
 	 * @ordered
 	 */
-	public static final int MANDATORY_VALUE = 1;
+	public static final int MANDATORY_VALUE = 0;
+
+	/**
+	 * The '<em><b>Optional</b></em>' literal value.
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * If the meaning of '<em><b>Optional</b></em>' literal object isn't clear,
+	 * there really should be more of a description here...
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @see #OPTIONAL
+	 * @model name="Optional"
+	 * @generated
+	 * @ordered
+	 */
+	public static final int OPTIONAL_VALUE = 1;
 
 	/**
 	 * An array of all the '<em><b>Solitary Type</b></em>' enumerators.
@@ -76,8 +74,8 @@ public enum SolitaryType implements Enumerator {
 	 */
 	private static final SolitaryType[] VALUES_ARRAY =
 		new SolitaryType[] {
-			OPTIONAL,
 			MANDATORY,
+			OPTIONAL,
 		};
 
 	/**
@@ -128,8 +126,8 @@ public enum SolitaryType implements Enumerator {
 	 */
 	public static SolitaryType get(int value) {
 		switch (value) {
-			case OPTIONAL_VALUE: return OPTIONAL;
 			case MANDATORY_VALUE: return MANDATORY;
+			case OPTIONAL_VALUE: return OPTIONAL;
 		}
 		return null;
 	}

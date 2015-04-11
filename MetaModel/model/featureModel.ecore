@@ -80,7 +80,7 @@
     <eLiterals name="Minus" value="1"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EEnum" name="SolitaryType">
-    <eLiterals name="Optional"/>
-    <eLiterals name="Mandatory" value="1"/>
+    <eLiterals name="Mandatory"/>
+    <eLiterals name="Optional" value="1"/>
   </eClassifiers>
 </ecore:EPackage>

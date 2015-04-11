@@ -34,7 +34,7 @@ public class SolitaryFeatureImpl extends FeatureImpl implements SolitaryFeature 
 	 * @generated
 	 * @ordered
 	 */
-	protected static final SolitaryType REQUIRED_EDEFAULT = SolitaryType.OPTIONAL;
+	protected static final SolitaryType REQUIRED_EDEFAULT = SolitaryType.MANDATORY;
 
 	/**
 	 * The cached value of the '{@link #getRequired() <em>Required</em>}' attribute.
