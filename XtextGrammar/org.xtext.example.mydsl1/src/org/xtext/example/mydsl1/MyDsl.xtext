@@ -15,8 +15,6 @@ Model returns Model:
 Feature returns Feature:
 	SolitaryFeature | GroupedFeature;
 
-Expression returns Expression:
-	BinaryOperation | UnaryOperation | NULL | Number | Identifier;
 
 
 SolitaryFeature returns SolitaryFeature:
@@ -26,21 +24,25 @@ SolitaryFeature returns SolitaryFeature:
 	(
 	'=>'
 		('type' type=SimpleType)?
-		(groups += Group ( groups+=Group)* )?
-		(features += SolitaryFeature ( features += SolitaryFeature)* )?
-		('#' constraints+=Expression ( "," constraints += Expression)* '#' )?
+			(features += SolitaryFeature ( features += SolitaryFeature)* )?
+			//groups must be declared last
+			(groups += Group ( groups+=Group)* )?
+
+		('#' constraints+=Expression '#' ( '#' constraints += Expression '#' )* )?
 	';'
 	|
-	'=' constraints+=Expression)
+		'=' constraints+=Expression
+	)?
 ;
 
 EString returns ecore::EString:
 	STRING | ID;
 
 Group returns Group:
+	
+	'select'
 	(inclusive?='any')?
-	'=>'
-		groupedFeatures+=GroupedFeature ( groupedFeatures+=GroupedFeature)* 
+		groupedFeatures+=GroupedFeature ( ',' groupedFeatures+=GroupedFeature)* 
 	';'
 ;
 
@@ -50,32 +52,51 @@ GroupedFeature returns GroupedFeature:
 	(
 	'=>'
 		('type' type=SimpleType)?
-		('groups' '{' groups+=Group ( "," groups+=Group)* '}' )?
-		(features+=SolitaryFeature ( "," features+=SolitaryFeature)* )?
-		('constraints' '{' constraints+=Expression ( "," constraints+=Expression)* '}' )?
+			(groups += Group ( groups+=Group)* )?
+			(features += SolitaryFeature ( features += SolitaryFeature)* )?
+		('#' constraints+=Expression '#' ( '#' constraints += Expression '#' )* )?
 	';'
 	|
 	'=' constraints+=Expression
-	)
+	)?
 ;
 
+Expression returns Expression:
+	Logical2Operation
+		(
+			{BinaryOperation.lexp=current}
+			operator=LogicalOperator
+			rexp=Logical2Operation
+		)*
+;
 
-BinaryOperation returns BinaryOperation:
-	'BinaryOperation'
-	'{'
-		'operator' operator=BinaryOperator
-		'rexp' rexp=Expression
-		'lexp' lexp=Expression
-	'}'
+Logical2Operation returns Expression:
+	BinaryOperation
+	(
+		{BinaryOperation.lexp=current}
+		operator=CompareOperator
+		rexp=BinaryOperation
+	)*
+;
+
+BinaryOperation returns Expression:
+	AtomicExp
+	(
+		{BinaryOperation.lexp=current}
+		operator=ArithmicOperator
+		rexp=AtomicExp
+	)*
 ;
 
 UnaryOperation returns UnaryOperation:
-	'UnaryOperation'
-	'{'
-		'operator' operator=UnaryOperator
-		'exp' exp=Expression
-	'}'
+	operator=UnaryOperator
+	exp=AtomicExp
 ;
+
+AtomicExp returns Expression:
+	NULL | Number | Identifier | '(' Expression ')' | UnaryOperation
+;
+
 
 NULL returns NULL:
 	{NULL}
@@ -87,15 +108,19 @@ Number returns Number:
 ;
 
 Identifier returns Identifier:
-	'Identifier'
-	name=EString
-	'{'
-		'ref' ref=[Feature|EString]
-	'}'
+	ref=[Feature|EString]
 ;
 
-enum BinaryOperator returns BinaryOperator:
-	Equals = 'Equals' | Higher = 'Higher' | Lower = 'Lower' | And = 'And' | Add = 'Add' | Subtract = 'Subtract' | Divide = 'Divide' | Multiply = 'Multiply' | Or = 'Or';
+enum LogicalOperator returns BinaryOperator:
+	And = 'And' | Or = 'Or'
+;
+
+enum CompareOperator returns BinaryOperator:
+	Equals = 'Equals' | Higher = 'Higher' | Lower = 'Lower' 
+;
+
+enum ArithmicOperator returns BinaryOperator:
+	Add = 'Add' | Subtract = 'Subtract' | Divide = 'Divide' | Multiply = 'Multiply' ;
 
 enum UnaryOperator returns UnaryOperator:
 	Not = 'Not' | Minus = 'Minus';

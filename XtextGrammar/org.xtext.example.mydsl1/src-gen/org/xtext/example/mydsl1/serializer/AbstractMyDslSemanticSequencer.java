@@ -33,9 +33,14 @@ public abstract class AbstractMyDslSemanticSequencer extends AbstractDelegatingS
 	public void createSequence(EObject context, EObject semanticObject) {
 		if(semanticObject.eClass().getEPackage() == FeatureModelPackage.eINSTANCE) switch(semanticObject.eClass().getClassifierID()) {
 			case FeatureModelPackage.BINARY_OPERATION:
-				if(context == grammarAccess.getBinaryOperationRule() ||
-				   context == grammarAccess.getExpressionRule()) {
-					sequence_BinaryOperation(context, (BinaryOperation) semanticObject); 
+				if(context == grammarAccess.getAtomicExpRule() ||
+				   context == grammarAccess.getBinaryOperationRule() ||
+				   context == grammarAccess.getBinaryOperationAccess().getBinaryOperationLexpAction_1_0() ||
+				   context == grammarAccess.getExpressionRule() ||
+				   context == grammarAccess.getExpressionAccess().getBinaryOperationLexpAction_1_0() ||
+				   context == grammarAccess.getLogical2OperationRule() ||
+				   context == grammarAccess.getLogical2OperationAccess().getBinaryOperationLexpAction_1_0()) {
+					sequence_BinaryOperation_Expression_Logical2Operation(context, (BinaryOperation) semanticObject); 
 					return; 
 				}
 				else break;
@@ -53,8 +58,14 @@ public abstract class AbstractMyDslSemanticSequencer extends AbstractDelegatingS
 				}
 				else break;
 			case FeatureModelPackage.IDENTIFIER:
-				if(context == grammarAccess.getExpressionRule() ||
-				   context == grammarAccess.getIdentifierRule()) {
+				if(context == grammarAccess.getAtomicExpRule() ||
+				   context == grammarAccess.getBinaryOperationRule() ||
+				   context == grammarAccess.getBinaryOperationAccess().getBinaryOperationLexpAction_1_0() ||
+				   context == grammarAccess.getExpressionRule() ||
+				   context == grammarAccess.getExpressionAccess().getBinaryOperationLexpAction_1_0() ||
+				   context == grammarAccess.getIdentifierRule() ||
+				   context == grammarAccess.getLogical2OperationRule() ||
+				   context == grammarAccess.getLogical2OperationAccess().getBinaryOperationLexpAction_1_0()) {
 					sequence_Identifier(context, (Identifier) semanticObject); 
 					return; 
 				}
@@ -66,14 +77,26 @@ public abstract class AbstractMyDslSemanticSequencer extends AbstractDelegatingS
 				}
 				else break;
 			case FeatureModelPackage.NULL:
-				if(context == grammarAccess.getExpressionRule() ||
+				if(context == grammarAccess.getAtomicExpRule() ||
+				   context == grammarAccess.getBinaryOperationRule() ||
+				   context == grammarAccess.getBinaryOperationAccess().getBinaryOperationLexpAction_1_0() ||
+				   context == grammarAccess.getExpressionRule() ||
+				   context == grammarAccess.getExpressionAccess().getBinaryOperationLexpAction_1_0() ||
+				   context == grammarAccess.getLogical2OperationRule() ||
+				   context == grammarAccess.getLogical2OperationAccess().getBinaryOperationLexpAction_1_0() ||
 				   context == grammarAccess.getNULLRule()) {
 					sequence_NULL(context, (NULL) semanticObject); 
 					return; 
 				}
 				else break;
 			case FeatureModelPackage.NUMBER:
-				if(context == grammarAccess.getExpressionRule() ||
+				if(context == grammarAccess.getAtomicExpRule() ||
+				   context == grammarAccess.getBinaryOperationRule() ||
+				   context == grammarAccess.getBinaryOperationAccess().getBinaryOperationLexpAction_1_0() ||
+				   context == grammarAccess.getExpressionRule() ||
+				   context == grammarAccess.getExpressionAccess().getBinaryOperationLexpAction_1_0() ||
+				   context == grammarAccess.getLogical2OperationRule() ||
+				   context == grammarAccess.getLogical2OperationAccess().getBinaryOperationLexpAction_1_0() ||
 				   context == grammarAccess.getNumberRule()) {
 					sequence_Number(context, (featureModel.Number) semanticObject); 
 					return; 
@@ -87,7 +110,13 @@ public abstract class AbstractMyDslSemanticSequencer extends AbstractDelegatingS
 				}
 				else break;
 			case FeatureModelPackage.UNARY_OPERATION:
-				if(context == grammarAccess.getExpressionRule() ||
+				if(context == grammarAccess.getAtomicExpRule() ||
+				   context == grammarAccess.getBinaryOperationRule() ||
+				   context == grammarAccess.getBinaryOperationAccess().getBinaryOperationLexpAction_1_0() ||
+				   context == grammarAccess.getExpressionRule() ||
+				   context == grammarAccess.getExpressionAccess().getBinaryOperationLexpAction_1_0() ||
+				   context == grammarAccess.getLogical2OperationRule() ||
+				   context == grammarAccess.getLogical2OperationAccess().getBinaryOperationLexpAction_1_0() ||
 				   context == grammarAccess.getUnaryOperationRule()) {
 					sequence_UnaryOperation(context, (UnaryOperation) semanticObject); 
 					return; 
@@ -99,23 +128,14 @@ public abstract class AbstractMyDslSemanticSequencer extends AbstractDelegatingS
 	
 	/**
 	 * Constraint:
-	 *     (operator=BinaryOperator rexp=Expression lexp=Expression)
+	 *     (
+	 *         (lexp=Logical2Operation_BinaryOperation_1_0 operator=CompareOperator rexp=BinaryOperation) | 
+	 *         (lexp=BinaryOperation_BinaryOperation_1_0 operator=ArithmicOperator rexp=AtomicExp) | 
+	 *         (lexp=Expression_BinaryOperation_1_0 operator=LogicalOperator rexp=Logical2Operation)
+	 *     )
 	 */
-	protected void sequence_BinaryOperation(EObject context, BinaryOperation semanticObject) {
-		if(errorAcceptor != null) {
-			if(transientValues.isValueTransient(semanticObject, FeatureModelPackage.Literals.BINARY_OPERATION__REXP) == ValueTransient.YES)
-				errorAcceptor.accept(diagnosticProvider.createFeatureValueMissing(semanticObject, FeatureModelPackage.Literals.BINARY_OPERATION__REXP));
-			if(transientValues.isValueTransient(semanticObject, FeatureModelPackage.Literals.BINARY_OPERATION__LEXP) == ValueTransient.YES)
-				errorAcceptor.accept(diagnosticProvider.createFeatureValueMissing(semanticObject, FeatureModelPackage.Literals.BINARY_OPERATION__LEXP));
-			if(transientValues.isValueTransient(semanticObject, FeatureModelPackage.Literals.BINARY_OPERATION__OPERATOR) == ValueTransient.YES)
-				errorAcceptor.accept(diagnosticProvider.createFeatureValueMissing(semanticObject, FeatureModelPackage.Literals.BINARY_OPERATION__OPERATOR));
-		}
-		INodesForEObjectProvider nodes = createNodeProvider(semanticObject);
-		SequenceFeeder feeder = createSequencerFeeder(semanticObject, nodes);
-		feeder.accept(grammarAccess.getBinaryOperationAccess().getOperatorBinaryOperatorEnumRuleCall_3_0(), semanticObject.getOperator());
-		feeder.accept(grammarAccess.getBinaryOperationAccess().getRexpExpressionParserRuleCall_5_0(), semanticObject.getRexp());
-		feeder.accept(grammarAccess.getBinaryOperationAccess().getLexpExpressionParserRuleCall_7_0(), semanticObject.getLexp());
-		feeder.finish();
+	protected void sequence_BinaryOperation_Expression_Logical2Operation(EObject context, BinaryOperation semanticObject) {
+		genericSequencer.createSequence(context, semanticObject);
 	}
 	
 	
@@ -140,7 +160,7 @@ public abstract class AbstractMyDslSemanticSequencer extends AbstractDelegatingS
 	 *                 (constraints+=Expression constraints+=Expression*)?
 	 *             ) | 
 	 *             constraints+=Expression
-	 *         )
+	 *         )?
 	 *     )
 	 */
 	protected void sequence_GroupedFeature(EObject context, GroupedFeature semanticObject) {
@@ -150,20 +170,10 @@ public abstract class AbstractMyDslSemanticSequencer extends AbstractDelegatingS
 	
 	/**
 	 * Constraint:
-	 *     (name=EString ref=[Feature|EString])
+	 *     ref=[Feature|EString]
 	 */
 	protected void sequence_Identifier(EObject context, Identifier semanticObject) {
-		if(errorAcceptor != null) {
-			if(transientValues.isValueTransient(semanticObject, FeatureModelPackage.Literals.IDENTIFIER__REF) == ValueTransient.YES)
-				errorAcceptor.accept(diagnosticProvider.createFeatureValueMissing(semanticObject, FeatureModelPackage.Literals.IDENTIFIER__REF));
-			if(transientValues.isValueTransient(semanticObject, FeatureModelPackage.Literals.IDENTIFIER__NAME) == ValueTransient.YES)
-				errorAcceptor.accept(diagnosticProvider.createFeatureValueMissing(semanticObject, FeatureModelPackage.Literals.IDENTIFIER__NAME));
-		}
-		INodesForEObjectProvider nodes = createNodeProvider(semanticObject);
-		SequenceFeeder feeder = createSequencerFeeder(semanticObject, nodes);
-		feeder.accept(grammarAccess.getIdentifierAccess().getNameEStringParserRuleCall_1_0(), semanticObject.getName());
-		feeder.accept(grammarAccess.getIdentifierAccess().getRefFeatureEStringParserRuleCall_4_0_1(), semanticObject.getRef());
-		feeder.finish();
+		genericSequencer.createSequence(context, semanticObject);
 	}
 	
 	
@@ -209,12 +219,12 @@ public abstract class AbstractMyDslSemanticSequencer extends AbstractDelegatingS
 	 *         (
 	 *             (
 	 *                 type=SimpleType? 
-	 *                 (groups+=Group groups+=Group*)? 
 	 *                 (features+=SolitaryFeature features+=SolitaryFeature*)? 
+	 *                 (groups+=Group groups+=Group*)? 
 	 *                 (constraints+=Expression constraints+=Expression*)?
 	 *             ) | 
 	 *             constraints+=Expression
-	 *         )
+	 *         )?
 	 *     )
 	 */
 	protected void sequence_SolitaryFeature(EObject context, SolitaryFeature semanticObject) {
@@ -224,7 +234,7 @@ public abstract class AbstractMyDslSemanticSequencer extends AbstractDelegatingS
 	
 	/**
 	 * Constraint:
-	 *     (operator=UnaryOperator exp=Expression)
+	 *     (operator=UnaryOperator exp=AtomicExp)
 	 */
 	protected void sequence_UnaryOperation(EObject context, UnaryOperation semanticObject) {
 		if(errorAcceptor != null) {
@@ -235,8 +245,8 @@ public abstract class AbstractMyDslSemanticSequencer extends AbstractDelegatingS
 		}
 		INodesForEObjectProvider nodes = createNodeProvider(semanticObject);
 		SequenceFeeder feeder = createSequencerFeeder(semanticObject, nodes);
-		feeder.accept(grammarAccess.getUnaryOperationAccess().getOperatorUnaryOperatorEnumRuleCall_3_0(), semanticObject.getOperator());
-		feeder.accept(grammarAccess.getUnaryOperationAccess().getExpExpressionParserRuleCall_5_0(), semanticObject.getExp());
+		feeder.accept(grammarAccess.getUnaryOperationAccess().getOperatorUnaryOperatorEnumRuleCall_0_0(), semanticObject.getOperator());
+		feeder.accept(grammarAccess.getUnaryOperationAccess().getExpAtomicExpParserRuleCall_1_0(), semanticObject.getExp());
 		feeder.finish();
 	}
 }
