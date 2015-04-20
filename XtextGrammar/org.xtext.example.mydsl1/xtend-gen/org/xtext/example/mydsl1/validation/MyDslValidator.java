@@ -3,6 +3,21 @@
  */
 package org.xtext.example.mydsl1.validation;
 
+import com.google.common.base.Objects;
+import featureModel.BinaryOperation;
+import featureModel.BinaryOperator;
+import featureModel.Expression;
+import featureModel.Feature;
+import featureModel.Identifier;
+import featureModel.NULL;
+import featureModel.SimpleType;
+import featureModel.UnaryOperation;
+import featureModel.UnaryOperator;
+import org.eclipse.emf.common.util.EList;
+import org.eclipse.xtext.validation.Check;
+import org.eclipse.xtext.xbase.lib.Exceptions;
+import org.eclipse.xtext.xbase.lib.Functions.Function1;
+import org.eclipse.xtext.xbase.lib.IterableExtensions;
 import org.xtext.example.mydsl1.validation.AbstractMyDslValidator;
 
 /**
@@ -12,4 +27,264 @@ import org.xtext.example.mydsl1.validation.AbstractMyDslValidator;
  */
 @SuppressWarnings("all")
 public class MyDslValidator extends AbstractMyDslValidator {
+  @Check
+  public void TopConstraintShouldBeBoolean(final Feature f) {
+    EList<Expression> _constraints = f.getConstraints();
+    final Function1<Expression, Boolean> _function = new Function1<Expression, Boolean>() {
+      public Boolean apply(final Expression topConstraint) {
+        SimpleType _type = MyDslValidator.this.getType(topConstraint);
+        SimpleType _get = SimpleType.get("boolean");
+        return Boolean.valueOf(Objects.equal(_type, _get));
+      }
+    };
+    IterableExtensions.<Expression>forall(_constraints, _function);
+    EList<Expression> _constraints_1 = f.getConstraints();
+    for (final Expression constraint : _constraints_1) {
+      SimpleType _type = this.getType(constraint);
+      SimpleType _get = SimpleType.get("boolean");
+      boolean _equals = Objects.equal(_type, _get);
+      boolean _not = (!_equals);
+      if (_not) {
+        this.warning("top constraint should be boolean", f, null, "invalid type");
+      }
+    }
+  }
+  
+  public SimpleType getType(final Expression e) {
+    try {
+      SimpleType _xifexpression = null;
+      if ((e instanceof Identifier)) {
+        SimpleType _xblockexpression = null;
+        {
+          final Identifier id = ((Identifier) e);
+          EList<Feature> _ref = id.getRef();
+          EList<Feature> _ref_1 = id.getRef();
+          int _size = _ref_1.size();
+          int _minus = (_size - 1);
+          Feature _get = _ref.get(_minus);
+          _xblockexpression = _get.getType();
+        }
+        _xifexpression = _xblockexpression;
+      } else {
+        SimpleType _xifexpression_1 = null;
+        if ((e instanceof BinaryOperation)) {
+          SimpleType _xblockexpression_1 = null;
+          {
+            final BinaryOperation binOp = ((BinaryOperation) e);
+            final Expression left = binOp.getLexp();
+            final Expression right = binOp.getRexp();
+            final BinaryOperator op = binOp.getOperator();
+            final SimpleType ltype = this.getType(left);
+            final SimpleType rtype = this.getType(right);
+            SimpleType _xifexpression_2 = null;
+            boolean _or = false;
+            boolean _or_1 = false;
+            boolean _equals = Objects.equal(ltype, rtype);
+            if (_equals) {
+              _or_1 = true;
+            } else {
+              SimpleType _get = SimpleType.get("nulltype");
+              boolean _equals_1 = Objects.equal(ltype, _get);
+              _or_1 = _equals_1;
+            }
+            if (_or_1) {
+              _or = true;
+            } else {
+              SimpleType _get_1 = SimpleType.get("nulltype");
+              boolean _equals_2 = Objects.equal(rtype, _get_1);
+              _or = _equals_2;
+            }
+            if (_or) {
+              SimpleType _xifexpression_3 = null;
+              boolean _or_2 = false;
+              BinaryOperator _get_2 = BinaryOperator.get("And");
+              boolean _equals_3 = Objects.equal(op, _get_2);
+              if (_equals_3) {
+                _or_2 = true;
+              } else {
+                BinaryOperator _get_3 = BinaryOperator.get("Or");
+                boolean _equals_4 = Objects.equal(op, _get_3);
+                _or_2 = _equals_4;
+              }
+              if (_or_2) {
+                SimpleType _xifexpression_4 = null;
+                SimpleType _get_4 = SimpleType.get("boolean");
+                boolean _equals_5 = Objects.equal(ltype, _get_4);
+                if (_equals_5) {
+                  _xifexpression_4 = ltype;
+                } else {
+                  throw new Exception("invalid type, must be boolean with And or Or operator");
+                }
+                _xifexpression_3 = _xifexpression_4;
+              } else {
+                SimpleType _xifexpression_5 = null;
+                boolean _or_3 = false;
+                boolean _or_4 = false;
+                BinaryOperator _get_5 = BinaryOperator.get("Equals");
+                boolean _equals_6 = Objects.equal(op, _get_5);
+                if (_equals_6) {
+                  _or_4 = true;
+                } else {
+                  BinaryOperator _get_6 = BinaryOperator.get("Higher");
+                  boolean _equals_7 = Objects.equal(op, _get_6);
+                  _or_4 = _equals_7;
+                }
+                if (_or_4) {
+                  _or_3 = true;
+                } else {
+                  BinaryOperator _get_7 = BinaryOperator.get("Lower");
+                  boolean _equals_8 = Objects.equal(op, _get_7);
+                  _or_3 = _equals_8;
+                }
+                if (_or_3) {
+                  _xifexpression_5 = SimpleType.get("boolean");
+                } else {
+                  SimpleType _xifexpression_6 = null;
+                  boolean _or_5 = false;
+                  boolean _or_6 = false;
+                  boolean _or_7 = false;
+                  BinaryOperator _get_8 = BinaryOperator.get("Divide");
+                  boolean _equals_9 = Objects.equal(op, _get_8);
+                  if (_equals_9) {
+                    _or_7 = true;
+                  } else {
+                    BinaryOperator _get_9 = BinaryOperator.get("Multiply");
+                    boolean _equals_10 = Objects.equal(op, _get_9);
+                    _or_7 = _equals_10;
+                  }
+                  if (_or_7) {
+                    _or_6 = true;
+                  } else {
+                    BinaryOperator _get_10 = BinaryOperator.get("Add");
+                    boolean _equals_11 = Objects.equal(op, _get_10);
+                    _or_6 = _equals_11;
+                  }
+                  if (_or_6) {
+                    _or_5 = true;
+                  } else {
+                    BinaryOperator _get_11 = BinaryOperator.get("Subtract");
+                    boolean _equals_12 = Objects.equal(op, _get_11);
+                    _or_5 = _equals_12;
+                  }
+                  if (_or_5) {
+                    SimpleType _xifexpression_7 = null;
+                    boolean _and = false;
+                    boolean _equals_13 = Objects.equal(ltype, rtype);
+                    if (!_equals_13) {
+                      _and = false;
+                    } else {
+                      boolean _or_8 = false;
+                      SimpleType _get_12 = SimpleType.get("int");
+                      boolean _equals_14 = Objects.equal(ltype, _get_12);
+                      if (_equals_14) {
+                        _or_8 = true;
+                      } else {
+                        SimpleType _get_13 = SimpleType.get("double");
+                        boolean _equals_15 = Objects.equal(ltype, _get_13);
+                        _or_8 = _equals_15;
+                      }
+                      _and = _or_8;
+                    }
+                    if (_and) {
+                      _xifexpression_7 = ltype;
+                    } else {
+                      throw new Exception(
+                        "invalid type");
+                    }
+                    _xifexpression_6 = _xifexpression_7;
+                  }
+                  _xifexpression_5 = _xifexpression_6;
+                }
+                _xifexpression_3 = _xifexpression_5;
+              }
+              _xifexpression_2 = _xifexpression_3;
+            }
+            _xblockexpression_1 = _xifexpression_2;
+          }
+          _xifexpression_1 = _xblockexpression_1;
+        } else {
+          SimpleType _xifexpression_2 = null;
+          if ((e instanceof UnaryOperation)) {
+            SimpleType _xblockexpression_2 = null;
+            {
+              final UnaryOperation ex = ((UnaryOperation) e);
+              Expression _exp = ex.getExp();
+              final SimpleType extype = this.getType(_exp);
+              SimpleType _xifexpression_3 = null;
+              boolean _or = false;
+              boolean _and = false;
+              UnaryOperator _operator = ex.getOperator();
+              UnaryOperator _get = UnaryOperator.get("Not");
+              boolean _equals = Objects.equal(_operator, _get);
+              if (!_equals) {
+                _and = false;
+              } else {
+                boolean _or_1 = false;
+                SimpleType _get_1 = SimpleType.get("boolean");
+                boolean _equals_1 = Objects.equal(extype, _get_1);
+                if (_equals_1) {
+                  _or_1 = true;
+                } else {
+                  SimpleType _get_2 = SimpleType.get("nulltype");
+                  boolean _equals_2 = Objects.equal(extype, _get_2);
+                  _or_1 = _equals_2;
+                }
+                _and = _or_1;
+              }
+              if (_and) {
+                _or = true;
+              } else {
+                boolean _and_1 = false;
+                UnaryOperator _operator_1 = ex.getOperator();
+                UnaryOperator _get_3 = UnaryOperator.get("Minus");
+                boolean _equals_3 = Objects.equal(_operator_1, _get_3);
+                if (!_equals_3) {
+                  _and_1 = false;
+                } else {
+                  boolean _or_2 = false;
+                  SimpleType _get_4 = SimpleType.get("int");
+                  boolean _equals_4 = Objects.equal(extype, _get_4);
+                  if (_equals_4) {
+                    _or_2 = true;
+                  } else {
+                    SimpleType _get_5 = SimpleType.get("double");
+                    boolean _equals_5 = Objects.equal(extype, _get_5);
+                    _or_2 = _equals_5;
+                  }
+                  _and_1 = _or_2;
+                }
+                _or = _and_1;
+              }
+              if (_or) {
+                _xifexpression_3 = extype;
+              } else {
+                throw new Exception("invalid type");
+              }
+              _xblockexpression_2 = _xifexpression_3;
+            }
+            _xifexpression_2 = _xblockexpression_2;
+          } else {
+            SimpleType _xifexpression_3 = null;
+            if ((e instanceof featureModel.Number)) {
+              _xifexpression_3 = SimpleType.get("int");
+            } else {
+              SimpleType _xifexpression_4 = null;
+              if ((e instanceof NULL)) {
+                _xifexpression_4 = SimpleType.get("nulltype");
+              } else {
+                _xifexpression_4 = SimpleType.get("nulltype");
+              }
+              _xifexpression_3 = _xifexpression_4;
+            }
+            _xifexpression_2 = _xifexpression_3;
+          }
+          _xifexpression_1 = _xifexpression_2;
+        }
+        _xifexpression = _xifexpression_1;
+      }
+      return _xifexpression;
+    } catch (Throwable _e) {
+      throw Exceptions.sneakyThrow(_e);
+    }
+  }
 }

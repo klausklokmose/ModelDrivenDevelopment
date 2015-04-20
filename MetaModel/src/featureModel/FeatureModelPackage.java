@@ -601,7 +601,7 @@ public interface FeatureModelPackage extends EPackage {
 	int IDENTIFIER = 11;
 
 	/**
-	 * The feature id for the '<em><b>Ref</b></em>' reference.
+	 * The feature id for the '<em><b>Ref</b></em>' reference list.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
@@ -963,10 +963,10 @@ public interface FeatureModelPackage extends EPackage {
 	EClass getIdentifier();
 
 	/**
-	 * Returns the meta object for the reference '{@link featureModel.Identifier#getRef <em>Ref</em>}'.
+	 * Returns the meta object for the reference list '{@link featureModel.Identifier#getRef <em>Ref</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @return the meta object for the reference '<em>Ref</em>'.
+	 * @return the meta object for the reference list '<em>Ref</em>'.
 	 * @see featureModel.Identifier#getRef()
 	 * @see #getIdentifier()
 	 * @generated
@@ -1288,7 +1288,7 @@ public interface FeatureModelPackage extends EPackage {
 		EClass IDENTIFIER = eINSTANCE.getIdentifier();
 
 		/**
-		 * The meta object literal for the '<em><b>Ref</b></em>' reference feature.
+		 * The meta object literal for the '<em><b>Ref</b></em>' reference list feature.
 		 * <!-- begin-user-doc -->
 		 * <!-- end-user-doc -->
 		 * @generated

@@ -17,18 +17,16 @@ Feature returns Feature:
 SolitaryFeature returns SolitaryFeature:
 	'feature'
 	(required = SolitaryType)?
+	(type=SimpleType)?
 	name=EString
 	(
 	'{'
-		('type' type=SimpleType)?
-			(features += SolitaryFeature ( features += SolitaryFeature)* )?
-			//groups must be declared last
-			(groups += Group ( groups+=Group)* )?
+		(features += SolitaryFeature ( features += SolitaryFeature)* )?
+		//groups must be declared last
+		(groups += Group ( groups+=Group)* )?
 
 		('#' constraints+=Expression ( '#' constraints += Expression )* )?
 	'}'
-	|
-		'=' constraints+=Expression
 	)?
 ;
 
@@ -42,16 +40,14 @@ Group returns Group:
 
 GroupedFeature returns GroupedFeature:
 	{GroupedFeature}
+	(type=SimpleType)?
 	name=EString
 	(
 	'{'
-		('type' type=SimpleType)?
 			(groups += Group ( groups+=Group)* )?
 			(features += SolitaryFeature ( features += SolitaryFeature)* )?
 		('#' constraints+=Expression ( '#' constraints += Expression )* )?
 	'}'
-	|
-	'=' constraints+=Expression
 	)?
 ;
 
@@ -92,9 +88,9 @@ AtomicExp returns Expression:
 ;
 
 Identifier returns Identifier:
+	ref+=[Feature]
+	('.' ref+=[Feature])*
 	
-	ref=[Feature|EString]
-	('.' ref=[Feature|EString])*
 ;
 
 enum LogicalOperator returns BinaryOperator:

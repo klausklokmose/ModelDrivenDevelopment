@@ -12,6 +12,7 @@
       <genEnumLiterals ecoreEnumLiteral="featureModel.ecore#//SimpleType/int"/>
       <genEnumLiterals ecoreEnumLiteral="featureModel.ecore#//SimpleType/double"/>
       <genEnumLiterals ecoreEnumLiteral="featureModel.ecore#//SimpleType/String"/>
+      <genEnumLiterals ecoreEnumLiteral="featureModel.ecore#//SimpleType/nulltype"/>
     </genEnums>
     <genEnums typeSafeEnumCompatible="false" ecoreEnum="featureModel.ecore#//BinaryOperator">
       <genEnumLiterals ecoreEnumLiteral="featureModel.ecore#//BinaryOperator/Equals"/>

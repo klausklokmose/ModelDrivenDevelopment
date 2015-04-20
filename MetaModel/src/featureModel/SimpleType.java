@@ -56,7 +56,15 @@ public enum SimpleType implements Enumerator {
 	 * @generated
 	 * @ordered
 	 */
-	STRING(3, "String", "String");
+	STRING(3, "String", "String"), /**
+	 * The '<em><b>Nulltype</b></em>' literal object.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #NULLTYPE_VALUE
+	 * @generated
+	 * @ordered
+	 */
+	NULLTYPE(4, "nulltype", "nulltype");
 
 	/**
 	 * The '<em><b>Boolean</b></em>' literal value.
@@ -119,6 +127,21 @@ public enum SimpleType implements Enumerator {
 	public static final int STRING_VALUE = 3;
 
 	/**
+	 * The '<em><b>Nulltype</b></em>' literal value.
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * If the meaning of '<em><b>Nulltype</b></em>' literal object isn't clear,
+	 * there really should be more of a description here...
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @see #NULLTYPE
+	 * @model name="nulltype"
+	 * @generated
+	 * @ordered
+	 */
+	public static final int NULLTYPE_VALUE = 4;
+
+	/**
 	 * An array of all the '<em><b>Simple Type</b></em>' enumerators.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -130,6 +153,7 @@ public enum SimpleType implements Enumerator {
 			INT,
 			DOUBLE,
 			STRING,
+			NULLTYPE,
 		};
 
 	/**
@@ -184,6 +208,7 @@ public enum SimpleType implements Enumerator {
 			case INT_VALUE: return INT;
 			case DOUBLE_VALUE: return DOUBLE;
 			case STRING_VALUE: return STRING;
+			case NULLTYPE_VALUE: return NULLTYPE;
 		}
 		return null;
 	}

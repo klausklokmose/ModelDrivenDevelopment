@@ -5,13 +5,12 @@ package featureModel.impl;
 import featureModel.Feature;
 import featureModel.FeatureModelPackage;
 import featureModel.Identifier;
-
+import java.util.Collection;
 import org.eclipse.emf.common.notify.Notification;
-
+import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EClass;
-import org.eclipse.emf.ecore.InternalEObject;
-
 import org.eclipse.emf.ecore.impl.ENotificationImpl;
+import org.eclipse.emf.ecore.util.EObjectResolvingEList;
 
 /**
  * <!-- begin-user-doc -->
@@ -29,14 +28,14 @@ import org.eclipse.emf.ecore.impl.ENotificationImpl;
  */
 public class IdentifierImpl extends ExpressionImpl implements Identifier {
 	/**
-	 * The cached value of the '{@link #getRef() <em>Ref</em>}' reference.
+	 * The cached value of the '{@link #getRef() <em>Ref</em>}' reference list.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @see #getRef()
 	 * @generated
 	 * @ordered
 	 */
-	protected Feature ref;
+	protected EList<Feature> ref;
 
 	/**
 	 * The default value of the '{@link #getName() <em>Name</em>}' attribute.
@@ -82,37 +81,11 @@ public class IdentifierImpl extends ExpressionImpl implements Identifier {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public Feature getRef() {
-		if (ref != null && ref.eIsProxy()) {
-			InternalEObject oldRef = (InternalEObject)ref;
-			ref = (Feature)eResolveProxy(oldRef);
-			if (ref != oldRef) {
-				if (eNotificationRequired())
-					eNotify(new ENotificationImpl(this, Notification.RESOLVE, FeatureModelPackage.IDENTIFIER__REF, oldRef, ref));
-			}
+	public EList<Feature> getRef() {
+		if (ref == null) {
+			ref = new EObjectResolvingEList<Feature>(Feature.class, this, FeatureModelPackage.IDENTIFIER__REF);
 		}
 		return ref;
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public Feature basicGetRef() {
-		return ref;
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public void setRef(Feature newRef) {
-		Feature oldRef = ref;
-		ref = newRef;
-		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, FeatureModelPackage.IDENTIFIER__REF, oldRef, ref));
 	}
 
 	/**
@@ -145,8 +118,7 @@ public class IdentifierImpl extends ExpressionImpl implements Identifier {
 	public Object eGet(int featureID, boolean resolve, boolean coreType) {
 		switch (featureID) {
 			case FeatureModelPackage.IDENTIFIER__REF:
-				if (resolve) return getRef();
-				return basicGetRef();
+				return getRef();
 			case FeatureModelPackage.IDENTIFIER__NAME:
 				return getName();
 		}
@@ -158,11 +130,13 @@ public class IdentifierImpl extends ExpressionImpl implements Identifier {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	public void eSet(int featureID, Object newValue) {
 		switch (featureID) {
 			case FeatureModelPackage.IDENTIFIER__REF:
-				setRef((Feature)newValue);
+				getRef().clear();
+				getRef().addAll((Collection<? extends Feature>)newValue);
 				return;
 			case FeatureModelPackage.IDENTIFIER__NAME:
 				setName((String)newValue);
@@ -180,7 +154,7 @@ public class IdentifierImpl extends ExpressionImpl implements Identifier {
 	public void eUnset(int featureID) {
 		switch (featureID) {
 			case FeatureModelPackage.IDENTIFIER__REF:
-				setRef((Feature)null);
+				getRef().clear();
 				return;
 			case FeatureModelPackage.IDENTIFIER__NAME:
 				setName(NAME_EDEFAULT);
@@ -198,7 +172,7 @@ public class IdentifierImpl extends ExpressionImpl implements Identifier {
 	public boolean eIsSet(int featureID) {
 		switch (featureID) {
 			case FeatureModelPackage.IDENTIFIER__REF:
-				return ref != null;
+				return ref != null && !ref.isEmpty();
 			case FeatureModelPackage.IDENTIFIER__NAME:
 				return NAME_EDEFAULT == null ? name != null : !NAME_EDEFAULT.equals(name);
 		}

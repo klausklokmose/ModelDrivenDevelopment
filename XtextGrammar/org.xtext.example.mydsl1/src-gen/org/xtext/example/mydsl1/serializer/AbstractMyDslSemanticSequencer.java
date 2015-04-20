@@ -151,16 +151,9 @@ public abstract class AbstractMyDslSemanticSequencer extends AbstractDelegatingS
 	/**
 	 * Constraint:
 	 *     (
+	 *         type=SimpleType? 
 	 *         name=EString 
-	 *         (
-	 *             (
-	 *                 type=SimpleType? 
-	 *                 (groups+=Group groups+=Group*)? 
-	 *                 (features+=SolitaryFeature features+=SolitaryFeature*)? 
-	 *                 (constraints+=Expression constraints+=Expression*)?
-	 *             ) | 
-	 *             constraints+=Expression
-	 *         )?
+	 *         ((groups+=Group groups+=Group*)? (features+=SolitaryFeature features+=SolitaryFeature*)? (constraints+=Expression constraints+=Expression*)?)?
 	 *     )
 	 */
 	protected void sequence_GroupedFeature(EObject context, GroupedFeature semanticObject) {
@@ -170,7 +163,7 @@ public abstract class AbstractMyDslSemanticSequencer extends AbstractDelegatingS
 	
 	/**
 	 * Constraint:
-	 *     (ref=[Feature|EString] ref=[Feature|EString]*)
+	 *     (ref+=[Feature|ID] ref+=[Feature|ID]*)
 	 */
 	protected void sequence_Identifier(EObject context, Identifier semanticObject) {
 		genericSequencer.createSequence(context, semanticObject);
@@ -215,16 +208,9 @@ public abstract class AbstractMyDslSemanticSequencer extends AbstractDelegatingS
 	 * Constraint:
 	 *     (
 	 *         required=SolitaryType? 
+	 *         type=SimpleType? 
 	 *         name=EString 
-	 *         (
-	 *             (
-	 *                 type=SimpleType? 
-	 *                 (features+=SolitaryFeature features+=SolitaryFeature*)? 
-	 *                 (groups+=Group groups+=Group*)? 
-	 *                 (constraints+=Expression constraints+=Expression*)?
-	 *             ) | 
-	 *             constraints+=Expression
-	 *         )?
+	 *         ((features+=SolitaryFeature features+=SolitaryFeature*)? (groups+=Group groups+=Group*)? (constraints+=Expression constraints+=Expression*)?)?
 	 *     )
 	 */
 	protected void sequence_SolitaryFeature(EObject context, SolitaryFeature semanticObject) {

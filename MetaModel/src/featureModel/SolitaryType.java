@@ -26,7 +26,9 @@ public enum SolitaryType implements Enumerator {
 	 * @generated
 	 * @ordered
 	 */
-	MANDATORY(0, "Mandatory", "Mandatory"), /**
+	MANDATORY(0, "Mandatory", "Mandatory"),
+
+	/**
 	 * The '<em><b>Optional</b></em>' literal object.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->

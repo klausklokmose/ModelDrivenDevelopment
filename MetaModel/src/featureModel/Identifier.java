@@ -2,6 +2,8 @@
  */
 package featureModel;
 
+import org.eclipse.emf.common.util.EList;
+
 
 /**
  * <!-- begin-user-doc -->
@@ -22,30 +24,20 @@ package featureModel;
  */
 public interface Identifier extends Expression {
 	/**
-	 * Returns the value of the '<em><b>Ref</b></em>' reference.
+	 * Returns the value of the '<em><b>Ref</b></em>' reference list.
+	 * The list contents are of type {@link featureModel.Feature}.
 	 * <!-- begin-user-doc -->
 	 * <p>
 	 * If the meaning of the '<em>Ref</em>' reference isn't clear,
 	 * there really should be more of a description here...
 	 * </p>
 	 * <!-- end-user-doc -->
-	 * @return the value of the '<em>Ref</em>' reference.
-	 * @see #setRef(Feature)
+	 * @return the value of the '<em>Ref</em>' reference list.
 	 * @see featureModel.FeatureModelPackage#getIdentifier_Ref()
 	 * @model required="true"
 	 * @generated
 	 */
-	Feature getRef();
-
-	/**
-	 * Sets the value of the '{@link featureModel.Identifier#getRef <em>Ref</em>}' reference.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @param value the new value of the '<em>Ref</em>' reference.
-	 * @see #getRef()
-	 * @generated
-	 */
-	void setRef(Feature value);
+	EList<Feature> getRef();
 
 	/**
 	 * Returns the value of the '<em><b>Name</b></em>' attribute.

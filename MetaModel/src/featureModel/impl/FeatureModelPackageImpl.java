@@ -656,7 +656,7 @@ public class FeatureModelPackageImpl extends EPackageImpl implements FeatureMode
 		initEAttribute(getNumber_Value(), ecorePackage.getEInt(), "value", null, 1, 1, featureModel.Number.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		initEClass(identifierEClass, Identifier.class, "Identifier", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
-		initEReference(getIdentifier_Ref(), this.getFeature(), null, "ref", null, 1, 1, Identifier.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEReference(getIdentifier_Ref(), this.getFeature(), null, "ref", null, 1, -1, Identifier.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getIdentifier_Name(), ecorePackage.getEString(), "name", null, 0, 1, Identifier.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		// Initialize enums and add enum literals
@@ -665,6 +665,7 @@ public class FeatureModelPackageImpl extends EPackageImpl implements FeatureMode
 		addEEnumLiteral(simpleTypeEEnum, SimpleType.INT);
 		addEEnumLiteral(simpleTypeEEnum, SimpleType.DOUBLE);
 		addEEnumLiteral(simpleTypeEEnum, SimpleType.STRING);
+		addEEnumLiteral(simpleTypeEEnum, SimpleType.NULLTYPE);
 
 		initEEnum(binaryOperatorEEnum, BinaryOperator.class, "BinaryOperator");
 		addEEnumLiteral(binaryOperatorEEnum, BinaryOperator.EQUALS);
