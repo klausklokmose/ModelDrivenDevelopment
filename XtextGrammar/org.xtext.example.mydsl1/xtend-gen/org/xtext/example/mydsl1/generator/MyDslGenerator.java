@@ -3,9 +3,21 @@
  */
 package org.xtext.example.mydsl1.generator;
 
+import com.google.common.base.Objects;
+import featureModel.Feature;
+import featureModel.Group;
+import featureModel.GroupedFeature;
+import featureModel.Model;
+import featureModel.SimpleType;
+import featureModel.SolitaryFeature;
+import featureModel.SolitaryType;
+import org.eclipse.emf.common.util.EList;
+import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
+import org.eclipse.xtend2.lib.StringConcatenation;
 import org.eclipse.xtext.generator.IFileSystemAccess;
 import org.eclipse.xtext.generator.IGenerator;
+import org.eclipse.xtext.xbase.lib.IterableExtensions;
 
 /**
  * Generates code from your model files on save.
@@ -15,5 +27,255 @@ import org.eclipse.xtext.generator.IGenerator;
 @SuppressWarnings("all")
 public class MyDslGenerator implements IGenerator {
   public void doGenerate(final Resource resource, final IFileSystemAccess fsa) {
+    EList<EObject> _contents = resource.getContents();
+    EObject _head = IterableExtensions.<EObject>head(_contents);
+    CharSequence _hTML = this.toHTML(((Model) _head));
+    fsa.generateFile("pokemon.html", _hTML);
+  }
+  
+  public CharSequence toHTML(final Model model) {
+    StringConcatenation _builder = new StringConcatenation();
+    _builder.append("<!doctype html>");
+    _builder.newLine();
+    _builder.append("\t");
+    _builder.append("<html>");
+    _builder.newLine();
+    _builder.append("\t\t");
+    _builder.append("<head>");
+    _builder.newLine();
+    _builder.append("\t\t\t");
+    _builder.append("<title>");
+    _builder.newLine();
+    _builder.append("\t\t\t");
+    {
+      EList<Feature> _rootFeature = model.getRootFeature();
+      for(final Feature root : _rootFeature) {
+        _builder.append(" ");
+        String _name = root.getName();
+        _builder.append(_name, "\t\t\t");
+        _builder.append(" : ");
+      }
+    }
+    _builder.newLineIfNotEmpty();
+    _builder.append("\t\t\t");
+    _builder.append("</title>");
+    _builder.newLine();
+    _builder.append("\t\t");
+    _builder.append("</head>");
+    _builder.newLine();
+    _builder.append("\t\t");
+    _builder.append("<body>");
+    _builder.newLine();
+    {
+      EList<Feature> _rootFeature_1 = model.getRootFeature();
+      for(final Feature root_1 : _rootFeature_1) {
+        _builder.append("\t\t\t");
+        _builder.append("<h1>");
+        _builder.newLine();
+        _builder.append("\t\t\t");
+        String _name_1 = root_1.getName();
+        _builder.append(_name_1, "\t\t\t");
+        _builder.newLineIfNotEmpty();
+        _builder.append("\t\t\t");
+        _builder.append("</h1>");
+        _builder.newLine();
+        _builder.append("\t\t\t");
+        _builder.append("<form> ");
+        _builder.newLine();
+        _builder.append("\t\t\t");
+        _builder.append("\t");
+        String _featureCode = this.getFeatureCode(root_1);
+        _builder.append(_featureCode, "\t\t\t\t");
+        _builder.newLineIfNotEmpty();
+        _builder.append("\t\t\t");
+        _builder.append("\t");
+        _builder.append("<br>");
+        _builder.newLine();
+        _builder.append("\t\t\t");
+        _builder.append("\t");
+        _builder.newLine();
+        _builder.append("\t\t\t");
+        _builder.append("\t");
+        _builder.append("<input type=\"submit\" name=\"form\" value=\"submit\">");
+        _builder.newLine();
+        _builder.append("\t\t\t");
+        _builder.append("</form>");
+        _builder.newLine();
+      }
+    }
+    {
+      EList<Feature> _rootFeature_2 = model.getRootFeature();
+      for(final Feature root_2 : _rootFeature_2) {
+        _builder.append("\t\t\t");
+        _builder.append("\t");
+        _builder.newLine();
+      }
+    }
+    _builder.append("\t\t");
+    _builder.append("</body>");
+    _builder.newLine();
+    _builder.append("\t");
+    _builder.append("</html>");
+    _builder.newLine();
+    return _builder;
+  }
+  
+  public String getFeatureCode(final Feature f) {
+    StringConcatenation _builder = new StringConcatenation();
+    {
+      boolean _notEquals = (!Objects.equal(f, null));
+      if (_notEquals) {
+        {
+          EList<SolitaryFeature> _features = f.getFeatures();
+          for(final SolitaryFeature feature : _features) {
+            _builder.append(" ");
+            _builder.append("<fieldset>");
+            _builder.newLine();
+            {
+              SimpleType _type = feature.getType();
+              boolean _equals = Objects.equal(_type, SimpleType.BOOLEAN);
+              if (_equals) {
+                {
+                  SolitaryType _required = feature.getRequired();
+                  boolean _equals_1 = Objects.equal(_required, SolitaryType.OPTIONAL);
+                  if (_equals_1) {
+                    _builder.append("<br>");
+                    _builder.newLine();
+                    _builder.append("<input type=\"checkbox\" id=\"");
+                    String _name = feature.getName();
+                    String _lowerCase = _name.toLowerCase();
+                    _builder.append(_lowerCase, "");
+                    _builder.append("\" name=\"");
+                    String _name_1 = f.getName();
+                    _builder.append(_name_1, "");
+                    _builder.append("\" value=\"");
+                    String _name_2 = feature.getName();
+                    String _lowerCase_1 = _name_2.toLowerCase();
+                    _builder.append(_lowerCase_1, "");
+                    _builder.append("\"> ");
+                    String _name_3 = feature.getName();
+                    _builder.append(_name_3, "");
+                    _builder.append(" <br>");
+                    _builder.newLineIfNotEmpty();
+                  } else {
+                    _builder.append("<legend>");
+                    String _name_4 = feature.getName();
+                    _builder.append(_name_4, "");
+                    _builder.append("*</legend>");
+                    _builder.newLineIfNotEmpty();
+                  }
+                }
+              } else {
+                String _name_5 = feature.getName();
+                _builder.append(_name_5, "");
+                _builder.append(":");
+                _builder.newLineIfNotEmpty();
+                _builder.append("<input type=\"text\" id=\"");
+                String _name_6 = feature.getName();
+                String _lowerCase_2 = _name_6.toLowerCase();
+                _builder.append(_lowerCase_2, "");
+                _builder.append("\" name=\"");
+                String _name_7 = feature.getName();
+                String _lowerCase_3 = _name_7.toLowerCase();
+                _builder.append(_lowerCase_3, "");
+                _builder.append("\"> <br>");
+                _builder.newLineIfNotEmpty();
+              }
+            }
+            String _featureCode = this.getFeatureCode(feature);
+            _builder.append(_featureCode, "");
+            _builder.newLineIfNotEmpty();
+            _builder.append("</fieldset>");
+            _builder.newLine();
+          }
+        }
+        {
+          EList<Group> _groups = f.getGroups();
+          for(final Group g : _groups) {
+            String _groupCode = this.getGroupCode(g, f);
+            _builder.append(_groupCode, "");
+            _builder.newLineIfNotEmpty();
+          }
+        }
+        _builder.newLine();
+      }
+    }
+    return _builder.toString();
+  }
+  
+  public String getGroupCode(final Group g, final Feature f) {
+    StringConcatenation _builder = new StringConcatenation();
+    {
+      boolean _notEquals = (!Objects.equal(g, null));
+      if (_notEquals) {
+        {
+          boolean _isInclusive = g.isInclusive();
+          if (_isInclusive) {
+            {
+              EList<GroupedFeature> _groupedFeatures = g.getGroupedFeatures();
+              for(final GroupedFeature gf : _groupedFeatures) {
+                _builder.append("<br> ");
+                _builder.newLine();
+                _builder.append("<input type=\"checkbox\" id=\"");
+                String _name = gf.getName();
+                String _lowerCase = _name.toLowerCase();
+                _builder.append(_lowerCase, "");
+                _builder.append("\" name=\"");
+                String _name_1 = f.getName();
+                _builder.append(_name_1, "");
+                _builder.append("\" value=\"");
+                String _name_2 = gf.getName();
+                String _lowerCase_1 = _name_2.toLowerCase();
+                _builder.append(_lowerCase_1, "");
+                _builder.append("\"> ");
+                _builder.newLineIfNotEmpty();
+                String _name_3 = gf.getName();
+                _builder.append(_name_3, "");
+                _builder.append(" ");
+                _builder.newLineIfNotEmpty();
+                _builder.append("\t");
+                String _featureCode = this.getFeatureCode(gf);
+                _builder.append(_featureCode, "\t");
+                _builder.newLineIfNotEmpty();
+              }
+            }
+          } else {
+            _builder.append(" ");
+            _builder.append("\t\t\t\t<select name=\"");
+            String _name_4 = f.getName();
+            _builder.append(_name_4, "");
+            _builder.append("\">");
+            _builder.newLineIfNotEmpty();
+            {
+              EList<GroupedFeature> _groupedFeatures_1 = g.getGroupedFeatures();
+              for(final GroupedFeature gf_1 : _groupedFeatures_1) {
+                _builder.append("\t");
+                _builder.append("<br> <option value=\"");
+                String _name_5 = gf_1.getName();
+                String _lowerCase_2 = _name_5.toLowerCase();
+                _builder.append(_lowerCase_2, "\t");
+                _builder.append("\">");
+                String _name_6 = gf_1.getName();
+                _builder.append(_name_6, "\t");
+                _builder.append("</option> ");
+                _builder.newLineIfNotEmpty();
+                _builder.append("\t");
+                _builder.append("\t");
+                String _featureCode_1 = this.getFeatureCode(gf_1);
+                _builder.append(_featureCode_1, "\t\t");
+                _builder.newLineIfNotEmpty();
+              }
+            }
+            _builder.append("\t");
+            _builder.append("</select>");
+            _builder.newLine();
+          }
+        }
+        _builder.append("\t");
+        _builder.append("<br>");
+        _builder.newLine();
+      }
+    }
+    return _builder.toString();
   }
 }

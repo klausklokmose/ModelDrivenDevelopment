@@ -16,8 +16,6 @@ import featureModel.UnaryOperator;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.xtext.validation.Check;
 import org.eclipse.xtext.xbase.lib.Exceptions;
-import org.eclipse.xtext.xbase.lib.Functions.Function1;
-import org.eclipse.xtext.xbase.lib.IterableExtensions;
 import org.xtext.example.mydsl1.validation.AbstractMyDslValidator;
 
 /**
@@ -30,16 +28,7 @@ public class MyDslValidator extends AbstractMyDslValidator {
   @Check
   public void TopConstraintShouldBeBoolean(final Feature f) {
     EList<Expression> _constraints = f.getConstraints();
-    final Function1<Expression, Boolean> _function = new Function1<Expression, Boolean>() {
-      public Boolean apply(final Expression topConstraint) {
-        SimpleType _type = MyDslValidator.this.getType(topConstraint);
-        SimpleType _get = SimpleType.get("boolean");
-        return Boolean.valueOf(Objects.equal(_type, _get));
-      }
-    };
-    IterableExtensions.<Expression>forall(_constraints, _function);
-    EList<Expression> _constraints_1 = f.getConstraints();
-    for (final Expression constraint : _constraints_1) {
+    for (final Expression constraint : _constraints) {
       SimpleType _type = this.getType(constraint);
       SimpleType _get = SimpleType.get("boolean");
       boolean _equals = Objects.equal(_type, _get);
@@ -188,8 +177,7 @@ public class MyDslValidator extends AbstractMyDslValidator {
                     if (_and) {
                       _xifexpression_7 = ltype;
                     } else {
-                      throw new Exception(
-                        "invalid type");
+                      throw new Exception("invalid type");
                     }
                     _xifexpression_6 = _xifexpression_7;
                   }
@@ -265,7 +253,7 @@ public class MyDslValidator extends AbstractMyDslValidator {
             _xifexpression_2 = _xblockexpression_2;
           } else {
             SimpleType _xifexpression_3 = null;
-            if ((e instanceof featureModel.Number)) {
+            if ((e instanceof Number)) {
               _xifexpression_3 = SimpleType.get("int");
             } else {
               SimpleType _xifexpression_4 = null;

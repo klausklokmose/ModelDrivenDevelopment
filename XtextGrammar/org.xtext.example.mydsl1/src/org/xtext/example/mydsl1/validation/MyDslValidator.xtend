@@ -3,7 +3,15 @@
  */
 package org.xtext.example.mydsl1.validation
 
-import featureModel.*
+import featureModel.BinaryOperation
+import featureModel.BinaryOperator
+import featureModel.Expression
+import featureModel.Feature
+import featureModel.Identifier
+import featureModel.NULL
+import featureModel.SimpleType
+import featureModel.UnaryOperation
+import featureModel.UnaryOperator
 import org.eclipse.xtext.validation.Check
 
 //import org.eclipse.xtext.validation.Check
@@ -26,7 +34,7 @@ class MyDslValidator extends AbstractMyDslValidator {
 	//	}
 	@Check
 	def TopConstraintShouldBeBoolean(Feature f) {
-		f.constraints.forall[topConstraint | getType(topConstraint) == SimpleType.get('boolean')]
+//		f.constraints.forall[topConstraint | getType(topConstraint) == SimpleType.get('boolean')]
 		
 		for (Expression constraint : f.constraints) {
 			if (!(getType(constraint) == SimpleType.get('boolean'))){
@@ -64,8 +72,7 @@ class MyDslValidator extends AbstractMyDslValidator {
 					) {
 						ltype
 					} else {
-						throw new Exception(
-							"invalid type")
+						throw new Exception("invalid type")
 					}
 				}
 			}
@@ -87,7 +94,7 @@ class MyDslValidator extends AbstractMyDslValidator {
 		} else{
 			SimpleType.get('nulltype')
 		}
-		
+		//TODO add True and False as expressions
 	}
 
 }
