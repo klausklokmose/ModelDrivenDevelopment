@@ -102,6 +102,7 @@ public class MyDslGenerator implements IGenerator {
     _builder.append("function check(){");
     _builder.newLine();
     _builder.append("\t\t\t\t\t");
+    _builder.append("var message = \"\";");
     _builder.newLine();
     {
       EList<Feature> _rootFeature_2 = model.getRootFeature();
@@ -124,6 +125,15 @@ public class MyDslGenerator implements IGenerator {
         }
       }
     }
+    _builder.append("\t\t\t\t\t");
+    _builder.append("if( message != \"\" ){");
+    _builder.newLine();
+    _builder.append("\t\t\t\t\t\t");
+    _builder.append("alert(message); ");
+    _builder.newLine();
+    _builder.append("\t\t\t\t\t");
+    _builder.append("}");
+    _builder.newLine();
     _builder.append("\t\t\t\t");
     _builder.append("}//END CHECK()");
     _builder.newLine();
@@ -152,6 +162,8 @@ public class MyDslGenerator implements IGenerator {
     _builder.newLine();
     _builder.append("\t\t\t\t");
     _builder.append("}");
+    _builder.newLine();
+    _builder.append("\t\t\t\t");
     _builder.newLine();
     _builder.append("\t\t\t\t");
     _builder.append("function getChecked(id){");
@@ -228,6 +240,8 @@ public class MyDslGenerator implements IGenerator {
     _builder.newLine();
     _builder.append("\t\t\t\t");
     _builder.append("}");
+    _builder.newLine();
+    _builder.append("\t\t\t\t");
     _builder.newLine();
     _builder.append("\t\t\t");
     _builder.append("</script>");
@@ -436,10 +450,14 @@ public class MyDslGenerator implements IGenerator {
         _builder.append(")){");
         _builder.newLineIfNotEmpty();
         _builder.append("\t\t");
-        _builder.append("alert(\'");
-        _builder.append(binOp, "\t\t");
-        _builder.append("\');");
+        _builder.append("message += \"error: ");
+        String _constraintsText = this.getConstraintsText(c, name);
+        _builder.append(_constraintsText, "\t\t");
+        _builder.append("\";");
         _builder.newLineIfNotEmpty();
+        _builder.append("\t\t");
+        _builder.append("message += \"\\n\";");
+        _builder.newLine();
         _builder.append("\t");
         _builder.append("}");
         _builder.newLine();
@@ -458,7 +476,13 @@ public class MyDslGenerator implements IGenerator {
           _builder.append(")){");
           _builder.newLineIfNotEmpty();
           _builder.append("\t\t");
-          _builder.append("alert(\'error2Unary\');");
+          _builder.append("message += \"error: ");
+          String _constraintsText_1 = this.getConstraintsText(c, name);
+          _builder.append(_constraintsText_1, "\t\t");
+          _builder.append("\";");
+          _builder.newLineIfNotEmpty();
+          _builder.append("\t\t");
+          _builder.append("message += \"\\n\";");
           _builder.newLine();
           _builder.append("\t");
           _builder.append("}");
@@ -606,7 +630,7 @@ public class MyDslGenerator implements IGenerator {
                 return (((("getItem(getID(\"" + name) + ".") + newName) + "\")).checked");
               }
             } else {
-              return (((("getItem(getID(\"" + name) + ".") + newName) + "\")).value}");
+              return (((("getItem(getID(\"" + name) + ".") + newName) + "\")).value");
             }
           } else {
             if ((ref instanceof GroupedFeature)) {
@@ -646,5 +670,137 @@ public class MyDslGenerator implements IGenerator {
     int _length = result.length();
     int _minus = (_length - 1);
     return result.substring(0, _minus);
+  }
+  
+  public String getConstraintsText(final Expression c, final String name) {
+    if ((c instanceof BinaryOperation)) {
+      final BinaryOperation binOp = ((BinaryOperation) c);
+      Expression _lexp = binOp.getLexp();
+      String _variableText = this.getVariableText(_lexp, name);
+      BinaryOperator _operator = binOp.getOperator();
+      String _binaryOperator = this.getBinaryOperator(_operator);
+      String _plus = (_variableText + _binaryOperator);
+      Expression _rexp = binOp.getRexp();
+      String _variableText_1 = this.getVariableText(_rexp, name);
+      return (_plus + _variableText_1);
+    } else {
+      if ((c instanceof UnaryOperation)) {
+        final UnaryOperation unOp = ((UnaryOperation) c);
+        UnaryOperator _operator_1 = unOp.getOperator();
+        String _unaryOperator = this.getUnaryOperator(_operator_1);
+        Expression _exp = unOp.getExp();
+        String _variableText_2 = this.getVariableText(_exp, name);
+        return (_unaryOperator + _variableText_2);
+      } else {
+        if ((c instanceof Identifier)) {
+          final Identifier id = ((Identifier) c);
+          EList<Feature> _ref = id.getRef();
+          EList<Feature> _ref_1 = id.getRef();
+          int _size = _ref_1.size();
+          int _minus = (_size - 1);
+          Feature _get = _ref.get(_minus);
+          SimpleType _type = _get.getType();
+          boolean _equals = Objects.equal(_type, SimpleType.BOOLEAN);
+          if (_equals) {
+            EList<Feature> _ref_2 = id.getRef();
+            EList<Feature> _ref_3 = id.getRef();
+            int _size_1 = _ref_3.size();
+            int _minus_1 = (_size_1 - 1);
+            Feature _get_1 = _ref_2.get(_minus_1);
+            final SolitaryFeature i = ((SolitaryFeature) _get_1);
+            SolitaryType _required = i.getRequired();
+            SolitaryType _get_2 = SolitaryType.get("Mandatory");
+            boolean _equals_1 = Objects.equal(_required, _get_2);
+            if (_equals_1) {
+              return i.getName();
+            } else {
+              String _name = i.getName();
+              return ((name + ".") + _name);
+            }
+          }
+        }
+      }
+    }
+    return null;
+  }
+  
+  public String getVariableText(final Expression ex, final String name) {
+    String _xifexpression = null;
+    if ((ex instanceof BinaryOperation)) {
+      final BinaryOperation e = ((BinaryOperation) ex);
+      Expression _lexp = e.getLexp();
+      String _variableText = this.getVariableText(_lexp, name);
+      String _plus = ("(" + _variableText);
+      String _plus_1 = (_plus + " ");
+      BinaryOperator _operator = e.getOperator();
+      String _binaryOperator = this.getBinaryOperator(_operator);
+      String _plus_2 = (_plus_1 + _binaryOperator);
+      String _plus_3 = (_plus_2 + " ");
+      Expression _rexp = e.getRexp();
+      String _variableText_1 = this.getVariableText(_rexp, name);
+      String _plus_4 = (_plus_3 + _variableText_1);
+      return (_plus_4 + ")");
+    } else {
+      String _xifexpression_1 = null;
+      if ((ex instanceof UnaryOperation)) {
+        final UnaryOperation e_1 = ((UnaryOperation) ex);
+        UnaryOperator _operator_1 = e_1.getOperator();
+        String _unaryOperator = this.getUnaryOperator(_operator_1);
+        String _plus_5 = ("(" + _unaryOperator);
+        Expression _exp = e_1.getExp();
+        String _variableText_2 = this.getVariableText(_exp, name);
+        String _plus_6 = (_plus_5 + _variableText_2);
+        return (_plus_6 + ")");
+      } else {
+        String _xifexpression_2 = null;
+        if ((ex instanceof Identifier)) {
+          final Identifier id = ((Identifier) ex);
+          EList<Feature> _ref = id.getRef();
+          EList<Feature> _ref_1 = id.getRef();
+          int _size = _ref_1.size();
+          int _minus = (_size - 1);
+          final Feature ref = _ref.get(_minus);
+          EList<Feature> _ref_2 = id.getRef();
+          final String newName = this.concatNames(_ref_2);
+          if ((ref instanceof SolitaryFeature)) {
+            final SolitaryFeature feat = ((SolitaryFeature) ref);
+            SimpleType _type = feat.getType();
+            boolean _equals = Objects.equal(_type, SimpleType.BOOLEAN);
+            if (_equals) {
+              SolitaryType _required = feat.getRequired();
+              boolean _equals_1 = Objects.equal(_required, SolitaryType.MANDATORY);
+              if (_equals_1) {
+                return "true";
+              } else {
+                return ((name + ".") + newName);
+              }
+            } else {
+              return ((name + ".") + newName);
+            }
+          } else {
+            if ((ref instanceof GroupedFeature)) {
+              return ((name + ".") + newName);
+            }
+          }
+        } else {
+          String _xifexpression_3 = null;
+          if ((ex instanceof featureModel.Number)) {
+            final featureModel.Number e_2 = ((featureModel.Number) ex);
+            int _value = e_2.getValue();
+            return ("" + Integer.valueOf(_value));
+          } else {
+            String _xifexpression_4 = null;
+            if ((ex instanceof NULL)) {
+              _xifexpression_4 = null;
+            }
+            _xifexpression_3 = _xifexpression_4;
+          }
+          _xifexpression_2 = _xifexpression_3;
+        }
+        _xifexpression_1 = _xifexpression_2;
+      }
+      _xifexpression = _xifexpression_1;
+    }
+    return _xifexpression;
   }
 }

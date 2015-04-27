@@ -47,7 +47,7 @@ class MyDslGenerator implements IGenerator {
 					
 					<script>
 						function check(){
-							
+							var message = "";
 						«FOR root : model.rootFeature»
 	«««						constraints javascript go here
 							«FOR c : root.constraints»
@@ -56,8 +56,12 @@ class MyDslGenerator implements IGenerator {
 								
 							«ENDFOR»
 						«ENDFOR»
+							if( message != "" ){
+								alert(message); 
+							}
 						}//END CHECK()
 						
+«««						HELPER JAVASCRIPT CODE
 						function getS(id){
 							var item = getItem(getID(id));
 							if(item.type && (item.type === 'checkbox')){
@@ -66,6 +70,7 @@ class MyDslGenerator implements IGenerator {
 								return isItemSelected(id);
 							}
 						}
+						
 						function getChecked(id){
 							return getItem(getID(id)).checked;
 						}
@@ -93,6 +98,7 @@ class MyDslGenerator implements IGenerator {
 							var sub = str.substring(0, i);
 							return getID(sub);
 						}
+						
 					</script>
 				</body>
 			</html>
@@ -142,12 +148,15 @@ class MyDslGenerator implements IGenerator {
 	'''«IF(c instanceof BinaryOperation)»
 			«val binOp = c as BinaryOperation»
 				if(!(«getvariableCode(binOp.lexp, name)» «getBinaryOperator(binOp.operator)» «getvariableCode(binOp.rexp, name)»)){
-					alert('«binOp»');
+					message += "error: «getConstraintsText(c, name)»";
+					message += "\n";
 				}
 		«ELSEIF (c instanceof UnaryOperation)»
 			«val unOp = c as UnaryOperation»
 				if(!(«getUnaryOperator(unOp.operator)»«getvariableCode(unOp.exp, name)»)){
-					alert('error2Unary');
+«««					alert('error2Unary');
+					message += "error: «getConstraintsText(c, name)»";
+					message += "\n";
 				}
 		«ELSEIF (c instanceof Identifier)»
 			«val id = c as Identifier»
@@ -159,13 +168,6 @@ class MyDslGenerator implements IGenerator {
 			
 		«ELSEIF (c instanceof Number)»
 		«ENDIF»'''
-	
-//	def String getBinaryOperator(BinaryOperator op)
-//	'''«IF op == BinaryOperator.AND»&&
-//	«ELSEIF op == BinaryOperator.OR»||
-//	«ELSEIF op == BinaryOperator.EQUALS»==
-//	«ELSEIF op == BinaryOperator.LOWER»
-//	<«ELSEIF op == BinaryOperator.HIGHER»>«ENDIF»'''
 	
 	def String getBinaryOperator(BinaryOperator op){
 		if(op == BinaryOperator.AND)
@@ -211,7 +213,7 @@ class MyDslGenerator implements IGenerator {
 						return "getItem(getID(\""+name+"."+newName+"\")).checked"
 					}
 				}else{
-					return "getItem(getID(\""+name+"."+newName+"\")).value}"
+					return "getItem(getID(\""+name+"."+newName+"\")).value"
 				}
 			}else if(ref instanceof GroupedFeature){
 				return "getS(\""+name+"."+newName+"\")"
@@ -231,5 +233,60 @@ class MyDslGenerator implements IGenerator {
 			result +=f.name+'.'
 		}
 		return result.substring(0, result.length-1)
+	}
+	
+	def String getConstraintsText(Expression c, String name){
+		if(c instanceof BinaryOperation){
+			val binOp = c as BinaryOperation
+			return getVariableText(binOp.lexp, name)+getBinaryOperator(binOp.operator)+getVariableText(binOp.rexp, name)
+		}else if (c instanceof UnaryOperation){
+			val unOp = c as UnaryOperation
+			return getUnaryOperator(unOp.operator)+getVariableText(unOp.exp, name)
+		}else if(c instanceof Identifier){
+			val id = c as Identifier
+			if (id.ref.get(id.ref.size - 1).type == SimpleType.BOOLEAN){
+				val i = id.ref.get(id.ref.size - 1) as SolitaryFeature
+				if(i.required == SolitaryType.get("Mandatory"))	
+					return i.name
+				else
+					return name+"."+i.name
+			}
+		}
+	}
+	def String getVariableText(Expression ex, String name){
+		if(ex instanceof BinaryOperation){
+			val e = ex as BinaryOperation
+//			(lexp op rexp)
+			return "("+getVariableText(e.lexp, name)+" "+getBinaryOperator(e.operator)+" "+getVariableText(e.rexp, name)+")"
+		}else if(ex instanceof UnaryOperation){
+			val e = ex as UnaryOperation
+//			(op exp)
+			return "("+getUnaryOperator(e.operator)+getVariableText(e.exp, name)+")"
+		}else if (ex instanceof Identifier){
+			val id = ex as Identifier
+			val ref = id.ref.get(id.ref.size - 1)
+			val newName = concatNames(id.ref)
+//			SOLITARY
+			if (ref instanceof SolitaryFeature){
+				val feat = ref as SolitaryFeature
+				if (feat.type == SimpleType.BOOLEAN){
+					if(feat.required == SolitaryType.MANDATORY) 
+						return "true"
+					else{
+						return name+"."+newName
+					}
+				}else{
+					return name+"."+newName
+				}
+			}else if(ref instanceof GroupedFeature){
+				return name+"."+newName
+			}
+		}else if(ex instanceof Number){
+			val e = ex as Number
+			return ""+e.value
+		}
+		else if(ex instanceof NULL){
+			null
+		}
 	}
 }

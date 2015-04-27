@@ -14,7 +14,6 @@ import featureModel.UnaryOperation
 import featureModel.UnaryOperator
 import org.eclipse.xtext.validation.Check
 
-//import org.eclipse.xtext.validation.Check
 /**
  * Custom validation rules. 
  *
@@ -22,16 +21,6 @@ import org.eclipse.xtext.validation.Check
  */
 class MyDslValidator extends AbstractMyDslValidator {
 
-	//  public static val INVALID_NAME = 'invalidName'
-	//
-	//	@Check
-	//	def checkGreetingStartsWithCapital(Greeting greeting) {
-	//		if (!Character.isUpperCase(greeting.name.charAt(0))) {
-	//			warning('Name should start with a capital', 
-	//					MyDslPackage.Literals.GREETING__NAME,
-	//					INVALID_NAME)
-	//		}
-	//	}
 	@Check
 	def TopConstraintShouldBeBoolean(Feature f) {
 //		f.constraints.forall[topConstraint | getType(topConstraint) == SimpleType.get('boolean')]
@@ -44,10 +33,11 @@ class MyDslValidator extends AbstractMyDslValidator {
 	}
 
 	def SimpleType getType(Expression e) {
-
+//Identifier
 		if (e instanceof Identifier) {
 			val id = e as Identifier
 			id.ref.get(id.ref.size - 1).type
+//BinaryOperation
 		} else if (e instanceof BinaryOperation) {
 			val binOp = e as BinaryOperation
 			val left = binOp.lexp
@@ -76,19 +66,21 @@ class MyDslValidator extends AbstractMyDslValidator {
 					}
 				}
 			}
+//UnaryOperation
 		} else if (e instanceof UnaryOperation) {
 			val ex = e as UnaryOperation
 			val extype = getType(ex.exp)
-			if(
-				(ex.operator == UnaryOperator.get('Not') && (extype == SimpleType.get('boolean') || extype == SimpleType.get('nulltype') ))
+			if( (ex.operator == UnaryOperator.get('Not') && (extype == SimpleType.get('boolean') || extype == SimpleType.get('nulltype') ))
 					|| 
 				(ex.operator == UnaryOperator.get('Minus') && (extype == SimpleType.get('int') || extype == SimpleType.get('double'))) ){
 				extype
 			}else{
 				throw new Exception("invalid type")
 			}
+//Number
 		} else if (e instanceof Number) {
 			SimpleType.get('int')
+//NULL
 		} else if(e instanceof NULL){
 			SimpleType.get('nulltype')
 		} else{
