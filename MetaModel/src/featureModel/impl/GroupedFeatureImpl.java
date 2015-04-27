@@ -4,7 +4,6 @@ package featureModel.impl;
 
 import featureModel.FeatureModelPackage;
 import featureModel.GroupedFeature;
-
 import org.eclipse.emf.ecore.EClass;
 
 /**

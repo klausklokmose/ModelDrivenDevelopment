@@ -4,13 +4,20 @@
 package org.xtext.example.mydsl1.generator;
 
 import com.google.common.base.Objects;
+import featureModel.BinaryOperation;
+import featureModel.BinaryOperator;
+import featureModel.Expression;
 import featureModel.Feature;
 import featureModel.Group;
 import featureModel.GroupedFeature;
+import featureModel.Identifier;
 import featureModel.Model;
+import featureModel.NULL;
 import featureModel.SimpleType;
 import featureModel.SolitaryFeature;
 import featureModel.SolitaryType;
+import featureModel.UnaryOperation;
+import featureModel.UnaryOperator;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
@@ -19,11 +26,6 @@ import org.eclipse.xtext.generator.IFileSystemAccess;
 import org.eclipse.xtext.generator.IGenerator;
 import org.eclipse.xtext.xbase.lib.IterableExtensions;
 
-/**
- * Generates code from your model files on save.
- * 
- * see http://www.eclipse.org/Xtext/documentation.html#TutorialCodeGeneration
- */
 @SuppressWarnings("all")
 public class MyDslGenerator implements IGenerator {
   public void doGenerate(final Resource resource, final IFileSystemAccess fsa) {
@@ -45,21 +47,17 @@ public class MyDslGenerator implements IGenerator {
     _builder.newLine();
     _builder.append("\t\t\t");
     _builder.append("<title>");
-    _builder.newLine();
-    _builder.append("\t\t\t");
     {
       EList<Feature> _rootFeature = model.getRootFeature();
       for(final Feature root : _rootFeature) {
         _builder.append(" ");
         String _name = root.getName();
         _builder.append(_name, "\t\t\t");
-        _builder.append(" : ");
+        _builder.append(": ");
       }
     }
-    _builder.newLineIfNotEmpty();
-    _builder.append("\t\t\t");
     _builder.append("</title>");
-    _builder.newLine();
+    _builder.newLineIfNotEmpty();
     _builder.append("\t\t");
     _builder.append("</head>");
     _builder.newLine();
@@ -71,46 +69,169 @@ public class MyDslGenerator implements IGenerator {
       for(final Feature root_1 : _rootFeature_1) {
         _builder.append("\t\t\t");
         _builder.append("<h1>");
-        _builder.newLine();
-        _builder.append("\t\t\t");
         String _name_1 = root_1.getName();
         _builder.append(_name_1, "\t\t\t");
-        _builder.newLineIfNotEmpty();
-        _builder.append("\t\t\t");
         _builder.append("</h1>");
-        _builder.newLine();
+        _builder.newLineIfNotEmpty();
         _builder.append("\t\t\t");
-        _builder.append("<form> ");
+        _builder.append("<form action=\"javascript:check()\">");
         _builder.newLine();
         _builder.append("\t\t\t");
         _builder.append("\t");
-        String _featureCode = this.getFeatureCode(root_1);
+        String _name_2 = root_1.getName();
+        String _lowerCase = _name_2.toLowerCase();
+        String _featureCode = this.getFeatureCode(root_1, _lowerCase);
         _builder.append(_featureCode, "\t\t\t\t");
+        _builder.append("<br>");
         _builder.newLineIfNotEmpty();
         _builder.append("\t\t\t");
         _builder.append("\t");
-        _builder.append("<br>");
-        _builder.newLine();
-        _builder.append("\t\t\t");
-        _builder.append("\t");
-        _builder.newLine();
-        _builder.append("\t\t\t");
-        _builder.append("\t");
-        _builder.append("<input type=\"submit\" name=\"form\" value=\"submit\">");
+        _builder.append("<input type=\"submit\" name=\"form\" value=\"Update\">");
         _builder.newLine();
         _builder.append("\t\t\t");
         _builder.append("</form>");
         _builder.newLine();
       }
     }
+    _builder.append("\t\t\t");
+    _builder.newLine();
+    _builder.append("\t\t\t");
+    _builder.append("<script>");
+    _builder.newLine();
+    _builder.append("\t\t\t\t");
+    _builder.append("function check(){");
+    _builder.newLine();
+    _builder.append("\t\t\t\t\t");
+    _builder.newLine();
     {
       EList<Feature> _rootFeature_2 = model.getRootFeature();
       for(final Feature root_2 : _rootFeature_2) {
-        _builder.append("\t\t\t");
-        _builder.append("\t");
-        _builder.newLine();
+        {
+          EList<Expression> _constraints = root_2.getConstraints();
+          for(final Expression c : _constraints) {
+            _builder.append("\t\t\t\t");
+            _builder.append("//constraint");
+            _builder.newLine();
+            _builder.append("\t\t\t\t");
+            String _name_3 = root_2.getName();
+            String _lowerCase_1 = _name_3.toLowerCase();
+            String _constraintsCode = this.getConstraintsCode(c, _lowerCase_1);
+            _builder.append(_constraintsCode, "\t\t\t\t");
+            _builder.newLineIfNotEmpty();
+            _builder.append("\t\t\t\t");
+            _builder.newLine();
+          }
+        }
       }
     }
+    _builder.append("\t\t\t\t");
+    _builder.append("}//END CHECK()");
+    _builder.newLine();
+    _builder.append("\t\t\t\t");
+    _builder.newLine();
+    _builder.append("\t\t\t\t");
+    _builder.append("function getS(id){");
+    _builder.newLine();
+    _builder.append("\t\t\t\t\t");
+    _builder.append("var item = getItem(getID(id));");
+    _builder.newLine();
+    _builder.append("\t\t\t\t\t");
+    _builder.append("if(item.type && (item.type === \'checkbox\')){");
+    _builder.newLine();
+    _builder.append("\t\t\t\t\t\t");
+    _builder.append("return item.checked;");
+    _builder.newLine();
+    _builder.append("\t\t\t\t\t");
+    _builder.append("}else{");
+    _builder.newLine();
+    _builder.append("\t\t\t\t\t\t");
+    _builder.append("return isItemSelected(id);");
+    _builder.newLine();
+    _builder.append("\t\t\t\t\t");
+    _builder.append("}");
+    _builder.newLine();
+    _builder.append("\t\t\t\t");
+    _builder.append("}");
+    _builder.newLine();
+    _builder.append("\t\t\t\t");
+    _builder.append("function getChecked(id){");
+    _builder.newLine();
+    _builder.append("\t\t\t\t\t");
+    _builder.append("return getItem(getID(id)).checked;");
+    _builder.newLine();
+    _builder.append("\t\t\t\t");
+    _builder.append("}");
+    _builder.newLine();
+    _builder.append("\t\t\t\t");
+    _builder.newLine();
+    _builder.append("\t\t\t\t");
+    _builder.append("function isItemSelected(id){");
+    _builder.newLine();
+    _builder.append("\t\t\t\t\t");
+    _builder.append("var dd = getDropDown(id);");
+    _builder.newLine();
+    _builder.append("\t\t\t\t\t");
+    _builder.append("var item = getItem(getID(id));");
+    _builder.newLine();
+    _builder.append("\t\t\t\t\t");
+    _builder.append("return dd.options[dd.selectedIndex].text === item.text;");
+    _builder.newLine();
+    _builder.append("\t\t\t\t");
+    _builder.append("}");
+    _builder.newLine();
+    _builder.append("\t\t\t\t");
+    _builder.newLine();
+    _builder.append("\t\t\t\t");
+    _builder.append("function getItem(name){");
+    _builder.newLine();
+    _builder.append("\t\t\t\t\t");
+    _builder.append("return document.getElementById(name);");
+    _builder.newLine();
+    _builder.append("\t\t\t\t");
+    _builder.append("}");
+    _builder.newLine();
+    _builder.append("\t\t\t\t");
+    _builder.newLine();
+    _builder.append("\t\t\t\t");
+    _builder.append("function getDropDown(name){");
+    _builder.newLine();
+    _builder.append("\t\t\t\t\t");
+    _builder.append("return document.getElementById(getDropDownID(name));");
+    _builder.newLine();
+    _builder.append("\t\t\t\t");
+    _builder.append("}");
+    _builder.newLine();
+    _builder.append("\t\t\t\t");
+    _builder.newLine();
+    _builder.append("\t\t\t\t");
+    _builder.append("function getID(str){");
+    _builder.newLine();
+    _builder.append("\t\t\t\t\t");
+    _builder.append("return str.toLowerCase().replace(/\\./g,\'\');");
+    _builder.newLine();
+    _builder.append("\t\t\t\t");
+    _builder.append("}");
+    _builder.newLine();
+    _builder.append("\t\t\t\t");
+    _builder.newLine();
+    _builder.append("\t\t\t\t");
+    _builder.append("function getDropDownID(str){");
+    _builder.newLine();
+    _builder.append("\t\t\t\t\t");
+    _builder.append("var i = str.lastIndexOf(\".\");");
+    _builder.newLine();
+    _builder.append("\t\t\t\t\t");
+    _builder.append("var sub = str.substring(0, i);");
+    _builder.newLine();
+    _builder.append("\t\t\t\t\t");
+    _builder.append("return getID(sub);");
+    _builder.newLine();
+    _builder.append("\t\t\t\t");
+    _builder.append("}");
+    _builder.newLine();
+    _builder.append("\t\t\t");
+    _builder.append("</script>");
+    _builder.newLine();
     _builder.append("\t\t");
     _builder.append("</body>");
     _builder.newLine();
@@ -120,7 +241,7 @@ public class MyDslGenerator implements IGenerator {
     return _builder;
   }
   
-  public String getFeatureCode(final Feature f) {
+  public String getFeatureCode(final Feature f, final String name) {
     StringConcatenation _builder = new StringConcatenation();
     {
       boolean _notEquals = (!Objects.equal(f, null));
@@ -128,7 +249,6 @@ public class MyDslGenerator implements IGenerator {
         {
           EList<SolitaryFeature> _features = f.getFeatures();
           for(final SolitaryFeature feature : _features) {
-            _builder.append(" ");
             _builder.append("<fieldset>");
             _builder.newLine();
             {
@@ -139,60 +259,74 @@ public class MyDslGenerator implements IGenerator {
                   SolitaryType _required = feature.getRequired();
                   boolean _equals_1 = Objects.equal(_required, SolitaryType.OPTIONAL);
                   if (_equals_1) {
-                    _builder.append("<br>");
-                    _builder.newLine();
-                    _builder.append("<input type=\"checkbox\" id=\"");
+                    _builder.append("<br> <input type=\"checkbox\" id=\"");
+                    _builder.append(name, "");
                     String _name = feature.getName();
                     String _lowerCase = _name.toLowerCase();
                     _builder.append(_lowerCase, "");
                     _builder.append("\" name=\"");
                     String _name_1 = f.getName();
                     _builder.append(_name_1, "");
-                    _builder.append("\" value=\"");
-                    String _name_2 = feature.getName();
-                    String _lowerCase_1 = _name_2.toLowerCase();
-                    _builder.append(_lowerCase_1, "");
                     _builder.append("\"> ");
-                    String _name_3 = feature.getName();
-                    _builder.append(_name_3, "");
+                    String _name_2 = feature.getName();
+                    _builder.append(_name_2, "");
                     _builder.append(" <br>");
                     _builder.newLineIfNotEmpty();
                   } else {
                     _builder.append("<legend>");
-                    String _name_4 = feature.getName();
-                    _builder.append(_name_4, "");
+                    String _name_3 = feature.getName();
+                    _builder.append(_name_3, "");
                     _builder.append("*</legend>");
                     _builder.newLineIfNotEmpty();
                   }
                 }
               } else {
-                String _name_5 = feature.getName();
-                _builder.append(_name_5, "");
-                _builder.append(":");
-                _builder.newLineIfNotEmpty();
-                _builder.append("<input type=\"text\" id=\"");
-                String _name_6 = feature.getName();
-                String _lowerCase_2 = _name_6.toLowerCase();
-                _builder.append(_lowerCase_2, "");
-                _builder.append("\" name=\"");
-                String _name_7 = feature.getName();
-                String _lowerCase_3 = _name_7.toLowerCase();
-                _builder.append(_lowerCase_3, "");
-                _builder.append("\"> <br>");
-                _builder.newLineIfNotEmpty();
+                SolitaryType _required_1 = feature.getRequired();
+                boolean _equals_2 = Objects.equal(_required_1, SolitaryType.MANDATORY);
+                if (_equals_2) {
+                  String _name_4 = feature.getName();
+                  _builder.append(_name_4, "");
+                  _builder.append("*: <input type=\"text\" id=\"");
+                  _builder.append(name, "");
+                  String _name_5 = feature.getName();
+                  String _lowerCase_1 = _name_5.toLowerCase();
+                  _builder.append(_lowerCase_1, "");
+                  _builder.append("\" name=\"");
+                  String _name_6 = feature.getName();
+                  String _lowerCase_2 = _name_6.toLowerCase();
+                  _builder.append(_lowerCase_2, "");
+                  _builder.append("\" required><br>");
+                  _builder.newLineIfNotEmpty();
+                } else {
+                  String _name_7 = feature.getName();
+                  _builder.append(_name_7, "");
+                  _builder.append(": <input type=\"text\" id=\"");
+                  _builder.append(name, "");
+                  String _name_8 = feature.getName();
+                  String _lowerCase_3 = _name_8.toLowerCase();
+                  _builder.append(_lowerCase_3, "");
+                  _builder.append("\" name=\"");
+                  String _name_9 = feature.getName();
+                  String _lowerCase_4 = _name_9.toLowerCase();
+                  _builder.append(_lowerCase_4, "");
+                  _builder.append("\"><br>");
+                  _builder.newLineIfNotEmpty();
+                }
               }
             }
-            String _featureCode = this.getFeatureCode(feature);
+            String _name_10 = feature.getName();
+            String _lowerCase_5 = _name_10.toLowerCase();
+            String _plus = (name + _lowerCase_5);
+            String _featureCode = this.getFeatureCode(feature, _plus);
             _builder.append(_featureCode, "");
-            _builder.newLineIfNotEmpty();
             _builder.append("</fieldset>");
-            _builder.newLine();
+            _builder.newLineIfNotEmpty();
           }
         }
         {
           EList<Group> _groups = f.getGroups();
           for(final Group g : _groups) {
-            String _groupCode = this.getGroupCode(g, f);
+            String _groupCode = this.getGroupCode(g, f, name);
             _builder.append(_groupCode, "");
             _builder.newLineIfNotEmpty();
           }
@@ -203,7 +337,7 @@ public class MyDslGenerator implements IGenerator {
     return _builder.toString();
   }
   
-  public String getGroupCode(final Group g, final Feature f) {
+  public String getGroupCode(final Group g, final Feature f, final String name) {
     StringConcatenation _builder = new StringConcatenation();
     {
       boolean _notEquals = (!Objects.equal(g, null));
@@ -214,34 +348,30 @@ public class MyDslGenerator implements IGenerator {
             {
               EList<GroupedFeature> _groupedFeatures = g.getGroupedFeatures();
               for(final GroupedFeature gf : _groupedFeatures) {
-                _builder.append("<br> ");
-                _builder.newLine();
-                _builder.append("<input type=\"checkbox\" id=\"");
+                _builder.append("<br> <input type=\"checkbox\" id=\"");
+                _builder.append(name, "");
                 String _name = gf.getName();
                 String _lowerCase = _name.toLowerCase();
                 _builder.append(_lowerCase, "");
                 _builder.append("\" name=\"");
                 String _name_1 = f.getName();
                 _builder.append(_name_1, "");
-                _builder.append("\" value=\"");
-                String _name_2 = gf.getName();
-                String _lowerCase_1 = _name_2.toLowerCase();
-                _builder.append(_lowerCase_1, "");
                 _builder.append("\"> ");
-                _builder.newLineIfNotEmpty();
-                String _name_3 = gf.getName();
-                _builder.append(_name_3, "");
+                String _name_2 = gf.getName();
+                _builder.append(_name_2, "");
                 _builder.append(" ");
-                _builder.newLineIfNotEmpty();
-                _builder.append("\t");
-                String _featureCode = this.getFeatureCode(gf);
-                _builder.append(_featureCode, "\t");
+                String _name_3 = gf.getName();
+                String _lowerCase_1 = _name_3.toLowerCase();
+                String _plus = (name + _lowerCase_1);
+                String _featureCode = this.getFeatureCode(gf, _plus);
+                _builder.append(_featureCode, "");
                 _builder.newLineIfNotEmpty();
               }
             }
           } else {
-            _builder.append(" ");
-            _builder.append("\t\t\t\t<select name=\"");
+            _builder.append("<select id=\"");
+            _builder.append(name, "");
+            _builder.append("\" name=\"");
             String _name_4 = f.getName();
             _builder.append(_name_4, "");
             _builder.append("\">");
@@ -250,32 +380,271 @@ public class MyDslGenerator implements IGenerator {
               EList<GroupedFeature> _groupedFeatures_1 = g.getGroupedFeatures();
               for(final GroupedFeature gf_1 : _groupedFeatures_1) {
                 _builder.append("\t");
-                _builder.append("<br> <option value=\"");
+                _builder.append("<br> <option id=\"");
+                _builder.append(name, "\t");
                 String _name_5 = gf_1.getName();
                 String _lowerCase_2 = _name_5.toLowerCase();
                 _builder.append(_lowerCase_2, "\t");
-                _builder.append("\">");
+                _builder.append("\" value=\"");
                 String _name_6 = gf_1.getName();
-                _builder.append(_name_6, "\t");
+                String _lowerCase_3 = _name_6.toLowerCase();
+                _builder.append(_lowerCase_3, "\t");
+                _builder.append("\" name=\"");
+                String _name_7 = gf_1.getName();
+                _builder.append(_name_7, "\t");
+                _builder.append("\">");
+                String _name_8 = gf_1.getName();
+                _builder.append(_name_8, "\t");
                 _builder.append("</option> ");
-                _builder.newLineIfNotEmpty();
-                _builder.append("\t");
-                _builder.append("\t");
-                String _featureCode_1 = this.getFeatureCode(gf_1);
-                _builder.append(_featureCode_1, "\t\t");
+                String _name_9 = gf_1.getName();
+                String _lowerCase_4 = _name_9.toLowerCase();
+                String _plus_1 = (name + _lowerCase_4);
+                String _featureCode_1 = this.getFeatureCode(gf_1, _plus_1);
+                _builder.append(_featureCode_1, "\t");
                 _builder.newLineIfNotEmpty();
               }
             }
-            _builder.append("\t");
-            _builder.append("</select>");
+            _builder.append("</select><br>");
             _builder.newLine();
           }
         }
-        _builder.append("\t");
-        _builder.append("<br>");
-        _builder.newLine();
       }
     }
     return _builder.toString();
+  }
+  
+  public String getConstraintsCode(final Expression c, final String name) {
+    StringConcatenation _builder = new StringConcatenation();
+    {
+      if ((c instanceof BinaryOperation)) {
+        _builder.newLineIfNotEmpty();
+        final BinaryOperation binOp = ((BinaryOperation) c);
+        _builder.newLineIfNotEmpty();
+        _builder.append("\t");
+        _builder.append("if(!(");
+        Expression _lexp = binOp.getLexp();
+        String _variableCode = this.getvariableCode(_lexp, name);
+        _builder.append(_variableCode, "\t");
+        _builder.append(" ");
+        BinaryOperator _operator = binOp.getOperator();
+        String _binaryOperator = this.getBinaryOperator(_operator);
+        _builder.append(_binaryOperator, "\t");
+        _builder.append(" ");
+        Expression _rexp = binOp.getRexp();
+        String _variableCode_1 = this.getvariableCode(_rexp, name);
+        _builder.append(_variableCode_1, "\t");
+        _builder.append(")){");
+        _builder.newLineIfNotEmpty();
+        _builder.append("\t\t");
+        _builder.append("alert(\'");
+        _builder.append(binOp, "\t\t");
+        _builder.append("\');");
+        _builder.newLineIfNotEmpty();
+        _builder.append("\t");
+        _builder.append("}");
+        _builder.newLine();
+      } else {
+        if ((c instanceof UnaryOperation)) {
+          final UnaryOperation unOp = ((UnaryOperation) c);
+          _builder.newLineIfNotEmpty();
+          _builder.append("\t");
+          _builder.append("if(!(");
+          UnaryOperator _operator_1 = unOp.getOperator();
+          String _unaryOperator = this.getUnaryOperator(_operator_1);
+          _builder.append(_unaryOperator, "\t");
+          Expression _exp = unOp.getExp();
+          String _variableCode_2 = this.getvariableCode(_exp, name);
+          _builder.append(_variableCode_2, "\t");
+          _builder.append(")){");
+          _builder.newLineIfNotEmpty();
+          _builder.append("\t\t");
+          _builder.append("alert(\'error2Unary\');");
+          _builder.newLine();
+          _builder.append("\t");
+          _builder.append("}");
+          _builder.newLine();
+        } else {
+          if ((c instanceof Identifier)) {
+            final Identifier id = ((Identifier) c);
+            _builder.newLineIfNotEmpty();
+            {
+              EList<Feature> _ref = id.getRef();
+              EList<Feature> _ref_1 = id.getRef();
+              int _size = _ref_1.size();
+              int _minus = (_size - 1);
+              Feature _get = _ref.get(_minus);
+              SimpleType _type = _get.getType();
+              boolean _equals = Objects.equal(_type, SimpleType.BOOLEAN);
+              if (_equals) {
+                EList<Feature> _ref_2 = id.getRef();
+                EList<Feature> _ref_3 = id.getRef();
+                int _size_1 = _ref_3.size();
+                int _minus_1 = (_size_1 - 1);
+                Feature _get_1 = _ref_2.get(_minus_1);
+                final SolitaryFeature i = ((SolitaryFeature) _get_1);
+                _builder.newLineIfNotEmpty();
+                {
+                  SolitaryType _required = i.getRequired();
+                  SolitaryType _get_2 = SolitaryType.get("Mandatory");
+                  boolean _equals_1 = Objects.equal(_required, _get_2);
+                  if (_equals_1) {
+                    _builder.append("\ttrue");
+                    _builder.newLineIfNotEmpty();
+                  } else {
+                    _builder.append("\tgetItem(getID(\"");
+                    _builder.append(name, "");
+                    _builder.append(".");
+                    String _name = i.getName();
+                    _builder.append(_name, "");
+                    _builder.append("\"))");
+                  }
+                }
+                _builder.newLineIfNotEmpty();
+              }
+            }
+            _builder.newLine();
+          } else {
+            if ((c instanceof featureModel.Number)) {
+              _builder.append("\t\t");
+            }
+          }
+        }
+      }
+    }
+    return _builder.toString();
+  }
+  
+  public String getBinaryOperator(final BinaryOperator op) {
+    boolean _equals = Objects.equal(op, BinaryOperator.AND);
+    if (_equals) {
+      return "&&";
+    } else {
+      boolean _equals_1 = Objects.equal(op, BinaryOperator.OR);
+      if (_equals_1) {
+        return "||";
+      } else {
+        boolean _equals_2 = Objects.equal(op, BinaryOperator.EQUALS);
+        if (_equals_2) {
+          return "==";
+        } else {
+          boolean _equals_3 = Objects.equal(op, BinaryOperator.LOWER);
+          if (_equals_3) {
+            return "<";
+          } else {
+            boolean _equals_4 = Objects.equal(op, BinaryOperator.HIGHER);
+            if (_equals_4) {
+              return ">";
+            }
+          }
+        }
+      }
+    }
+    return null;
+  }
+  
+  public String getUnaryOperator(final UnaryOperator op) {
+    boolean _equals = Objects.equal(op, UnaryOperator.NOT);
+    if (_equals) {
+      return "!";
+    } else {
+      boolean _equals_1 = Objects.equal(op, UnaryOperator.MINUS);
+      if (_equals_1) {
+        return "-";
+      }
+    }
+    return null;
+  }
+  
+  public String getvariableCode(final Expression ex, final String name) {
+    String _xifexpression = null;
+    if ((ex instanceof BinaryOperation)) {
+      final BinaryOperation e = ((BinaryOperation) ex);
+      Expression _lexp = e.getLexp();
+      String _variableCode = this.getvariableCode(_lexp, name);
+      String _plus = ("(" + _variableCode);
+      String _plus_1 = (_plus + " ");
+      BinaryOperator _operator = e.getOperator();
+      String _binaryOperator = this.getBinaryOperator(_operator);
+      String _plus_2 = (_plus_1 + _binaryOperator);
+      String _plus_3 = (_plus_2 + " ");
+      Expression _rexp = e.getRexp();
+      String _variableCode_1 = this.getvariableCode(_rexp, name);
+      String _plus_4 = (_plus_3 + _variableCode_1);
+      return (_plus_4 + ")");
+    } else {
+      String _xifexpression_1 = null;
+      if ((ex instanceof UnaryOperation)) {
+        final UnaryOperation e_1 = ((UnaryOperation) ex);
+        UnaryOperator _operator_1 = e_1.getOperator();
+        String _unaryOperator = this.getUnaryOperator(_operator_1);
+        String _plus_5 = ("(" + _unaryOperator);
+        Expression _exp = e_1.getExp();
+        String _variableCode_2 = this.getvariableCode(_exp, name);
+        String _plus_6 = (_plus_5 + _variableCode_2);
+        return (_plus_6 + ")");
+      } else {
+        String _xifexpression_2 = null;
+        if ((ex instanceof Identifier)) {
+          final Identifier id = ((Identifier) ex);
+          EList<Feature> _ref = id.getRef();
+          EList<Feature> _ref_1 = id.getRef();
+          int _size = _ref_1.size();
+          int _minus = (_size - 1);
+          final Feature ref = _ref.get(_minus);
+          EList<Feature> _ref_2 = id.getRef();
+          final String newName = this.concatNames(_ref_2);
+          if ((ref instanceof SolitaryFeature)) {
+            final SolitaryFeature feat = ((SolitaryFeature) ref);
+            SimpleType _type = feat.getType();
+            boolean _equals = Objects.equal(_type, SimpleType.BOOLEAN);
+            if (_equals) {
+              SolitaryType _required = feat.getRequired();
+              boolean _equals_1 = Objects.equal(_required, SolitaryType.MANDATORY);
+              if (_equals_1) {
+                return "true";
+              } else {
+                return (((("getItem(getID(\"" + name) + ".") + newName) + "\")).checked");
+              }
+            } else {
+              return (((("getItem(getID(\"" + name) + ".") + newName) + "\")).value}");
+            }
+          } else {
+            if ((ref instanceof GroupedFeature)) {
+              return (((("getS(\"" + name) + ".") + newName) + "\")");
+            }
+          }
+        } else {
+          String _xifexpression_3 = null;
+          if ((ex instanceof featureModel.Number)) {
+            final featureModel.Number e_2 = ((featureModel.Number) ex);
+            int _value = e_2.getValue();
+            return ("" + Integer.valueOf(_value));
+          } else {
+            String _xifexpression_4 = null;
+            if ((ex instanceof NULL)) {
+              _xifexpression_4 = null;
+            }
+            _xifexpression_3 = _xifexpression_4;
+          }
+          _xifexpression_2 = _xifexpression_3;
+        }
+        _xifexpression_1 = _xifexpression_2;
+      }
+      _xifexpression = _xifexpression_1;
+    }
+    return _xifexpression;
+  }
+  
+  public String concatNames(final EList<Feature> list) {
+    String result = "";
+    for (final Feature f : list) {
+      String _result = result;
+      String _name = f.getName();
+      String _plus = (_name + ".");
+      result = (_result + _plus);
+    }
+    int _length = result.length();
+    int _minus = (_length - 1);
+    return result.substring(0, _minus);
   }
 }

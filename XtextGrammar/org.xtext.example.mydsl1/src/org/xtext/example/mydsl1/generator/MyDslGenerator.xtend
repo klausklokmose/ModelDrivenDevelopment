@@ -3,103 +3,233 @@
  */
 package org.xtext.example.mydsl1.generator
 
-import org.eclipse.emf.ecore.resource.Resource
-import org.eclipse.xtext.generator.IGenerator
-import org.eclipse.xtext.generator.IFileSystemAccess
+import featureModel.BinaryOperation
+import featureModel.BinaryOperator
+import featureModel.Expression
 import featureModel.Feature
-import featureModel.Model
 import featureModel.Group
-import javax.management.openmbean.SimpleType
+import featureModel.GroupedFeature
+import featureModel.Identifier
+import featureModel.Model
+import featureModel.NULL
+import featureModel.Number
+import featureModel.SimpleType
+import featureModel.SolitaryFeature
 import featureModel.SolitaryType
+import featureModel.UnaryOperation
+import featureModel.UnaryOperator
+import org.eclipse.emf.common.util.EList
+import org.eclipse.emf.ecore.resource.Resource
+import org.eclipse.xtext.generator.IFileSystemAccess
+import org.eclipse.xtext.generator.IGenerator
 
-/**
- * Generates code from your model files on save.
- * 
- * see http://www.eclipse.org/Xtext/documentation.html#TutorialCodeGeneration
- */
 class MyDslGenerator implements IGenerator {
 	
 	override void doGenerate(Resource resource, IFileSystemAccess fsa) {
-//		fsa.generateFile('greetings.txt', 'People to greet: ' + 
-//			resource.allContents
-//				.filter(typeof(Greeting))
-//				.map[name]
-//				.join(', '))
 		fsa.generateFile('pokemon.html', toHTML(resource.contents.head as Model))
-		
 	}
 	
-	def toHTML(Model model) '''
+	def toHTML(Model model)'''
 		<!doctype html>
 			<html>
 				<head>
-					<title>
-					«FOR root : model.rootFeature» «root.name» : «ENDFOR»
-					</title>
+					<title>«FOR root : model.rootFeature» «root.name»: «ENDFOR»</title>
 				</head>
 				<body>
 					«FOR root : model.rootFeature»
-					<h1>
-					«root.name»
-					</h1>
-					<form> 
-						«getFeatureCode(root)»
-						<br>
-						
-						<input type="submit" name="form" value="submit">
+					<h1>«root.name»</h1>
+					<form action="javascript:check()">
+«««						feature code
+						«getFeatureCode(root, root.name.toLowerCase)»<br>
+						<input type="submit" name="form" value="Update">
 					</form>
 					«ENDFOR»
-					«FOR root : model.rootFeature»
+					
+					<script>
+						function check(){
+							
+						«FOR root : model.rootFeature»
+	«««						constraints javascript go here
+							«FOR c : root.constraints»
+								//constraint
+								«getConstraintsCode(c, root.name.toLowerCase)»
+								
+							«ENDFOR»
+						«ENDFOR»
+						}//END CHECK()
 						
-					«ENDFOR»
+						function getS(id){
+							var item = getItem(getID(id));
+							if(item.type && (item.type === 'checkbox')){
+								return item.checked;
+							}else{
+								return isItemSelected(id);
+							}
+						}
+						function getChecked(id){
+							return getItem(getID(id)).checked;
+						}
+						
+						function isItemSelected(id){
+							var dd = getDropDown(id);
+							var item = getItem(getID(id));
+							return dd.options[dd.selectedIndex].text === item.text;
+						}
+						
+						function getItem(name){
+							return document.getElementById(name);
+						}
+						
+						function getDropDown(name){
+							return document.getElementById(getDropDownID(name));
+						}
+						
+						function getID(str){
+							return str.toLowerCase().replace(/\./g,'');
+						}
+						
+						function getDropDownID(str){
+							var i = str.lastIndexOf(".");
+							var sub = str.substring(0, i);
+							return getID(sub);
+						}
+					</script>
 				</body>
 			</html>
 	'''
 	
-	
-	def String getFeatureCode(Feature f)'''
+	def String getFeatureCode(Feature f, String name)'''
 		«IF (f != null)»
 			«FOR feature : f.features»
-				 <fieldset>
-				«IF (feature.type == featureModel.SimpleType.BOOLEAN)»
+				<fieldset>
+				«IF (feature.type == SimpleType.BOOLEAN)»
 					«IF feature.required == SolitaryType.OPTIONAL»
-						<br>
-						<input type="checkbox" id="«feature.name.toLowerCase()»" name="«f.name»" value="«feature.name.toLowerCase»"> «feature.name» <br>
+						<br> <input type="checkbox" id="«name»«feature.name.toLowerCase()»" name="«f.name»"> «feature.name» <br>
 					«ELSE»
-					<legend>«feature.name»*</legend>
+						<legend>«feature.name»*</legend>
 					«ENDIF»
+				«ELSEIF feature.required == SolitaryType.MANDATORY»
+					«feature.name»*: <input type="text" id="«name»«feature.name.toLowerCase»" name="«feature.name.toLowerCase»" required><br>
 				«ELSE»
-					«feature.name»:
-					<input type="text" id="«feature.name.toLowerCase»" name="«feature.name.toLowerCase»"> <br>
+					«feature.name»: <input type="text" id="«name»«feature.name.toLowerCase»" name="«feature.name.toLowerCase»"><br>
 				«ENDIF»
-				«getFeatureCode(feature)»
-				</fieldset>
+				«getFeatureCode(feature, name+feature.name.toLowerCase)»</fieldset>
 			«ENDFOR»
 			«FOR g : f.groups»
-				«getGroupCode(g, f)»
+				«getGroupCode(g, f, name)»
 			«ENDFOR»
 			
 		«ENDIF»
 	'''
 	
-	def String getGroupCode(Group g, Feature f)'''
+	def String getGroupCode(Group g, Feature f, String name)'''
 		«IF (g != null)»
 			«IF g.inclusive» ««« select any 
 				«FOR gf : g.groupedFeatures»
-					<br> 
-					<input type="checkbox" id="«gf.name.toLowerCase»" name="«f.name»" value="«gf.name.toLowerCase»"> 
-					«gf.name» 
-						«getFeatureCode(gf)»
+					<br> <input type="checkbox" id="«name»«gf.name.toLowerCase»" name="«f.name»"> «gf.name» «getFeatureCode(gf, name+gf.name.toLowerCase)»
 				«ENDFOR»
-			«ELSE» «««	select one
-				<select name="«f.name»">
+			«ELSE»«««	select one
+<select id="«name»" name="«f.name»">
 				«FOR gf : g.groupedFeatures»
-					<br> <option value="«gf.name.toLowerCase»">«gf.name»</option> 
-						«getFeatureCode(gf)»
+				<br> <option id="«name»«gf.name.toLowerCase»" value="«gf.name.toLowerCase»" name="«gf.name»">«gf.name»</option> «getFeatureCode(gf, name+gf.name.toLowerCase)»
 				«ENDFOR»
-				</select>
+</select><br>
 			«ENDIF»
-				<br>
 		«ENDIF»
 	'''
+	
+	def String getConstraintsCode(Expression c, String name)
+	'''«IF(c instanceof BinaryOperation)»
+			«val binOp = c as BinaryOperation»
+				if(!(«getvariableCode(binOp.lexp, name)» «getBinaryOperator(binOp.operator)» «getvariableCode(binOp.rexp, name)»)){
+					alert('«binOp»');
+				}
+		«ELSEIF (c instanceof UnaryOperation)»
+			«val unOp = c as UnaryOperation»
+				if(!(«getUnaryOperator(unOp.operator)»«getvariableCode(unOp.exp, name)»)){
+					alert('error2Unary');
+				}
+		«ELSEIF (c instanceof Identifier)»
+			«val id = c as Identifier»
+			«IF (id.ref.get(id.ref.size - 1).type == SimpleType.BOOLEAN)»
+				«val i = id.ref.get(id.ref.size - 1) as SolitaryFeature»
+				«IF (i.required == SolitaryType.get("Mandatory"))»	true
+				«ELSE»	getItem(getID("«name».«i.name»"))«ENDIF»
+			«ENDIF»
+			
+		«ELSEIF (c instanceof Number)»
+		«ENDIF»'''
+	
+//	def String getBinaryOperator(BinaryOperator op)
+//	'''«IF op == BinaryOperator.AND»&&
+//	«ELSEIF op == BinaryOperator.OR»||
+//	«ELSEIF op == BinaryOperator.EQUALS»==
+//	«ELSEIF op == BinaryOperator.LOWER»
+//	<«ELSEIF op == BinaryOperator.HIGHER»>«ENDIF»'''
+	
+	def String getBinaryOperator(BinaryOperator op){
+		if(op == BinaryOperator.AND)
+			return "&&"
+		else if(op == BinaryOperator.OR)
+			return "||"
+		else if(op == BinaryOperator.EQUALS)
+			return "=="
+		else if(op == BinaryOperator.LOWER)
+			return "<"
+		else if(op == BinaryOperator.HIGHER)
+			return ">"
+	}
+	
+	
+	def String getUnaryOperator(UnaryOperator op){
+		if(op == UnaryOperator.NOT)
+			return "!"
+		else if(op == UnaryOperator.MINUS)
+			return "-"
+	}
+	
+	def String getvariableCode(Expression ex, String name){
+		if(ex instanceof BinaryOperation){
+			val e = ex as BinaryOperation
+//			(lexp op rexp)
+			return "("+getvariableCode(e.lexp, name)+" "+getBinaryOperator(e.operator)+" "+getvariableCode(e.rexp, name)+")"
+		}else if(ex instanceof UnaryOperation){
+			val e = ex as UnaryOperation
+//			(op exp)
+			return "("+getUnaryOperator(e.operator)+getvariableCode(e.exp, name)+")"
+		}else if (ex instanceof Identifier){
+			val id = ex as Identifier
+			val ref = id.ref.get(id.ref.size - 1)
+			val newName = concatNames(id.ref)
+//			SOLITARY
+			if (ref instanceof SolitaryFeature){
+				val feat = ref as SolitaryFeature
+				if (feat.type == SimpleType.BOOLEAN){
+					if(feat.required == SolitaryType.MANDATORY) 
+						return "true"
+					else{
+						return "getItem(getID(\""+name+"."+newName+"\")).checked"
+					}
+				}else{
+					return "getItem(getID(\""+name+"."+newName+"\")).value}"
+				}
+			}else if(ref instanceof GroupedFeature){
+				return "getS(\""+name+"."+newName+"\")"
+			}
+		}else if(ex instanceof Number){
+			val e = ex as Number
+			return ""+e.value
+		}
+		else if(ex instanceof NULL){
+			null
+		}
+	}
+	
+	def concatNames(EList<Feature> list) {
+		var result = ""
+		for(Feature f: list){
+			result +=f.name+'.'
+		}
+		return result.substring(0, result.length-1)
+	}
 }
