@@ -22,42 +22,341 @@ import org.eclipse.emf.common.util.EList
 import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.xtext.generator.IFileSystemAccess
 import org.eclipse.xtext.generator.IGenerator
+import java.util.ArrayList
+import javax.tools.JavaCompiler.CompilationTask
+import java.util.AbstractMap.SimpleEntry
 
 class MyDslGenerator implements IGenerator {
 	
+//	override void doGenerate(Resource resource, IFileSystemAccess fsa) {
+//		val m = resource.contents.head as Model
+//		fsa.generateFile(m.rootFeature.get(0).name+'.php', toHTML(m))
+//		fsa.generateFile(m.rootFeature.get(0).name+'.java', toJava(m))
+//	}
+
 	override void doGenerate(Resource resource, IFileSystemAccess fsa) {
-		fsa.generateFile('pokemon.html', toHTML(resource.contents.head as Model))
+		var m = resource.contents.head as Model
+		for(Feature root : m.rootFeature)
+		{
+			fsa.generateFile(root.name+'.php', toHTML(root))
+			fsa.generateFile(root.name+'.java', toJava(root))
+		}
 	}
 	
-	def toHTML(Model model)'''
+	def toJava(Feature it)'''
+		import java.awt.*;
+		import java.awt.event.*;
+		import javax.swing.*;
+		import java.util.ArrayList;
+		import javax.swing.text.JTextComponent;
+		
+		public class «name» extends JFrame {
+		  
+		    // End of variables declaration  
+		
+		    public «it.name»() {
+		        initComponents();
+		    }
+		
+		    @SuppressWarnings("unchecked")                        
+		    private void initComponents() {
+		        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+		        setTitle("«it.name»");
+		        getContentPane().setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
+		
+				 InputVerifier intVerifier = new InputVerifier() {
+		            public boolean verify(JComponent input) {
+		              final JTextComponent source = (JTextComponent)input;
+		              if(!(source.getText().equals("") || validateInteger(source.getText()))){
+		            	  JOptionPane.showMessageDialog(null,
+		            	          "Error: must be an Integer", "Error Message",
+		            	          JOptionPane.ERROR_MESSAGE);
+		            	  return false;
+		              } else {
+		            	  return true;
+		              }
+		            }
+		          };
+				  InputVerifier doubleVerifier = new InputVerifier() {
+				      public boolean verify(JComponent input) {
+				        final JTextComponent source = (JTextComponent)input;
+				        if(!(source.getText().equals("") || validateDouble(source.getText()))){
+				      	  JOptionPane.showMessageDialog(null,
+				      	          "Error: must be Double", "Error Massage",
+				      	          JOptionPane.ERROR_MESSAGE);
+				      	  return false;
+				        } else {
+				      	  return true;
+				        }
+				      }
+				    };
+				    
+			//TODO
+				«getFeatureJava(it, it.name)»
+		       
+		
+		        JPanel submitPanel = new JPanel();
+		        submitPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
+		        submitButton = new JButton();
+		        submitButton.setText("Submit");
+		        submitButton.addActionListener(new ActionListener() {
+		            public void actionPerformed(ActionEvent evt) {
+		                submitButtonActionPerformed(evt);
+		            }
+		        });
+		        
+		        submitPanel.add(submitButton);
+		        getContentPane().add(submitPanel);
+		        setMinimumSize(new Dimension(400,HEIGHT));
+		
+		        pack();
+		    }// </editor-fold>                        
+		
+		    private void submitButtonActionPerformed(ActionEvent evt) {                                             
+		        // TODO add your handling code here:
+«««		        put constraint checking call
+				String check = check();
+				if(check.length() == 0){
+			        JOptionPane.showMessageDialog(null, "you have created a «it.name»");
+				}else{
+					JOptionPane.showMessageDialog(null, check);
+				}
+		    }   
+		    
+		    private JPanel createPanel(String title){
+		        JPanel resultPanel = new JPanel(); 
+		        resultPanel.setBorder(BorderFactory.createTitledBorder(title));
+		        resultPanel.setLayout(new BoxLayout(resultPanel, BoxLayout.Y_AXIS));        
+		        return resultPanel;
+		    }
+		
+		    /**
+		     * @param args the command line arguments
+		     */
+		    public static void main(String args[]) {
+		        /* Set the Nimbus look and feel */
+		        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
+		        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
+		         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+		         */
+		        try {
+		            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+		                if ("Nimbus".equals(info.getName())) {
+		                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+		                    break;
+		                }
+		            }
+		        } catch (Exception ex) {
+		            java.util.logging.Logger.getLogger(«it.name».class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+		        }
+		        //</editor-fold>
+		
+		        /* Create and display the form */
+		        java.awt.EventQueue.invokeLater(new Runnable() {
+		            public void run() {
+		                new «it.name»().setVisible(true);
+		            }
+		        });
+		    }
+		    
+			private String check() {
+				String message = "";
+«««				pokemonHeightField.getText().equals("")||
+«««				if(!(Integer.parseInt(pokemonHeightField.getText()) > 0)){
+«««					message += "error: pokemonHeightField > 0";
+«««					message += "\n";
+«««				}
+				«FOR c : it.constraints»
+					//constraint
+						«getConstraintsJavaCode(c, it.name.toLowerCase)»
+								
+				«ENDFOR»
+				«FOR c : javaRequired»
+			//mandatory field constraint
+					if(«c».getText().equals("")){
+						message += "Error: «c» must be filled!\n";
+					}
+				«ENDFOR»
+				return message;
+			}
+			
+			public static boolean validateInteger(String value) {
+		        return value.matches("^[-]?[0-9]+$");
+		    }
+		    
+		    public static boolean validateDouble(String value) {
+		        return value.matches("^[-]?[0-9]+([.][0-9]+)?$");
+		    }
+		    
+			private JButton submitButton;
+			«FOR String field: javaFields»
+				private «field»;
+			«ENDFOR»
+		}
+	'''
+	var javaFields = new ArrayList<String>();
+	var javaRequired = new ArrayList<String>();
+	
+	def addToJavaFields(String type, String name){
+		javaFields.add(type+" "+name);
+	}
+	def String getFeatureJava(Feature f, String name)'''
+		«val lname = name.toFirstLower»
+		«IF (f != null)»
+			«FOR feature : f.features»
+				«lname+feature.name»Panel = createPanel("«feature.name»");
+				«val v = addToJavaFields("JPanel",lname+feature.name+"Panel")»
+				«IF (feature.type == SimpleType.BOOLEAN)»
+					«IF feature.required == SolitaryType.OPTIONAL»
+						 «lname+feature.name»Option = new JCheckBox("«feature.name»");
+					«lname+feature.name»Panel.add(«lname+feature.name»Option);
+						 «val d = addToJavaFields("JCheckBox", lname+feature.name+"Option")»
+					«ENDIF»
+				«ELSEIF feature.required == SolitaryType.MANDATORY»
+					«lname+feature.name»Field = new JTextField();
+					«lname+feature.name»Panel.add(«lname+feature.name»Field);
+					«val c = addToJavaFields("JTextField", lname+feature.name+"Field")»
+					«val constraint = javaRequired.add(lname+feature.name+"Field")»
+				«ELSE»
+					«lname+feature.name»Field = new JTextField();
+					«lname+feature.name»Panel.add(«lname+feature.name»Field);
+					«val e = addToJavaFields("JTextField", lname+feature.name+"Field")»
+				«ENDIF»
+					«IF feature.type == SimpleType.INT»
+				«lname+feature.name»Field.setInputVerifier(intVerifier);
+					«ELSEIF feature.type == SimpleType.DOUBLE»
+				«lname+feature.name»Field.setInputVerifier(doubleVerifier);
+					«ENDIF»
+				«getFeatureJava(feature, lname+feature.name)»
+				getContentPane().add(«lname+feature.name»Panel);
+			«ENDFOR»
+			
+			«FOR g : f.groups»
+				«getGroupJavaCode(g, f, lname)»
+					
+			«ENDFOR»
+		«ENDIF»
+	'''
+	
+	def getGroupJavaCode(Group group, Feature f, String name)'''
+		«IF (group != null)»
+			«IF group.inclusive» ««« select any 
+				«FOR groupedFeature : group.groupedFeatures»
+					«val gName = name+groupedFeature.name.toFirstUpper+"Option"»
+					«gName» = new JCheckBox("«groupedFeature.name»");
+					«name»Panel.add(«gName»);
+					«val b = addToJavaFields("JCheckBox", gName)»
+					
+				«ENDFOR»
+			«ELSE»«««	select one
+				«name»Select = new JComboBox();
+				«val c = addToJavaFields("JComboBox", name+"Select")»
+				«name»Select.setModel(new javax.swing.DefaultComboBoxModel(new String[] {
+					«getGroupedFeatureNames(group)»
+				}));
+				«name»Panel.add(«name»Select);
+			«ENDIF»
+		«ENDIF»
+	'''
+	
+	def String getGroupedFeatureNames(Group g){
+		var s = "";
+		for (gf : g.groupedFeatures){
+			s += "\""+gf.name+"\", "
+		}
+		return s.substring(0, s.length-2);
+	}
+	
+	def String getConstraintsJavaCode(Expression c, String name)
+	'''«IF(c instanceof BinaryOperation)»
+			«val binOp = c as BinaryOperation»
+				if(!(«getvariableJavaCode(binOp.lexp, name)» «getBinaryOperator(binOp.operator)» «getvariableJavaCode(binOp.rexp, name)»)){
+					message += "Error: «getConstraintsText(c, name)»\n";
+				}
+		«ELSEIF (c instanceof UnaryOperation)»
+			«val unOp = c as UnaryOperation»
+				if(!(«getUnaryOperator(unOp.operator)»«getvariableJavaCode(unOp.exp, name)»)){
+«««					alert('error2Unary');
+					message += "Error: «getConstraintsText(c, name)»\n";
+				}
+		«ENDIF»'''
+		
+	def String getvariableJavaCode(Expression ex, String name){
+		if(ex instanceof BinaryOperation){
+			val e = ex as BinaryOperation
+//			(lexp op rexp)
+			return "("+getvariableJavaCode(e.lexp, name)+" "+getBinaryOperator(e.operator)+" "+getvariableJavaCode(e.rexp, name)+")"
+		}else if(ex instanceof UnaryOperation){
+			val e = ex as UnaryOperation
+//			(op exp)
+			return "("+getUnaryOperator(e.operator)+getvariableJavaCode(e.exp, name)+")"
+		}else if (ex instanceof Identifier){
+			val id = ex as Identifier
+			val ref = id.ref.get(id.ref.size - 1)
+			val newName = concatJavaNames(id.ref)
+			val text = name.toFirstLower+newName+"Field.getText()"
+//			SOLITARY
+			if (ref instanceof SolitaryFeature){
+				val feat = ref as SolitaryFeature
+				if (feat.type == SimpleType.BOOLEAN){
+					if(feat.required == SolitaryType.MANDATORY) 
+						return "true"
+					else{
+						return name.toFirstLower+newName+"Option.isSelected()"
+					}
+				}else if(feat.type == SimpleType.STRING){
+					return text+".equals(\""+ref.name+"\")"
+				}else if(feat.type == SimpleType.INT){
+					return "!"+text+".equals(\"\") && Integer.parseInt("+text+")"
+				}else if(feat.type == SimpleType.DOUBLE){
+					return "!"+text+".equals(\"\") && Double.parseDouble("+text+")"
+				}
+			}else if(ref instanceof GroupedFeature){
+					if(javaFields.contains("JCheckBox "+name.toFirstLower+newName+"Option")){
+						return name.toFirstLower+newName+"Option.isSelected()"
+					}else{
+						val variable = name.toFirstLower+newName.replace(ref.name, "")
+						return variable+"Select.getSelectedItem().equals(\""+ref.name+"\")"
+					}
+//				return "getS(\""+name+"."+newName+"\")"
+			}
+		}else if(ex instanceof Number){
+			val e = ex as Number
+			return ""+e.value
+		}
+		else if(ex instanceof NULL){
+			null
+		}
+	}
+	
+	def toHTML(Feature it)'''
 		<!doctype html>
 			<html>
 				<head>
-					<title>«FOR root : model.rootFeature» «root.name»: «ENDFOR»</title>
+					<title>«it.name»:</title>
 				</head>
 				<body>
-					«FOR root : model.rootFeature»
-					<h1>«root.name»</h1>
-					<form action="javascript:check()">
+					<h1>«it.name»</h1>
+					<form action="<?php echo $_SERVER['PHP_SELF'];?>" method="POST" onsubmit="return check()">
 «««						feature code
-						«getFeatureCode(root, root.name.toLowerCase)»<br>
+						«getFeatureCode(it, it.name)»<br>
 						<input type="submit" name="form" value="Update">
 					</form>
-					«ENDFOR»
 					
 					<script>
 						function check(){
 							var message = "";
-						«FOR root : model.rootFeature»
 	«««						constraints javascript go here
-							«FOR c : root.constraints»
+							«FOR c : constraints»
 								//constraint
-								«getConstraintsCode(c, root.name.toLowerCase)»
+								«getConstraintsCode(c, it.name.toLowerCase)»
 								
 							«ENDFOR»
-						«ENDFOR»
 							if( message != "" ){
-								alert(message); 
+								alert(message);
+								return false;
+							}else{
+								return true;
 							}
 						}//END CHECK()
 						
@@ -82,6 +381,7 @@ class MyDslGenerator implements IGenerator {
 						}
 						
 						function getItem(name){
+							console.log(str);
 							return document.getElementById(name);
 						}
 						
@@ -90,6 +390,7 @@ class MyDslGenerator implements IGenerator {
 						}
 						
 						function getID(str){
+							console.log(str);
 							return str.toLowerCase().replace(/\./g,'');
 						}
 						
@@ -99,7 +400,35 @@ class MyDslGenerator implements IGenerator {
 							return getID(sub);
 						}
 						
+						function validateInteger(value) {
+							var pattern = /^[-]?\[0-9]+$/;
+							if(!(pattern.test(value))){
+								alert('input: expected Integer, but was '+value);
+								value="";
+							}
+						}
+						
+						function validateDouble(value) {
+							var pattern = /^[-]?[0-9]+([.][0-9]+)?$/;
+							if(!(pattern.test(value))){
+								alert('input: expected Integer, but was '+value);
+							}
+						}
+						
+						
 					</script>
+					<?php
+						foreach($_POST as $k => $v) {
+				        	echo "$k =";  
+				        	if(is_array($v)) 
+					        	foreach ($v as $value) {
+					        		echo $value." ";
+					        	}
+					        else
+					        	echo $v;
+					        echo "<br>";
+						}
+					?>
 				</body>
 			</html>
 	'''
@@ -115,9 +444,9 @@ class MyDslGenerator implements IGenerator {
 						<legend>«feature.name»*</legend>
 					«ENDIF»
 				«ELSEIF feature.required == SolitaryType.MANDATORY»
-					«feature.name»*: <input type="text" id="«name»«feature.name.toLowerCase»" name="«feature.name.toLowerCase»" required><br>
+					«feature.name»*: <input type="text" id="«name»«feature.name.toLowerCase»" name="«feature.name.toLowerCase»" «getInputValidation(feature)» required><br>
 				«ELSE»
-					«feature.name»: <input type="text" id="«name»«feature.name.toLowerCase»" name="«feature.name.toLowerCase»"><br>
+					«feature.name»: <input type="text" id="«name»«feature.name.toLowerCase»" name="«feature.name.toLowerCase»" «getInputValidation(feature)»><br>
 				«ENDIF»
 				«getFeatureCode(feature, name+feature.name.toLowerCase)»</fieldset>
 			«ENDFOR»
@@ -128,11 +457,20 @@ class MyDslGenerator implements IGenerator {
 		«ENDIF»
 	'''
 	
+	def String getInputValidation(Feature f){
+		if(f.type == SimpleType.INT)
+			"onChange=\"validateInteger(value)\""
+		else if(f.type == SimpleType.DOUBLE)
+			"onChange=\"validateDouble(value)\""
+		else
+			""
+	}
+	
 	def String getGroupCode(Group g, Feature f, String name)'''
 		«IF (g != null)»
 			«IF g.inclusive» ««« select any 
 				«FOR gf : g.groupedFeatures»
-					<br> <input type="checkbox" id="«name»«gf.name.toLowerCase»" name="«f.name»"> «gf.name» «getFeatureCode(gf, name+gf.name.toLowerCase)»
+					<br> <input type="checkbox" id="«name»«gf.name.toLowerCase»" name="«f.name»" value="«gf.name»"> «gf.name» «getFeatureCode(gf, name+gf.name.toLowerCase)»
 				«ENDFOR»
 			«ELSE»«««	select one
 <select id="«name»" name="«f.name»">
@@ -158,15 +496,7 @@ class MyDslGenerator implements IGenerator {
 					message += "error: «getConstraintsText(c, name)»";
 					message += "\n";
 				}
-		«ELSEIF (c instanceof Identifier)»
-			«val id = c as Identifier»
-			«IF (id.ref.get(id.ref.size - 1).type == SimpleType.BOOLEAN)»
-				«val i = id.ref.get(id.ref.size - 1) as SolitaryFeature»
-				«IF (i.required == SolitaryType.get("Mandatory"))»	true
-				«ELSE»	getItem(getID("«name».«i.name»"))«ENDIF»
-			«ENDIF»
 			
-		«ELSEIF (c instanceof Number)»
 		«ENDIF»'''
 	
 	def String getBinaryOperator(BinaryOperator op){
@@ -181,7 +511,6 @@ class MyDslGenerator implements IGenerator {
 		else if(op == BinaryOperator.HIGHER)
 			return ">"
 	}
-	
 	
 	def String getUnaryOperator(UnaryOperator op){
 		if(op == UnaryOperator.NOT)
@@ -235,6 +564,14 @@ class MyDslGenerator implements IGenerator {
 		return result.substring(0, result.length-1)
 	}
 	
+	def concatJavaNames(EList<Feature> list) {
+		var result = ""
+		for(Feature f: list){
+			result +=f.name
+		}
+		return result
+	}
+	
 	def String getConstraintsText(Expression c, String name){
 		if(c instanceof BinaryOperation){
 			val binOp = c as BinaryOperation
@@ -253,6 +590,7 @@ class MyDslGenerator implements IGenerator {
 			}
 		}
 	}
+	
 	def String getVariableText(Expression ex, String name){
 		if(ex instanceof BinaryOperation){
 			val e = ex as BinaryOperation
