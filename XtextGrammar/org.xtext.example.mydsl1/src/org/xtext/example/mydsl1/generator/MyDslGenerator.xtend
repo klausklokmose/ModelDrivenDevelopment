@@ -54,14 +54,14 @@ class MyDslGenerator implements IGenerator {
 		  
 		    // End of variables declaration  
 		
-		    public «it.name»() {
+		    public «name»() {
 		        initComponents();
 		    }
 		
 		    @SuppressWarnings("unchecked")                        
 		    private void initComponents() {
 		        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-		        setTitle("«it.name»");
+		        setTitle("«name»");
 		        getContentPane().setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
 		
 				 InputVerifier intVerifier = new InputVerifier() {
@@ -92,7 +92,7 @@ class MyDslGenerator implements IGenerator {
 				    };
 				    
 			//TODO
-				«getFeatureJava(it, it.name)»
+				«getFeatureJava(it, name)»
 		       
 		
 		        JPanel submitPanel = new JPanel();
@@ -117,7 +117,7 @@ class MyDslGenerator implements IGenerator {
 «««		        put constraint checking call
 				String check = check();
 				if(check.length() == 0){
-			        JOptionPane.showMessageDialog(null, "you have created a «it.name»");
+			        JOptionPane.showMessageDialog(null, "you have created a «name»");
 				}else{
 					JOptionPane.showMessageDialog(null, check);
 				}
@@ -147,14 +147,14 @@ class MyDslGenerator implements IGenerator {
 		                }
 		            }
 		        } catch (Exception ex) {
-		            java.util.logging.Logger.getLogger(«it.name».class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+		            java.util.logging.Logger.getLogger(«name».class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
 		        }
 		        //</editor-fold>
 		
 		        /* Create and display the form */
 		        java.awt.EventQueue.invokeLater(new Runnable() {
 		            public void run() {
-		                new «it.name»().setVisible(true);
+		                new «name»().setVisible(true);
 		            }
 		        });
 		    }
@@ -168,7 +168,7 @@ class MyDslGenerator implements IGenerator {
 «««				}
 				«FOR c : it.constraints»
 					//constraint
-						«getConstraintsJavaCode(c, it.name.toLowerCase)»
+						«getConstraintsJavaCode(c, name.toLowerCase)»
 								
 				«ENDFOR»
 				«FOR c : javaRequired»
@@ -176,6 +176,7 @@ class MyDslGenerator implements IGenerator {
 					if(«c».getText().equals("")){
 						message += "Error: «c» must be filled!\n";
 					}
+					
 				«ENDFOR»
 				return message;
 			}

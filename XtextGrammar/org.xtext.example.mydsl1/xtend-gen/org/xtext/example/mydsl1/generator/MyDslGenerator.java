@@ -421,6 +421,8 @@ public class MyDslGenerator implements IGenerator {
         _builder.append("\t\t");
         _builder.append("}");
         _builder.newLine();
+        _builder.append("\t\t");
+        _builder.newLine();
       }
     }
     _builder.append("\t\t");
