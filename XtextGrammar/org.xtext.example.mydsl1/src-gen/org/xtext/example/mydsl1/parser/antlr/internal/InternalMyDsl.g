@@ -501,164 +501,22 @@ ruleGroupedFeature returns [EObject current=null]
 )(
 (
 		{ 
-	        newCompositeNode(grammarAccess.getGroupedFeatureAccess().getTypeSimpleTypeEnumRuleCall_1_0()); 
+	        newCompositeNode(grammarAccess.getGroupedFeatureAccess().getNameEStringParserRuleCall_1_0()); 
 	    }
-		lv_type_1_0=ruleSimpleType		{
-	        if ($current==null) {
-	            $current = createModelElementForParent(grammarAccess.getGroupedFeatureRule());
-	        }
-       		set(
-       			$current, 
-       			"type",
-        		lv_type_1_0, 
-        		"SimpleType");
-	        afterParserOrEnumRuleCall();
-	    }
-
-)
-)?(
-(
-		{ 
-	        newCompositeNode(grammarAccess.getGroupedFeatureAccess().getNameEStringParserRuleCall_2_0()); 
-	    }
-		lv_name_2_0=ruleEString		{
+		lv_name_1_0=ruleEString		{
 	        if ($current==null) {
 	            $current = createModelElementForParent(grammarAccess.getGroupedFeatureRule());
 	        }
        		set(
        			$current, 
        			"name",
-        		lv_name_2_0, 
+        		lv_name_1_0, 
         		"EString");
 	        afterParserOrEnumRuleCall();
 	    }
 
 )
-)(	otherlv_3='{' 
-    {
-    	newLeafNode(otherlv_3, grammarAccess.getGroupedFeatureAccess().getLeftCurlyBracketKeyword_3_0());
-    }
-((
-(
-		{ 
-	        newCompositeNode(grammarAccess.getGroupedFeatureAccess().getGroupsGroupParserRuleCall_3_1_0_0()); 
-	    }
-		lv_groups_4_0=ruleGroup		{
-	        if ($current==null) {
-	            $current = createModelElementForParent(grammarAccess.getGroupedFeatureRule());
-	        }
-       		add(
-       			$current, 
-       			"groups",
-        		lv_groups_4_0, 
-        		"Group");
-	        afterParserOrEnumRuleCall();
-	    }
-
-)
-)(
-(
-		{ 
-	        newCompositeNode(grammarAccess.getGroupedFeatureAccess().getGroupsGroupParserRuleCall_3_1_1_0()); 
-	    }
-		lv_groups_5_0=ruleGroup		{
-	        if ($current==null) {
-	            $current = createModelElementForParent(grammarAccess.getGroupedFeatureRule());
-	        }
-       		add(
-       			$current, 
-       			"groups",
-        		lv_groups_5_0, 
-        		"Group");
-	        afterParserOrEnumRuleCall();
-	    }
-
-)
-)*)?((
-(
-		{ 
-	        newCompositeNode(grammarAccess.getGroupedFeatureAccess().getFeaturesSolitaryFeatureParserRuleCall_3_2_0_0()); 
-	    }
-		lv_features_6_0=ruleSolitaryFeature		{
-	        if ($current==null) {
-	            $current = createModelElementForParent(grammarAccess.getGroupedFeatureRule());
-	        }
-       		add(
-       			$current, 
-       			"features",
-        		lv_features_6_0, 
-        		"SolitaryFeature");
-	        afterParserOrEnumRuleCall();
-	    }
-
-)
-)(
-(
-		{ 
-	        newCompositeNode(grammarAccess.getGroupedFeatureAccess().getFeaturesSolitaryFeatureParserRuleCall_3_2_1_0()); 
-	    }
-		lv_features_7_0=ruleSolitaryFeature		{
-	        if ($current==null) {
-	            $current = createModelElementForParent(grammarAccess.getGroupedFeatureRule());
-	        }
-       		add(
-       			$current, 
-       			"features",
-        		lv_features_7_0, 
-        		"SolitaryFeature");
-	        afterParserOrEnumRuleCall();
-	    }
-
-)
-)*)?(	otherlv_8='#' 
-    {
-    	newLeafNode(otherlv_8, grammarAccess.getGroupedFeatureAccess().getNumberSignKeyword_3_3_0());
-    }
-(
-(
-		{ 
-	        newCompositeNode(grammarAccess.getGroupedFeatureAccess().getConstraintsExpressionParserRuleCall_3_3_1_0()); 
-	    }
-		lv_constraints_9_0=ruleExpression		{
-	        if ($current==null) {
-	            $current = createModelElementForParent(grammarAccess.getGroupedFeatureRule());
-	        }
-       		add(
-       			$current, 
-       			"constraints",
-        		lv_constraints_9_0, 
-        		"Expression");
-	        afterParserOrEnumRuleCall();
-	    }
-
-)
-)(	otherlv_10='#' 
-    {
-    	newLeafNode(otherlv_10, grammarAccess.getGroupedFeatureAccess().getNumberSignKeyword_3_3_2_0());
-    }
-(
-(
-		{ 
-	        newCompositeNode(grammarAccess.getGroupedFeatureAccess().getConstraintsExpressionParserRuleCall_3_3_2_1_0()); 
-	    }
-		lv_constraints_11_0=ruleExpression		{
-	        if ($current==null) {
-	            $current = createModelElementForParent(grammarAccess.getGroupedFeatureRule());
-	        }
-       		add(
-       			$current, 
-       			"constraints",
-        		lv_constraints_11_0, 
-        		"Expression");
-	        afterParserOrEnumRuleCall();
-	    }
-
-)
-))*)?	otherlv_12='}' 
-    {
-    	newLeafNode(otherlv_12, grammarAccess.getGroupedFeatureAccess().getRightCurlyBracketKeyword_3_4());
-    }
-)?)
+))
 ;
 
 
@@ -1009,15 +867,6 @@ ruleAtomicExp returns [EObject current=null]
         $current = $this_UnaryOperation_6.current; 
         afterParserOrEnumRuleCall();
     }
-
-    |
-    { 
-        newCompositeNode(grammarAccess.getAtomicExpAccess().getEBooleanParserRuleCall_5()); 
-    }
-ruleEBoolean
-    { 
-        afterParserOrEnumRuleCall();
-    }
 )
 ;
 
@@ -1177,38 +1026,6 @@ ruleEInt returns [AntlrDatatypeRuleToken current=new AntlrDatatypeRuleToken()]
     ;
 
 
-
-
-
-// Entry rule entryRuleEBoolean
-entryRuleEBoolean returns [String current=null] 
-	:
-	{ newCompositeNode(grammarAccess.getEBooleanRule()); } 
-	 iv_ruleEBoolean=ruleEBoolean 
-	 { $current=$iv_ruleEBoolean.current.getText(); }  
-	 EOF 
-;
-
-// Rule EBoolean
-ruleEBoolean returns [AntlrDatatypeRuleToken current=new AntlrDatatypeRuleToken()] 
-    @init { enterRule(); 
-    }
-    @after { leaveRule(); }:
-(
-	kw='true' 
-    {
-        $current.merge(kw);
-        newLeafNode(kw, grammarAccess.getEBooleanAccess().getTrueKeyword_0()); 
-    }
-
-    |
-	kw='false' 
-    {
-        $current.merge(kw);
-        newLeafNode(kw, grammarAccess.getEBooleanAccess().getFalseKeyword_1()); 
-    }
-)
-    ;
 
 
 

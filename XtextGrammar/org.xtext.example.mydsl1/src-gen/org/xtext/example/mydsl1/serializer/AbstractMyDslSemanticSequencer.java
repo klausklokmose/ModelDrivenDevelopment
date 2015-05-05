@@ -150,11 +150,7 @@ public abstract class AbstractMyDslSemanticSequencer extends AbstractDelegatingS
 	
 	/**
 	 * Constraint:
-	 *     (
-	 *         type=SimpleType? 
-	 *         name=EString 
-	 *         ((groups+=Group groups+=Group*)? (features+=SolitaryFeature features+=SolitaryFeature*)? (constraints+=Expression constraints+=Expression*)?)?
-	 *     )
+	 *     name=EString
 	 */
 	protected void sequence_GroupedFeature(EObject context, GroupedFeature semanticObject) {
 		genericSequencer.createSequence(context, semanticObject);

@@ -8,14 +8,20 @@ import featureModel.BinaryOperation;
 import featureModel.BinaryOperator;
 import featureModel.Expression;
 import featureModel.Feature;
+import featureModel.Group;
 import featureModel.Identifier;
+import featureModel.Model;
 import featureModel.NULL;
 import featureModel.SimpleType;
+import featureModel.SolitaryFeature;
 import featureModel.UnaryOperation;
 import featureModel.UnaryOperator;
+import java.util.function.Consumer;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.xtext.validation.Check;
 import org.eclipse.xtext.xbase.lib.Exceptions;
+import org.eclipse.xtext.xbase.lib.Functions.Function1;
+import org.eclipse.xtext.xbase.lib.IterableExtensions;
 import org.xtext.example.mydsl1.validation.AbstractMyDslValidator;
 
 /**
@@ -25,8 +31,75 @@ import org.xtext.example.mydsl1.validation.AbstractMyDslValidator;
  */
 @SuppressWarnings("all")
 public class MyDslValidator extends AbstractMyDslValidator {
+  private int count = 0;
+  
   @Check
-  public void TopConstraintShouldBeBoolean(final Feature f) {
+  public void onlyOneSelectGroupPerFeature(final Feature it) {
+    this.count = 0;
+    EList<Group> _groups = it.getGroups();
+    final Consumer<Group> _function = new Consumer<Group>() {
+      public void accept(final Group g) {
+        boolean _isInclusive = g.isInclusive();
+        boolean _not = (!_isInclusive);
+        if (_not) {
+          MyDslValidator.this.count++;
+        }
+      }
+    };
+    _groups.forEach(_function);
+    if ((this.count > 1)) {
+      this.error("Only 1 exclusive select in a feature!", it, null, "");
+    }
+  }
+  
+  @Check
+  public void onlyRootFeatureCanHaveConstraints(final Model it) {
+    EList<Feature> _rootFeature = it.getRootFeature();
+    final Function1<Feature, Boolean> _function = new Function1<Feature, Boolean>() {
+      public Boolean apply(final Feature features) {
+        return Boolean.valueOf(MyDslValidator.this.check(features));
+      }
+    };
+    final boolean r = IterableExtensions.<Feature>forall(_rootFeature, _function);
+    if ((!r)) {
+      this.error("Put constraints after the last feature.", it, null, "put constraints in root feature");
+    }
+  }
+  
+  public boolean check(final Feature it) {
+    EList<SolitaryFeature> _features = it.getFeatures();
+    final Function1<SolitaryFeature, Boolean> _function = new Function1<SolitaryFeature, Boolean>() {
+      public Boolean apply(final SolitaryFeature features) {
+        return Boolean.valueOf(MyDslValidator.this.checkNotContainConstraints(features));
+      }
+    };
+    return IterableExtensions.<SolitaryFeature>forall(_features, _function);
+  }
+  
+  public boolean checkNotContainConstraints(final Feature it) {
+    EList<Expression> _constraints = it.getConstraints();
+    final boolean r = _constraints.isEmpty();
+    if ((!r)) {
+      this.error("only rootfeature can have constraints", it, null, "put constraints in root feature");
+    }
+    boolean _and = false;
+    if (!r) {
+      _and = false;
+    } else {
+      EList<SolitaryFeature> _features = it.getFeatures();
+      final Function1<SolitaryFeature, Boolean> _function = new Function1<SolitaryFeature, Boolean>() {
+        public Boolean apply(final SolitaryFeature features) {
+          return Boolean.valueOf(MyDslValidator.this.checkNotContainConstraints(features));
+        }
+      };
+      boolean _forall = IterableExtensions.<SolitaryFeature>forall(_features, _function);
+      _and = _forall;
+    }
+    return _and;
+  }
+  
+  @Check
+  public void topConstraintShouldBeBoolean(final Feature f) {
     EList<Expression> _constraints = f.getConstraints();
     for (final Expression constraint : _constraints) {
       SimpleType _type = this.getType(constraint);
@@ -34,7 +107,7 @@ public class MyDslValidator extends AbstractMyDslValidator {
       boolean _equals = Objects.equal(_type, _get);
       boolean _not = (!_equals);
       if (_not) {
-        this.warning("top constraint should be boolean", f, null, "invalid type");
+        this.error("top constraint must be boolean", f, null, "invalid type");
       }
     }
   }

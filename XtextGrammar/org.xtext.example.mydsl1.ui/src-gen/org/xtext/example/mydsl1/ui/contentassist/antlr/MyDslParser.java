@@ -59,11 +59,6 @@ public class MyDslParser extends AbstractContentAssistParser {
 					put(grammarAccess.getGroupAccess().getGroup(), "rule__Group__Group__0");
 					put(grammarAccess.getGroupAccess().getGroup_4(), "rule__Group__Group_4__0");
 					put(grammarAccess.getGroupedFeatureAccess().getGroup(), "rule__GroupedFeature__Group__0");
-					put(grammarAccess.getGroupedFeatureAccess().getGroup_3(), "rule__GroupedFeature__Group_3__0");
-					put(grammarAccess.getGroupedFeatureAccess().getGroup_3_1(), "rule__GroupedFeature__Group_3_1__0");
-					put(grammarAccess.getGroupedFeatureAccess().getGroup_3_2(), "rule__GroupedFeature__Group_3_2__0");
-					put(grammarAccess.getGroupedFeatureAccess().getGroup_3_3(), "rule__GroupedFeature__Group_3_3__0");
-					put(grammarAccess.getGroupedFeatureAccess().getGroup_3_3_2(), "rule__GroupedFeature__Group_3_3_2__0");
 					put(grammarAccess.getExpressionAccess().getGroup(), "rule__Expression__Group__0");
 					put(grammarAccess.getExpressionAccess().getGroup_1(), "rule__Expression__Group_1__0");
 					put(grammarAccess.getLogical2OperationAccess().getGroup(), "rule__Logical2Operation__Group__0");
@@ -90,14 +85,7 @@ public class MyDslParser extends AbstractContentAssistParser {
 					put(grammarAccess.getGroupAccess().getInclusiveAssignment_1(), "rule__Group__InclusiveAssignment_1");
 					put(grammarAccess.getGroupAccess().getGroupedFeaturesAssignment_3(), "rule__Group__GroupedFeaturesAssignment_3");
 					put(grammarAccess.getGroupAccess().getGroupedFeaturesAssignment_4_1(), "rule__Group__GroupedFeaturesAssignment_4_1");
-					put(grammarAccess.getGroupedFeatureAccess().getTypeAssignment_1(), "rule__GroupedFeature__TypeAssignment_1");
-					put(grammarAccess.getGroupedFeatureAccess().getNameAssignment_2(), "rule__GroupedFeature__NameAssignment_2");
-					put(grammarAccess.getGroupedFeatureAccess().getGroupsAssignment_3_1_0(), "rule__GroupedFeature__GroupsAssignment_3_1_0");
-					put(grammarAccess.getGroupedFeatureAccess().getGroupsAssignment_3_1_1(), "rule__GroupedFeature__GroupsAssignment_3_1_1");
-					put(grammarAccess.getGroupedFeatureAccess().getFeaturesAssignment_3_2_0(), "rule__GroupedFeature__FeaturesAssignment_3_2_0");
-					put(grammarAccess.getGroupedFeatureAccess().getFeaturesAssignment_3_2_1(), "rule__GroupedFeature__FeaturesAssignment_3_2_1");
-					put(grammarAccess.getGroupedFeatureAccess().getConstraintsAssignment_3_3_1(), "rule__GroupedFeature__ConstraintsAssignment_3_3_1");
-					put(grammarAccess.getGroupedFeatureAccess().getConstraintsAssignment_3_3_2_1(), "rule__GroupedFeature__ConstraintsAssignment_3_3_2_1");
+					put(grammarAccess.getGroupedFeatureAccess().getNameAssignment_1(), "rule__GroupedFeature__NameAssignment_1");
 					put(grammarAccess.getExpressionAccess().getOperatorAssignment_1_1(), "rule__Expression__OperatorAssignment_1_1");
 					put(grammarAccess.getExpressionAccess().getRexpAssignment_1_2(), "rule__Expression__RexpAssignment_1_2");
 					put(grammarAccess.getLogical2OperationAccess().getOperatorAssignment_1_1(), "rule__Logical2Operation__OperatorAssignment_1_1");

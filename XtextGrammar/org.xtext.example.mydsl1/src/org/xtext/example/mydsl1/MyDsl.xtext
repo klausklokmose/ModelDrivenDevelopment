@@ -40,15 +40,15 @@ Group returns Group:
 
 GroupedFeature returns GroupedFeature:
 	{GroupedFeature}
-	(type=SimpleType)?
+//	(type=SimpleType)?
 	name=EString
-	(
-	'{'
-			(groups += Group ( groups+=Group)* )?
-			(features += SolitaryFeature ( features += SolitaryFeature)* )?
-		('#' constraints+=Expression ( '#' constraints += Expression )* )?
-	'}'
-	)?
+//	(
+//	'{'
+//			(groups += Group ( groups+=Group)* )?
+//			(features += SolitaryFeature ( features += SolitaryFeature)* )?
+//		('#' constraints+=Expression ( '#' constraints += Expression )* )?
+//	'}'
+//	)?
 ;
 
 Expression returns Expression:

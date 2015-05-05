@@ -13,6 +13,7 @@ import featureModel.SimpleType
 import featureModel.UnaryOperation
 import featureModel.UnaryOperator
 import org.eclipse.xtext.validation.Check
+import featureModel.Model
 
 /**
  * Custom validation rules. 
@@ -21,24 +22,53 @@ import org.eclipse.xtext.validation.Check
  */
 class MyDslValidator extends AbstractMyDslValidator {
 
+	var count = 0;
 	@Check
-	def TopConstraintShouldBeBoolean(Feature f) {
+	def onlyOneSelectGroupPerFeature(Feature it){
+		count = 0;
+		groups.forEach[g | if (!g.inclusive) count++ ]
+		if(count > 1){
+			error('Only 1 exclusive select in a feature!', it, null, '')
+		}
+	}
+
+	@Check
+	def onlyRootFeatureCanHaveConstraints(Model it){
+		val r = rootFeature.forall[features |  check(features)]
+		if(!r){
+			error('Put constraints after the last feature.', it, null, 'put constraints in root feature')
+		}
+	}
+	
+	def boolean check(Feature it){
+		features.forall[features | checkNotContainConstraints(features)]
+	}
+	
+	def boolean checkNotContainConstraints(Feature it) {
+		val r = constraints.isEmpty
+		if(!r){
+			error('only rootfeature can have constraints', it, null, 'put constraints in root feature')
+		}
+		return r && features.forall[features | checkNotContainConstraints(features)]
+	}
+
+	@Check
+	def topConstraintShouldBeBoolean(Feature f) {
 //		f.constraints.forall[topConstraint | getType(topConstraint) == SimpleType.get('boolean')]
-		
 		for (Expression constraint : f.constraints) {
 			if (!(getType(constraint) == SimpleType.get('boolean'))){
-					warning('top constraint should be boolean', f, null, 'invalid type')
+					error('top constraint must be boolean', f, null, 'invalid type')
 			}
 		}
 	}
 
 	def SimpleType getType(Expression e) {
-//Identifier
+	//Identifier
 		if (e instanceof Identifier) {
 			val id = e as Identifier
 			id.ref.get(id.ref.size - 1).type
-//BinaryOperation
-		} else if (e instanceof BinaryOperation) {
+	//BinaryOperation
+		}else if (e instanceof BinaryOperation) {
 			val binOp = e as BinaryOperation
 			val left = binOp.lexp
 			val right = binOp.rexp
@@ -56,7 +86,6 @@ class MyDslValidator extends AbstractMyDslValidator {
 					SimpleType.get('boolean')
 				} else if (	op == BinaryOperator.get('Divide') || op == BinaryOperator.get('Multiply') ||
 							op == BinaryOperator.get('Add') || op == BinaryOperator.get('Subtract')) {
-								
 					if (ltype == rtype && 
 						(ltype == SimpleType.get('int') || ltype == SimpleType.get('double'))
 					) {
@@ -66,8 +95,8 @@ class MyDslValidator extends AbstractMyDslValidator {
 					}
 				}
 			}
-//UnaryOperation
-		} else if (e instanceof UnaryOperation) {
+	//UnaryOperation
+		}else if (e instanceof UnaryOperation) {
 			val ex = e as UnaryOperation
 			val extype = getType(ex.exp)
 			if( (ex.operator == UnaryOperator.get('Not') && (extype == SimpleType.get('boolean') || extype == SimpleType.get('nulltype') ))
@@ -77,13 +106,13 @@ class MyDslValidator extends AbstractMyDslValidator {
 			}else{
 				throw new Exception("invalid type")
 			}
-//Number
-		} else if (e instanceof Number) {
+	//Number
+		}else if (e instanceof Number) {
 			SimpleType.get('int')
-//NULL
-		} else if(e instanceof NULL){
+	//NULL
+		}else if(e instanceof NULL){
 			SimpleType.get('nulltype')
-		} else{
+		}else{
 			SimpleType.get('nulltype')
 		}
 		//TODO add True and False as expressions

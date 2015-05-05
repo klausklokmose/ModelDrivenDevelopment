@@ -18,13 +18,11 @@ import featureModel.SolitaryFeature
 import featureModel.SolitaryType
 import featureModel.UnaryOperation
 import featureModel.UnaryOperator
+import java.util.ArrayList
 import org.eclipse.emf.common.util.EList
 import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.xtext.generator.IFileSystemAccess
 import org.eclipse.xtext.generator.IGenerator
-import java.util.ArrayList
-import javax.tools.JavaCompiler.CompilationTask
-import java.util.AbstractMap.SimpleEntry
 
 class MyDslGenerator implements IGenerator {
 	
@@ -34,16 +32,22 @@ class MyDslGenerator implements IGenerator {
 //		fsa.generateFile(m.rootFeature.get(0).name+'.java', toJava(m))
 //	}
 
+	val javaFields = new ArrayList<String>();
+	val javaRequired = new ArrayList<String>();
+	
 	override void doGenerate(Resource resource, IFileSystemAccess fsa) {
 		var m = resource.contents.head as Model
 		for(Feature root : m.rootFeature)
 		{
+			
 			fsa.generateFile(root.name+'.php', toHTML(root))
 			fsa.generateFile(root.name+'.java', toJava(root))
 		}
 	}
 	
 	def toJava(Feature it)'''
+		«javaFields.clear»«««	hack
+		«javaRequired.clear»
 		import java.awt.*;
 		import java.awt.event.*;
 		import javax.swing.*;
@@ -52,8 +56,6 @@ class MyDslGenerator implements IGenerator {
 		
 		public class «name» extends JFrame {
 		  
-		    // End of variables declaration  
-		
 		    public «name»() {
 		        initComponents();
 		    }
@@ -64,36 +66,34 @@ class MyDslGenerator implements IGenerator {
 		        setTitle("«name»");
 		        getContentPane().setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
 		
-				 InputVerifier intVerifier = new InputVerifier() {
-		            public boolean verify(JComponent input) {
-		              final JTextComponent source = (JTextComponent)input;
-		              if(!(source.getText().equals("") || validateInteger(source.getText()))){
-		            	  JOptionPane.showMessageDialog(null,
-		            	          "Error: must be an Integer", "Error Message",
-		            	          JOptionPane.ERROR_MESSAGE);
-		            	  return false;
-		              } else {
-		            	  return true;
-		              }
-		            }
-		          };
-				  InputVerifier doubleVerifier = new InputVerifier() {
-				      public boolean verify(JComponent input) {
-				        final JTextComponent source = (JTextComponent)input;
-				        if(!(source.getText().equals("") || validateDouble(source.getText()))){
-				      	  JOptionPane.showMessageDialog(null,
-				      	          "Error: must be Double", "Error Massage",
-				      	          JOptionPane.ERROR_MESSAGE);
-				      	  return false;
-				        } else {
-				      	  return true;
-				        }
-				      }
-				    };
-				    
-			//TODO
+				InputVerifier intVerifier = new InputVerifier() {
+					public boolean verify(JComponent input) {
+						final JTextComponent source = (JTextComponent)input;
+							if(!(source.getText().equals("") || validateInteger(source.getText()))){
+								JOptionPane.showMessageDialog(null,"Error: must be an Integer", "Error Message", JOptionPane.ERROR_MESSAGE);
+							return false;
+						}else {
+							return true;
+						}
+					}
+		        };
+				InputVerifier doubleVerifier = new InputVerifier() {
+					public boolean verify(JComponent input) {
+						final JTextComponent source = (JTextComponent)input;
+						if(!(source.getText().equals("") || validateDouble(source.getText()))){
+							JOptionPane.showMessageDialog(null, "Error: must be Double", "Error Massage", JOptionPane.ERROR_MESSAGE);
+							return false;
+						}else {
+							return true;
+						}
+					}
+				};
+				
+		//Features of the root feature
+				«name.toFirstLower»Panel = createPanel("«name»");
+				«addToJavaFields("JPanel", name.toFirstLower+"Panel")»
 				«getFeatureJava(it, name)»
-		       
+				getContentPane().add(«name.toFirstLower»Panel);
 		
 		        JPanel submitPanel = new JPanel();
 		        submitPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
@@ -105,14 +105,18 @@ class MyDslGenerator implements IGenerator {
 		            }
 		        });
 		        
+		        JScrollPane scrollPane = new JScrollPane(«name.toFirstLower»Panel);
+		        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+				getContentPane().add(scrollPane);
+		
 		        submitPanel.add(submitButton);
 		        getContentPane().add(submitPanel);
-		        setMinimumSize(new Dimension(400,HEIGHT));
-		
+				setMinimumSize(new Dimension(400, 700));
 		        pack();
-		    }// </editor-fold>                        
+		    }
 		
-		    private void submitButtonActionPerformed(ActionEvent evt) {                                             
+		    private void submitButtonActionPerformed(ActionEvent evt) {
 		        // TODO add your handling code here:
 «««		        put constraint checking call
 				String check = check();
@@ -126,19 +130,11 @@ class MyDslGenerator implements IGenerator {
 		    private JPanel createPanel(String title){
 		        JPanel resultPanel = new JPanel(); 
 		        resultPanel.setBorder(BorderFactory.createTitledBorder(title));
-		        resultPanel.setLayout(new BoxLayout(resultPanel, BoxLayout.Y_AXIS));        
+		        resultPanel.setLayout(new BoxLayout(resultPanel, BoxLayout.Y_AXIS));
 		        return resultPanel;
 		    }
 		
-		    /**
-		     * @param args the command line arguments
-		     */
 		    public static void main(String args[]) {
-		        /* Set the Nimbus look and feel */
-		        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-		        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-		         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-		         */
 		        try {
 		            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
 		                if ("Nimbus".equals(info.getName())) {
@@ -149,7 +145,6 @@ class MyDslGenerator implements IGenerator {
 		        } catch (Exception ex) {
 		            java.util.logging.Logger.getLogger(«name».class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
 		        }
-		        //</editor-fold>
 		
 		        /* Create and display the form */
 		        java.awt.EventQueue.invokeLater(new Runnable() {
@@ -161,22 +156,17 @@ class MyDslGenerator implements IGenerator {
 		    
 			private String check() {
 				String message = "";
-«««				pokemonHeightField.getText().equals("")||
-«««				if(!(Integer.parseInt(pokemonHeightField.getText()) > 0)){
-«««					message += "error: pokemonHeightField > 0";
-«««					message += "\n";
-«««				}
 				«FOR c : it.constraints»
-					//constraint
-						«getConstraintsJavaCode(c, name.toLowerCase)»
-								
+				//constraint
+				«getConstraintsJavaCode(c, name.toFirstLower)»
 				«ENDFOR»
+				
 				«FOR c : javaRequired»
-			//mandatory field constraint
+				//mandatory field constraint
 					if(«c».getText().equals("")){
 						message += "Error: «c» must be filled!\n";
 					}
-					
+				
 				«ENDFOR»
 				return message;
 			}
@@ -188,40 +178,44 @@ class MyDslGenerator implements IGenerator {
 		    public static boolean validateDouble(String value) {
 		        return value.matches("^[-]?[0-9]+([.][0-9]+)?$");
 		    }
-		    
+		    //submit button field
 			private JButton submitButton;
+			//field for swing componenets
 			«FOR String field: javaFields»
 				private «field»;
 			«ENDFOR»
-		}
-	'''
-	var javaFields = new ArrayList<String>();
-	var javaRequired = new ArrayList<String>();
+		}'''
 	
 	def addToJavaFields(String type, String name){
-		javaFields.add(type+" "+name);
+		val tmp = javaFields.add(type+" "+name);
+		
 	}
+	
+	def addToJavaRequired(String s){	
+		val tmp = javaRequired.add(s);
+	}
+
 	def String getFeatureJava(Feature f, String name)'''
 		«val lname = name.toFirstLower»
 		«IF (f != null)»
 			«FOR feature : f.features»
 				«lname+feature.name»Panel = createPanel("«feature.name»");
-				«val v = addToJavaFields("JPanel",lname+feature.name+"Panel")»
+				«addToJavaFields("JPanel",lname+feature.name+"Panel")»
 				«IF (feature.type == SimpleType.BOOLEAN)»
 					«IF feature.required == SolitaryType.OPTIONAL»
 						 «lname+feature.name»Option = new JCheckBox("«feature.name»");
 					«lname+feature.name»Panel.add(«lname+feature.name»Option);
-						 «val d = addToJavaFields("JCheckBox", lname+feature.name+"Option")»
+						 «addToJavaFields("JCheckBox", lname+feature.name+"Option")»
 					«ENDIF»
 				«ELSEIF feature.required == SolitaryType.MANDATORY»
 					«lname+feature.name»Field = new JTextField();
 					«lname+feature.name»Panel.add(«lname+feature.name»Field);
-					«val c = addToJavaFields("JTextField", lname+feature.name+"Field")»
-					«val constraint = javaRequired.add(lname+feature.name+"Field")»
+					«addToJavaFields("JTextField", lname+feature.name+"Field")»
+					«addToJavaRequired(lname+feature.name+"Field")»
 				«ELSE»
 					«lname+feature.name»Field = new JTextField();
 					«lname+feature.name»Panel.add(«lname+feature.name»Field);
-					«val e = addToJavaFields("JTextField", lname+feature.name+"Field")»
+					«addToJavaFields("JTextField", lname+feature.name+"Field")»
 				«ENDIF»
 					«IF feature.type == SimpleType.INT»
 				«lname+feature.name»Field.setInputVerifier(intVerifier);
@@ -229,31 +223,35 @@ class MyDslGenerator implements IGenerator {
 				«lname+feature.name»Field.setInputVerifier(doubleVerifier);
 					«ENDIF»
 				«getFeatureJava(feature, lname+feature.name)»
-				getContentPane().add(«lname+feature.name»Panel);
+«««				getContentPane().add(«lname+feature.name»Panel);
+				«name.toFirstLower»Panel.add(«lname+feature.name»Panel);
 			«ENDFOR»
 			
 			«FOR g : f.groups»
 				«getGroupJavaCode(g, f, lname)»
-					
+				
 			«ENDFOR»
 		«ENDIF»
 	'''
 	
 	def getGroupJavaCode(Group group, Feature f, String name)'''
 		«IF (group != null)»
-			«IF group.inclusive» ««« select any 
+			««« select any
+			«IF group.inclusive»  
 				«FOR groupedFeature : group.groupedFeatures»
 					«val gName = name+groupedFeature.name.toFirstUpper+"Option"»
 					«gName» = new JCheckBox("«groupedFeature.name»");
 					«name»Panel.add(«gName»);
-					«val b = addToJavaFields("JCheckBox", gName)»
+					«addToJavaFields("JCheckBox", gName)»
 					
 				«ENDFOR»
-			«ELSE»«««	select one
+			«««	select one
+			«ELSE»
 				«name»Select = new JComboBox();
-				«val c = addToJavaFields("JComboBox", name+"Select")»
-				«name»Select.setModel(new javax.swing.DefaultComboBoxModel(new String[] {
-					«getGroupedFeatureNames(group)»
+				«addToJavaFields("JComboBox", name+"Select")»
+				«name»Select.setModel(new javax.swing.DefaultComboBoxModel(
+					new String[] {
+						«getGroupedFeatureNames(group)»
 				}));
 				«name»Panel.add(«name»Select);
 			«ENDIF»
@@ -340,7 +338,7 @@ class MyDslGenerator implements IGenerator {
 					<h1>«it.name»</h1>
 					<form action="<?php echo $_SERVER['PHP_SELF'];?>" method="POST" onsubmit="return check()">
 «««						feature code
-						«getFeatureCode(it, it.name)»<br>
+						«getFeatureCode(it, it.name.toLowerCase)»<br>
 						<input type="submit" name="form" value="Update">
 					</form>
 					
@@ -382,7 +380,6 @@ class MyDslGenerator implements IGenerator {
 						}
 						
 						function getItem(name){
-							console.log(str);
 							return document.getElementById(name);
 						}
 						
@@ -391,7 +388,6 @@ class MyDslGenerator implements IGenerator {
 						}
 						
 						function getID(str){
-							console.log(str);
 							return str.toLowerCase().replace(/\./g,'');
 						}
 						
@@ -402,17 +398,16 @@ class MyDslGenerator implements IGenerator {
 						}
 						
 						function validateInteger(value) {
-							var pattern = /^[-]?\[0-9]+$/;
+							var pattern = /^[-]?[0-9]+$/;
 							if(!(pattern.test(value))){
 								alert('input: expected Integer, but was '+value);
-								value="";
 							}
 						}
 						
 						function validateDouble(value) {
 							var pattern = /^[-]?[0-9]+([.][0-9]+)?$/;
 							if(!(pattern.test(value))){
-								alert('input: expected Integer, but was '+value);
+								alert('input: expected Double, but was '+value);
 							}
 						}
 						

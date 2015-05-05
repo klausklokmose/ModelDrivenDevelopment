@@ -20,7 +20,6 @@ public abstract class AbstractMyDslSyntacticSequencer extends AbstractSyntacticS
 	protected MyDslGrammarAccess grammarAccess;
 	protected AbstractElementAlias match_AtomicExp_LeftParenthesisKeyword_3_0_a;
 	protected AbstractElementAlias match_AtomicExp_LeftParenthesisKeyword_3_0_p;
-	protected AbstractElementAlias match_GroupedFeature___LeftCurlyBracketKeyword_3_0_RightCurlyBracketKeyword_3_4__q;
 	protected AbstractElementAlias match_SolitaryFeature___LeftCurlyBracketKeyword_4_0_RightCurlyBracketKeyword_4_4__q;
 	
 	@Inject
@@ -28,26 +27,14 @@ public abstract class AbstractMyDslSyntacticSequencer extends AbstractSyntacticS
 		grammarAccess = (MyDslGrammarAccess) access;
 		match_AtomicExp_LeftParenthesisKeyword_3_0_a = new TokenAlias(true, true, grammarAccess.getAtomicExpAccess().getLeftParenthesisKeyword_3_0());
 		match_AtomicExp_LeftParenthesisKeyword_3_0_p = new TokenAlias(true, false, grammarAccess.getAtomicExpAccess().getLeftParenthesisKeyword_3_0());
-		match_GroupedFeature___LeftCurlyBracketKeyword_3_0_RightCurlyBracketKeyword_3_4__q = new GroupAlias(false, true, new TokenAlias(false, false, grammarAccess.getGroupedFeatureAccess().getLeftCurlyBracketKeyword_3_0()), new TokenAlias(false, false, grammarAccess.getGroupedFeatureAccess().getRightCurlyBracketKeyword_3_4()));
 		match_SolitaryFeature___LeftCurlyBracketKeyword_4_0_RightCurlyBracketKeyword_4_4__q = new GroupAlias(false, true, new TokenAlias(false, false, grammarAccess.getSolitaryFeatureAccess().getLeftCurlyBracketKeyword_4_0()), new TokenAlias(false, false, grammarAccess.getSolitaryFeatureAccess().getRightCurlyBracketKeyword_4_4()));
 	}
 	
 	@Override
 	protected String getUnassignedRuleCallToken(EObject semanticObject, RuleCall ruleCall, INode node) {
-		if(ruleCall.getRule() == grammarAccess.getEBooleanRule())
-			return getEBooleanToken(semanticObject, ruleCall, node);
 		return "";
 	}
 	
-	/**
-	 * EBoolean returns ecore::EBoolean:
-	 * 	'true' | 'false';
-	 */
-	protected String getEBooleanToken(EObject semanticObject, RuleCall ruleCall, INode node) {
-		if (node != null)
-			return getTokenText(node);
-		return "true";
-	}
 	
 	@Override
 	protected void emitUnassignedTokens(EObject semanticObject, ISynTransition transition, INode fromNode, INode toNode) {
@@ -59,8 +46,6 @@ public abstract class AbstractMyDslSyntacticSequencer extends AbstractSyntacticS
 				emit_AtomicExp_LeftParenthesisKeyword_3_0_a(semanticObject, getLastNavigableState(), syntaxNodes);
 			else if(match_AtomicExp_LeftParenthesisKeyword_3_0_p.equals(syntax))
 				emit_AtomicExp_LeftParenthesisKeyword_3_0_p(semanticObject, getLastNavigableState(), syntaxNodes);
-			else if(match_GroupedFeature___LeftCurlyBracketKeyword_3_0_RightCurlyBracketKeyword_3_4__q.equals(syntax))
-				emit_GroupedFeature___LeftCurlyBracketKeyword_3_0_RightCurlyBracketKeyword_3_4__q(semanticObject, getLastNavigableState(), syntaxNodes);
 			else if(match_SolitaryFeature___LeftCurlyBracketKeyword_4_0_RightCurlyBracketKeyword_4_4__q.equals(syntax))
 				emit_SolitaryFeature___LeftCurlyBracketKeyword_4_0_RightCurlyBracketKeyword_4_4__q(semanticObject, getLastNavigableState(), syntaxNodes);
 			else acceptNodes(getLastNavigableState(), syntaxNodes);
@@ -80,14 +65,6 @@ public abstract class AbstractMyDslSyntacticSequencer extends AbstractSyntacticS
 	 *     '('+
 	 */
 	protected void emit_AtomicExp_LeftParenthesisKeyword_3_0_p(EObject semanticObject, ISynNavigable transition, List<INode> nodes) {
-		acceptNodes(transition, nodes);
-	}
-	
-	/**
-	 * Syntax:
-	 *     ('{' '}')?
-	 */
-	protected void emit_GroupedFeature___LeftCurlyBracketKeyword_3_0_RightCurlyBracketKeyword_3_4__q(EObject semanticObject, ISynNavigable transition, List<INode> nodes) {
 		acceptNodes(transition, nodes);
 	}
 	

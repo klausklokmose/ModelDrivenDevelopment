@@ -30,6 +30,10 @@ import org.eclipse.xtext.xbase.lib.StringExtensions;
 
 @SuppressWarnings("all")
 public class MyDslGenerator implements IGenerator {
+  private final ArrayList<String> javaFields = new ArrayList<String>();
+  
+  private final ArrayList<String> javaRequired = new ArrayList<String>();
+  
   public void doGenerate(final Resource resource, final IFileSystemAccess fsa) {
     EList<EObject> _contents = resource.getContents();
     EObject _head = IterableExtensions.<EObject>head(_contents);
@@ -51,6 +55,10 @@ public class MyDslGenerator implements IGenerator {
   
   public CharSequence toJava(final Feature it) {
     StringConcatenation _builder = new StringConcatenation();
+    this.javaFields.clear();
+    _builder.append("\t\t");
+    this.javaRequired.clear();
+    _builder.newLineIfNotEmpty();
     _builder.append("import java.awt.*;");
     _builder.newLine();
     _builder.append("import java.awt.event.*;");
@@ -68,10 +76,6 @@ public class MyDslGenerator implements IGenerator {
     _builder.append(" extends JFrame {");
     _builder.newLineIfNotEmpty();
     _builder.append("  ");
-    _builder.newLine();
-    _builder.append("    ");
-    _builder.append("// End of variables declaration  ");
-    _builder.newLine();
     _builder.newLine();
     _builder.append("    ");
     _builder.append("public ");
@@ -105,96 +109,103 @@ public class MyDslGenerator implements IGenerator {
     _builder.append("getContentPane().setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));");
     _builder.newLine();
     _builder.newLine();
-    _builder.append("\t\t ");
+    _builder.append("\t\t");
     _builder.append("InputVerifier intVerifier = new InputVerifier() {");
     _builder.newLine();
-    _builder.append("            ");
+    _builder.append("\t\t\t");
     _builder.append("public boolean verify(JComponent input) {");
     _builder.newLine();
-    _builder.append("              ");
+    _builder.append("\t\t\t\t");
     _builder.append("final JTextComponent source = (JTextComponent)input;");
     _builder.newLine();
-    _builder.append("              ");
+    _builder.append("\t\t\t\t\t");
     _builder.append("if(!(source.getText().equals(\"\") || validateInteger(source.getText()))){");
     _builder.newLine();
-    _builder.append("            \t  ");
-    _builder.append("JOptionPane.showMessageDialog(null,");
+    _builder.append("\t\t\t\t\t\t");
+    _builder.append("JOptionPane.showMessageDialog(null,\"Error: must be an Integer\", \"Error Message\", JOptionPane.ERROR_MESSAGE);");
     _builder.newLine();
-    _builder.append("            \t          ");
-    _builder.append("\"Error: must be an Integer\", \"Error Message\",");
-    _builder.newLine();
-    _builder.append("            \t          ");
-    _builder.append("JOptionPane.ERROR_MESSAGE);");
-    _builder.newLine();
-    _builder.append("            \t  ");
+    _builder.append("\t\t\t\t\t");
     _builder.append("return false;");
     _builder.newLine();
-    _builder.append("              ");
-    _builder.append("} else {");
+    _builder.append("\t\t\t\t");
+    _builder.append("}else {");
     _builder.newLine();
-    _builder.append("            \t  ");
+    _builder.append("\t\t\t\t\t");
     _builder.append("return true;");
     _builder.newLine();
-    _builder.append("              ");
+    _builder.append("\t\t\t\t");
     _builder.append("}");
     _builder.newLine();
-    _builder.append("            ");
+    _builder.append("\t\t\t");
     _builder.append("}");
     _builder.newLine();
-    _builder.append("          ");
+    _builder.append("        ");
     _builder.append("};");
     _builder.newLine();
-    _builder.append("\t\t  ");
+    _builder.append("\t\t");
     _builder.append("InputVerifier doubleVerifier = new InputVerifier() {");
     _builder.newLine();
-    _builder.append("\t\t      ");
+    _builder.append("\t\t\t");
     _builder.append("public boolean verify(JComponent input) {");
     _builder.newLine();
-    _builder.append("\t\t        ");
+    _builder.append("\t\t\t\t");
     _builder.append("final JTextComponent source = (JTextComponent)input;");
     _builder.newLine();
-    _builder.append("\t\t        ");
+    _builder.append("\t\t\t\t");
     _builder.append("if(!(source.getText().equals(\"\") || validateDouble(source.getText()))){");
     _builder.newLine();
-    _builder.append("\t\t      \t  ");
-    _builder.append("JOptionPane.showMessageDialog(null,");
+    _builder.append("\t\t\t\t\t");
+    _builder.append("JOptionPane.showMessageDialog(null, \"Error: must be Double\", \"Error Massage\", JOptionPane.ERROR_MESSAGE);");
     _builder.newLine();
-    _builder.append("\t\t      \t          ");
-    _builder.append("\"Error: must be Double\", \"Error Massage\",");
-    _builder.newLine();
-    _builder.append("\t\t      \t          ");
-    _builder.append("JOptionPane.ERROR_MESSAGE);");
-    _builder.newLine();
-    _builder.append("\t\t      \t  ");
+    _builder.append("\t\t\t\t\t");
     _builder.append("return false;");
     _builder.newLine();
-    _builder.append("\t\t        ");
-    _builder.append("} else {");
+    _builder.append("\t\t\t\t");
+    _builder.append("}else {");
     _builder.newLine();
-    _builder.append("\t\t      \t  ");
+    _builder.append("\t\t\t\t\t");
     _builder.append("return true;");
     _builder.newLine();
-    _builder.append("\t\t        ");
+    _builder.append("\t\t\t\t");
     _builder.append("}");
     _builder.newLine();
-    _builder.append("\t\t      ");
+    _builder.append("\t\t\t");
     _builder.append("}");
     _builder.newLine();
-    _builder.append("\t\t    ");
+    _builder.append("\t\t");
     _builder.append("};");
     _builder.newLine();
-    _builder.append("\t\t    ");
+    _builder.append("\t\t");
     _builder.newLine();
-    _builder.append("\t");
-    _builder.append("//TODO");
+    _builder.append("//Features of the root feature");
     _builder.newLine();
     _builder.append("\t\t");
     String _name_3 = it.getName();
-    String _featureJava = this.getFeatureJava(it, _name_3);
+    String _firstLower = StringExtensions.toFirstLower(_name_3);
+    _builder.append(_firstLower, "\t\t");
+    _builder.append("Panel = createPanel(\"");
+    String _name_4 = it.getName();
+    _builder.append(_name_4, "\t\t");
+    _builder.append("\");");
+    _builder.newLineIfNotEmpty();
+    _builder.append("\t\t");
+    String _name_5 = it.getName();
+    String _firstLower_1 = StringExtensions.toFirstLower(_name_5);
+    String _plus = (_firstLower_1 + "Panel");
+    this.addToJavaFields("JPanel", _plus);
+    _builder.newLineIfNotEmpty();
+    _builder.append("\t\t");
+    String _name_6 = it.getName();
+    String _featureJava = this.getFeatureJava(it, _name_6);
     _builder.append(_featureJava, "\t\t");
     _builder.newLineIfNotEmpty();
-    _builder.append("       ");
-    _builder.newLine();
+    _builder.append("\t\t");
+    _builder.append("getContentPane().add(");
+    String _name_7 = it.getName();
+    String _firstLower_2 = StringExtensions.toFirstLower(_name_7);
+    _builder.append(_firstLower_2, "\t\t");
+    _builder.append("Panel);");
+    _builder.newLineIfNotEmpty();
     _builder.newLine();
     _builder.append("        ");
     _builder.append("JPanel submitPanel = new JPanel();");
@@ -226,24 +237,40 @@ public class MyDslGenerator implements IGenerator {
     _builder.append("        ");
     _builder.newLine();
     _builder.append("        ");
+    _builder.append("JScrollPane scrollPane = new JScrollPane(");
+    String _name_8 = it.getName();
+    String _firstLower_3 = StringExtensions.toFirstLower(_name_8);
+    _builder.append(_firstLower_3, "        ");
+    _builder.append("Panel);");
+    _builder.newLineIfNotEmpty();
+    _builder.append("        ");
+    _builder.append("scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);");
+    _builder.newLine();
+    _builder.append("        ");
+    _builder.append("scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);");
+    _builder.newLine();
+    _builder.append("\t\t");
+    _builder.append("getContentPane().add(scrollPane);");
+    _builder.newLine();
+    _builder.newLine();
+    _builder.append("        ");
     _builder.append("submitPanel.add(submitButton);");
     _builder.newLine();
     _builder.append("        ");
     _builder.append("getContentPane().add(submitPanel);");
     _builder.newLine();
-    _builder.append("        ");
-    _builder.append("setMinimumSize(new Dimension(400,HEIGHT));");
-    _builder.newLine();
+    _builder.append("\t\t");
+    _builder.append("setMinimumSize(new Dimension(400, 700));");
     _builder.newLine();
     _builder.append("        ");
     _builder.append("pack();");
     _builder.newLine();
     _builder.append("    ");
-    _builder.append("}// </editor-fold>                        ");
+    _builder.append("}");
     _builder.newLine();
     _builder.newLine();
     _builder.append("    ");
-    _builder.append("private void submitButtonActionPerformed(ActionEvent evt) {                                             ");
+    _builder.append("private void submitButtonActionPerformed(ActionEvent evt) {");
     _builder.newLine();
     _builder.append("        ");
     _builder.append("// TODO add your handling code here:");
@@ -256,8 +283,8 @@ public class MyDslGenerator implements IGenerator {
     _builder.newLine();
     _builder.append("\t        ");
     _builder.append("JOptionPane.showMessageDialog(null, \"you have created a ");
-    String _name_4 = it.getName();
-    _builder.append(_name_4, "\t        ");
+    String _name_9 = it.getName();
+    _builder.append(_name_9, "\t        ");
     _builder.append("\");");
     _builder.newLineIfNotEmpty();
     _builder.append("\t\t");
@@ -284,7 +311,7 @@ public class MyDslGenerator implements IGenerator {
     _builder.append("resultPanel.setBorder(BorderFactory.createTitledBorder(title));");
     _builder.newLine();
     _builder.append("        ");
-    _builder.append("resultPanel.setLayout(new BoxLayout(resultPanel, BoxLayout.Y_AXIS));        ");
+    _builder.append("resultPanel.setLayout(new BoxLayout(resultPanel, BoxLayout.Y_AXIS));");
     _builder.newLine();
     _builder.append("        ");
     _builder.append("return resultPanel;");
@@ -294,31 +321,7 @@ public class MyDslGenerator implements IGenerator {
     _builder.newLine();
     _builder.newLine();
     _builder.append("    ");
-    _builder.append("/**");
-    _builder.newLine();
-    _builder.append("     ");
-    _builder.append("* @param args the command line arguments");
-    _builder.newLine();
-    _builder.append("     ");
-    _builder.append("*/");
-    _builder.newLine();
-    _builder.append("    ");
     _builder.append("public static void main(String args[]) {");
-    _builder.newLine();
-    _builder.append("        ");
-    _builder.append("/* Set the Nimbus look and feel */");
-    _builder.newLine();
-    _builder.append("        ");
-    _builder.append("//<editor-fold defaultstate=\"collapsed\" desc=\" Look and feel setting code (optional) \">");
-    _builder.newLine();
-    _builder.append("        ");
-    _builder.append("/* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.");
-    _builder.newLine();
-    _builder.append("         ");
-    _builder.append("* For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html ");
-    _builder.newLine();
-    _builder.append("         ");
-    _builder.append("*/");
     _builder.newLine();
     _builder.append("        ");
     _builder.append("try {");
@@ -346,15 +349,12 @@ public class MyDslGenerator implements IGenerator {
     _builder.newLine();
     _builder.append("            ");
     _builder.append("java.util.logging.Logger.getLogger(");
-    String _name_5 = it.getName();
-    _builder.append(_name_5, "            ");
+    String _name_10 = it.getName();
+    _builder.append(_name_10, "            ");
     _builder.append(".class.getName()).log(java.util.logging.Level.SEVERE, null, ex);");
     _builder.newLineIfNotEmpty();
     _builder.append("        ");
     _builder.append("}");
-    _builder.newLine();
-    _builder.append("        ");
-    _builder.append("//</editor-fold>");
     _builder.newLine();
     _builder.newLine();
     _builder.append("        ");
@@ -368,8 +368,8 @@ public class MyDslGenerator implements IGenerator {
     _builder.newLine();
     _builder.append("                ");
     _builder.append("new ");
-    String _name_6 = it.getName();
-    _builder.append(_name_6, "                ");
+    String _name_11 = it.getName();
+    _builder.append(_name_11, "                ");
     _builder.append("().setVisible(true);");
     _builder.newLineIfNotEmpty();
     _builder.append("            ");
@@ -392,33 +392,38 @@ public class MyDslGenerator implements IGenerator {
     {
       EList<Expression> _constraints = it.getConstraints();
       for(final Expression c : _constraints) {
+        _builder.append("\t\t");
         _builder.append("//constraint");
         _builder.newLine();
-        _builder.append("\t");
-        String _name_7 = it.getName();
-        String _lowerCase = _name_7.toLowerCase();
-        String _constraintsJavaCode = this.getConstraintsJavaCode(c, _lowerCase);
-        _builder.append(_constraintsJavaCode, "\t");
+        _builder.append("\t\t");
+        String _name_12 = it.getName();
+        String _firstLower_4 = StringExtensions.toFirstLower(_name_12);
+        String _constraintsJavaCode = this.getConstraintsJavaCode(c, _firstLower_4);
+        _builder.append(_constraintsJavaCode, "\t\t");
         _builder.newLineIfNotEmpty();
-        _builder.append("\t\t\t");
-        _builder.newLine();
       }
     }
+    _builder.append("\t\t");
+    _builder.newLine();
     {
       for(final String c_1 : this.javaRequired) {
+        _builder.append("\t\t");
         _builder.append("//mandatory field constraint");
         _builder.newLine();
         _builder.append("\t\t");
+        _builder.append("\t");
         _builder.append("if(");
-        _builder.append(c_1, "\t\t");
+        _builder.append(c_1, "\t\t\t");
         _builder.append(".getText().equals(\"\")){");
         _builder.newLineIfNotEmpty();
-        _builder.append("\t\t\t");
+        _builder.append("\t\t");
+        _builder.append("\t\t");
         _builder.append("message += \"Error: ");
-        _builder.append(c_1, "\t\t\t");
+        _builder.append(c_1, "\t\t\t\t");
         _builder.append(" must be filled!\\n\";");
         _builder.newLineIfNotEmpty();
         _builder.append("\t\t");
+        _builder.append("\t");
         _builder.append("}");
         _builder.newLine();
         _builder.append("\t\t");
@@ -454,9 +459,13 @@ public class MyDslGenerator implements IGenerator {
     _builder.append("}");
     _builder.newLine();
     _builder.append("    ");
+    _builder.append("//submit button field");
     _builder.newLine();
     _builder.append("\t");
     _builder.append("private JButton submitButton;");
+    _builder.newLine();
+    _builder.append("\t");
+    _builder.append("//field for swing componenets");
     _builder.newLine();
     {
       for(final String field : this.javaFields) {
@@ -468,16 +477,15 @@ public class MyDslGenerator implements IGenerator {
       }
     }
     _builder.append("}");
-    _builder.newLine();
     return _builder;
   }
   
-  private ArrayList<String> javaFields = new ArrayList<String>();
+  public void addToJavaFields(final String type, final String name) {
+    final boolean tmp = this.javaFields.add(((type + " ") + name));
+  }
   
-  private ArrayList<String> javaRequired = new ArrayList<String>();
-  
-  public boolean addToJavaFields(final String type, final String name) {
-    return this.javaFields.add(((type + " ") + name));
+  public void addToJavaRequired(final String s) {
+    final boolean tmp = this.javaRequired.add(s);
   }
   
   public String getFeatureJava(final Feature f, final String name) {
@@ -501,7 +509,7 @@ public class MyDslGenerator implements IGenerator {
             String _name_2 = feature.getName();
             String _plus_1 = (lname + _name_2);
             String _plus_2 = (_plus_1 + "Panel");
-            final boolean v = this.addToJavaFields("JPanel", _plus_2);
+            this.addToJavaFields("JPanel", _plus_2);
             _builder.newLineIfNotEmpty();
             {
               SimpleType _type = feature.getType();
@@ -532,7 +540,7 @@ public class MyDslGenerator implements IGenerator {
                     String _name_7 = feature.getName();
                     String _plus_6 = (lname + _name_7);
                     String _plus_7 = (_plus_6 + "Option");
-                    final boolean d = this.addToJavaFields("JCheckBox", _plus_7);
+                    this.addToJavaFields("JCheckBox", _plus_7);
                     _builder.newLineIfNotEmpty();
                   }
                 }
@@ -557,12 +565,12 @@ public class MyDslGenerator implements IGenerator {
                   String _name_11 = feature.getName();
                   String _plus_11 = (lname + _name_11);
                   String _plus_12 = (_plus_11 + "Field");
-                  final boolean c = this.addToJavaFields("JTextField", _plus_12);
+                  this.addToJavaFields("JTextField", _plus_12);
                   _builder.newLineIfNotEmpty();
                   String _name_12 = feature.getName();
                   String _plus_13 = (lname + _name_12);
                   String _plus_14 = (_plus_13 + "Field");
-                  final boolean constraint = this.javaRequired.add(_plus_14);
+                  this.addToJavaRequired(_plus_14);
                   _builder.newLineIfNotEmpty();
                 } else {
                   String _name_13 = feature.getName();
@@ -582,7 +590,7 @@ public class MyDslGenerator implements IGenerator {
                   String _name_16 = feature.getName();
                   String _plus_18 = (lname + _name_16);
                   String _plus_19 = (_plus_18 + "Field");
-                  final boolean e = this.addToJavaFields("JTextField", _plus_19);
+                  this.addToJavaFields("JTextField", _plus_19);
                   _builder.newLineIfNotEmpty();
                 }
               }
@@ -613,7 +621,9 @@ public class MyDslGenerator implements IGenerator {
             String _featureJava = this.getFeatureJava(feature, _plus_22);
             _builder.append(_featureJava, "");
             _builder.newLineIfNotEmpty();
-            _builder.append("getContentPane().add(");
+            String _firstLower = StringExtensions.toFirstLower(name);
+            _builder.append(_firstLower, "");
+            _builder.append("Panel.add(");
             String _name_20 = feature.getName();
             String _plus_23 = (lname + _name_20);
             _builder.append(_plus_23, "");
@@ -628,7 +638,6 @@ public class MyDslGenerator implements IGenerator {
             CharSequence _groupJavaCode = this.getGroupJavaCode(g, f, lname);
             _builder.append(_groupJavaCode, "");
             _builder.newLineIfNotEmpty();
-            _builder.append("\t");
             _builder.newLine();
           }
         }
@@ -664,34 +673,32 @@ public class MyDslGenerator implements IGenerator {
                 _builder.append(gName, "");
                 _builder.append(");");
                 _builder.newLineIfNotEmpty();
-                final boolean b = this.addToJavaFields("JCheckBox", gName);
+                this.addToJavaFields("JCheckBox", gName);
                 _builder.newLineIfNotEmpty();
                 _builder.newLine();
               }
             }
           } else {
-            _builder.append("\t\t\t\t");
             _builder.append(name, "");
             _builder.append("Select = new JComboBox();");
             _builder.newLineIfNotEmpty();
-            _builder.append("\t");
-            final boolean c = this.addToJavaFields("JComboBox", (name + "Select"));
+            this.addToJavaFields("JComboBox", (name + "Select"));
+            _builder.newLineIfNotEmpty();
+            _builder.append(name, "");
+            _builder.append("Select.setModel(new javax.swing.DefaultComboBoxModel(");
             _builder.newLineIfNotEmpty();
             _builder.append("\t");
-            _builder.append(name, "\t");
-            _builder.append("Select.setModel(new javax.swing.DefaultComboBoxModel(new String[] {");
-            _builder.newLineIfNotEmpty();
+            _builder.append("new String[] {");
+            _builder.newLine();
             _builder.append("\t\t");
             String _groupedFeatureNames = this.getGroupedFeatureNames(group);
             _builder.append(_groupedFeatureNames, "\t\t");
             _builder.newLineIfNotEmpty();
-            _builder.append("\t");
             _builder.append("}));");
             _builder.newLine();
-            _builder.append("\t");
-            _builder.append(name, "\t");
+            _builder.append(name, "");
             _builder.append("Panel.add(");
-            _builder.append(name, "\t");
+            _builder.append(name, "");
             _builder.append("Select);");
             _builder.newLineIfNotEmpty();
           }
@@ -930,7 +937,8 @@ public class MyDslGenerator implements IGenerator {
     _builder.newLine();
     _builder.append("\t\t\t\t");
     String _name_2 = it.getName();
-    String _featureCode = this.getFeatureCode(it, _name_2);
+    String _lowerCase = _name_2.toLowerCase();
+    String _featureCode = this.getFeatureCode(it, _lowerCase);
     _builder.append(_featureCode, "\t\t\t\t");
     _builder.append("<br>");
     _builder.newLineIfNotEmpty();
@@ -957,8 +965,8 @@ public class MyDslGenerator implements IGenerator {
         _builder.append("//constraint");
         _builder.newLine();
         String _name_3 = it.getName();
-        String _lowerCase = _name_3.toLowerCase();
-        String _constraintsCode = this.getConstraintsCode(c, _lowerCase);
+        String _lowerCase_1 = _name_3.toLowerCase();
+        String _constraintsCode = this.getConstraintsCode(c, _lowerCase_1);
         _builder.append(_constraintsCode, "");
         _builder.newLineIfNotEmpty();
         _builder.newLine();
@@ -1045,9 +1053,6 @@ public class MyDslGenerator implements IGenerator {
     _builder.append("function getItem(name){");
     _builder.newLine();
     _builder.append("\t\t\t\t\t");
-    _builder.append("console.log(str);");
-    _builder.newLine();
-    _builder.append("\t\t\t\t\t");
     _builder.append("return document.getElementById(name);");
     _builder.newLine();
     _builder.append("\t\t\t\t");
@@ -1068,9 +1073,6 @@ public class MyDslGenerator implements IGenerator {
     _builder.newLine();
     _builder.append("\t\t\t\t");
     _builder.append("function getID(str){");
-    _builder.newLine();
-    _builder.append("\t\t\t\t\t");
-    _builder.append("console.log(str);");
     _builder.newLine();
     _builder.append("\t\t\t\t\t");
     _builder.append("return str.toLowerCase().replace(/\\./g,\'\');");
@@ -1101,16 +1103,13 @@ public class MyDslGenerator implements IGenerator {
     _builder.append("function validateInteger(value) {");
     _builder.newLine();
     _builder.append("\t\t\t\t\t");
-    _builder.append("var pattern = /^[-]?\\[0-9]+$/;");
+    _builder.append("var pattern = /^[-]?[0-9]+$/;");
     _builder.newLine();
     _builder.append("\t\t\t\t\t");
     _builder.append("if(!(pattern.test(value))){");
     _builder.newLine();
     _builder.append("\t\t\t\t\t\t");
     _builder.append("alert(\'input: expected Integer, but was \'+value);");
-    _builder.newLine();
-    _builder.append("\t\t\t\t\t\t");
-    _builder.append("value=\"\";");
     _builder.newLine();
     _builder.append("\t\t\t\t\t");
     _builder.append("}");
@@ -1130,7 +1129,7 @@ public class MyDslGenerator implements IGenerator {
     _builder.append("if(!(pattern.test(value))){");
     _builder.newLine();
     _builder.append("\t\t\t\t\t\t");
-    _builder.append("alert(\'input: expected Integer, but was \'+value);");
+    _builder.append("alert(\'input: expected Double, but was \'+value);");
     _builder.newLine();
     _builder.append("\t\t\t\t\t");
     _builder.append("}");
