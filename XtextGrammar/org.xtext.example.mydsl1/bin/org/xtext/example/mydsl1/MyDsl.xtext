@@ -40,15 +40,7 @@ Group returns Group:
 
 GroupedFeature returns GroupedFeature:
 	{GroupedFeature}
-//	(type=SimpleType)?
 	name=EString
-//	(
-//	'{'
-//			(groups += Group ( groups+=Group)* )?
-//			(features += SolitaryFeature ( features += SolitaryFeature)* )?
-//		('#' constraints+=Expression ( '#' constraints += Expression )* )?
-//	'}'
-//	)?
 ;
 
 Expression returns Expression:
@@ -98,14 +90,16 @@ enum LogicalOperator returns BinaryOperator:
 ;
 
 enum CompareOperator returns BinaryOperator:
-	Equals = 'Equals' | Higher = 'Higher' | Lower = 'Lower' 
+	Equals = 'Equals' | Higher = 'Higher' | Lower = 'Lower'
 ;
 
 enum ArithmicOperator returns BinaryOperator:
-	Add = 'Add' | Subtract = 'Subtract' | Divide = 'Divide' | Multiply = 'Multiply' ;
+	Add = 'Add' | Subtract = 'Subtract' | Divide = 'Divide' | Multiply = 'Multiply' 
+;
 
 enum UnaryOperator returns UnaryOperator:
-	Not = 'Not' | Minus = 'Minus';
+	Not = 'Not' | Minus = 'Minus'
+;
 
 
 NULL returns NULL:

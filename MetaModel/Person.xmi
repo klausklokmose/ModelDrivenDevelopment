@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="ASCII"?>
+<model:Model
+    xmi:version="2.0"
+    xmlns:xmi="http://www.omg.org/XMI"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:model="http://www.itu.dk/dijkstra/dk.itu.model.featuremodel"
+    xsi:schemaLocation="http://www.itu.dk/dijkstra/dk.itu.model.featuremodel model/featureModel.ecore">
+  <RootFeature
+      xsi:type="model:SolitaryFeature"
+      name="Person">
+    <groups>
+      <groupedFeatures
+          name="Male"/>
+      <groupedFeatures
+          name="Female"/>
+    </groups>
+    <groups
+        inclusive="true">
+      <groupedFeatures
+          name="Hair"/>
+      <groupedFeatures
+          name="Beard"/>
+      <groupedFeatures
+          name="Whiskers"/>
+    </groups>
+    <features
+        name="Name"
+        type="String"/>
+    <features
+        name="Age"
+        type="int"/>
+    <features
+        name="Clothes">
+      <features
+          name="Shirt">
+        <features
+            name="Color">
+          <groups>
+            <groupedFeatures
+                name="Black"/>
+            <groupedFeatures
+                name="White"/>
+            <groupedFeatures
+                name="Red"/>
+          </groups>
+        </features>
+      </features>
+    </features>
+    <constraints
+        xsi:type="model:BinaryOperation">
+      <rexp
+          xsi:type="model:Identifier"
+          ref="//@RootFeature.0/@features.2 //@RootFeature.0/@features.2/@features.0 //@RootFeature.0/@features.2/@features.0/@features.0 //@RootFeature.0/@features.2/@features.0/@features.0/@groups.0/@groupedFeatures.0"
+          name=""/>
+      <lexp
+          xsi:type="model:Identifier"
+          ref="//@RootFeature.0 //@RootFeature.0/@groups.1/@groupedFeatures.0"
+          name=""/>
+    </constraints>
+  </RootFeature>
+</model:Model>

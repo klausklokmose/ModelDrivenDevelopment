@@ -122,7 +122,7 @@ public class MyDslGenerator implements IGenerator {
     _builder.append("if(!(source.getText().equals(\"\") || validateInteger(source.getText()))){");
     _builder.newLine();
     _builder.append("\t\t\t\t\t\t");
-    _builder.append("JOptionPane.showMessageDialog(null,\"Error: must be an Integer\", \"Error Message\", JOptionPane.ERROR_MESSAGE);");
+    _builder.append("JOptionPane.showMessageDialog(null, \"Error: must be an Integer\", \"Error Message\", JOptionPane.ERROR_MESSAGE);");
     _builder.newLine();
     _builder.append("\t\t\t\t\t");
     _builder.append("return false;");
@@ -481,11 +481,11 @@ public class MyDslGenerator implements IGenerator {
   }
   
   public void addToJavaFields(final String type, final String name) {
-    final boolean tmp = this.javaFields.add(((type + " ") + name));
+    this.javaFields.add(((type + " ") + name));
   }
   
   public void addToJavaRequired(final String s) {
-    final boolean tmp = this.javaRequired.add(s);
+    this.javaRequired.add(s);
   }
   
   public String getFeatureJava(final Feature f, final String name) {
@@ -679,7 +679,8 @@ public class MyDslGenerator implements IGenerator {
               }
             }
           } else {
-            _builder.append(name, "");
+            _builder.append("\t\t\t");
+            _builder.append(name, "\t\t\t");
             _builder.append("Select = new JComboBox();");
             _builder.newLineIfNotEmpty();
             this.addToJavaFields("JComboBox", (name + "Select"));
@@ -691,8 +692,8 @@ public class MyDslGenerator implements IGenerator {
             _builder.append("new String[] {");
             _builder.newLine();
             _builder.append("\t\t");
-            String _groupedFeatureNames = this.getGroupedFeatureNames(group);
-            _builder.append(_groupedFeatureNames, "\t\t");
+            String _groupedFeaturesNameList = this.getGroupedFeaturesNameList(group);
+            _builder.append(_groupedFeaturesNameList, "\t\t");
             _builder.newLineIfNotEmpty();
             _builder.append("}));");
             _builder.newLine();
@@ -708,7 +709,7 @@ public class MyDslGenerator implements IGenerator {
     return _builder;
   }
   
-  public String getGroupedFeatureNames(final Group g) {
+  public String getGroupedFeaturesNameList(final Group g) {
     String s = "";
     EList<GroupedFeature> _groupedFeatures = g.getGroupedFeatures();
     for (final GroupedFeature gf : _groupedFeatures) {
@@ -1607,12 +1608,14 @@ public class MyDslGenerator implements IGenerator {
       final BinaryOperation binOp = ((BinaryOperation) c);
       Expression _lexp = binOp.getLexp();
       String _variableText = this.getVariableText(_lexp, name);
+      String _plus = (_variableText + " ");
       BinaryOperator _operator = binOp.getOperator();
       String _binaryOperator = this.getBinaryOperator(_operator);
-      String _plus = (_variableText + _binaryOperator);
+      String _plus_1 = (_plus + _binaryOperator);
+      String _plus_2 = (_plus_1 + " ");
       Expression _rexp = binOp.getRexp();
       String _variableText_1 = this.getVariableText(_rexp, name);
-      return (_plus + _variableText_1);
+      return (_plus_2 + _variableText_1);
     } else {
       if ((c instanceof UnaryOperation)) {
         final UnaryOperation unOp = ((UnaryOperation) c);

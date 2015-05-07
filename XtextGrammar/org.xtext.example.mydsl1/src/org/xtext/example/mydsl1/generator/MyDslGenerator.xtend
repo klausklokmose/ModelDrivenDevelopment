@@ -26,12 +26,6 @@ import org.eclipse.xtext.generator.IGenerator
 
 class MyDslGenerator implements IGenerator {
 	
-//	override void doGenerate(Resource resource, IFileSystemAccess fsa) {
-//		val m = resource.contents.head as Model
-//		fsa.generateFile(m.rootFeature.get(0).name+'.php', toHTML(m))
-//		fsa.generateFile(m.rootFeature.get(0).name+'.java', toJava(m))
-//	}
-
 	val javaFields = new ArrayList<String>();
 	val javaRequired = new ArrayList<String>();
 	
@@ -70,7 +64,7 @@ class MyDslGenerator implements IGenerator {
 					public boolean verify(JComponent input) {
 						final JTextComponent source = (JTextComponent)input;
 							if(!(source.getText().equals("") || validateInteger(source.getText()))){
-								JOptionPane.showMessageDialog(null,"Error: must be an Integer", "Error Message", JOptionPane.ERROR_MESSAGE);
+								JOptionPane.showMessageDialog(null, "Error: must be an Integer", "Error Message", JOptionPane.ERROR_MESSAGE);
 							return false;
 						}else {
 							return true;
@@ -186,13 +180,12 @@ class MyDslGenerator implements IGenerator {
 			«ENDFOR»
 		}'''
 	
-	def addToJavaFields(String type, String name){
-		val tmp = javaFields.add(type+" "+name);
-		
+	def void addToJavaFields(String type, String name){
+		javaFields.add(type+" "+name);
 	}
 	
-	def addToJavaRequired(String s){	
-		val tmp = javaRequired.add(s);
+	def void addToJavaRequired(String s){	
+		javaRequired.add(s);
 	}
 
 	def String getFeatureJava(Feature f, String name)'''
@@ -236,8 +229,8 @@ class MyDslGenerator implements IGenerator {
 	
 	def getGroupJavaCode(Group group, Feature f, String name)'''
 		«IF (group != null)»
-			««« select any
-			«IF group.inclusive»  
+			«IF group.inclusive»
+			««« select any (inclusive)
 				«FOR groupedFeature : group.groupedFeatures»
 					«val gName = name+groupedFeature.name.toFirstUpper+"Option"»
 					«gName» = new JCheckBox("«groupedFeature.name»");
@@ -245,20 +238,20 @@ class MyDslGenerator implements IGenerator {
 					«addToJavaFields("JCheckBox", gName)»
 					
 				«ENDFOR»
-			«««	select one
 			«ELSE»
+			«««	select one (exclusive)
 				«name»Select = new JComboBox();
 				«addToJavaFields("JComboBox", name+"Select")»
 				«name»Select.setModel(new javax.swing.DefaultComboBoxModel(
 					new String[] {
-						«getGroupedFeatureNames(group)»
+						«getGroupedFeaturesNameList(group)»
 				}));
 				«name»Panel.add(«name»Select);
 			«ENDIF»
 		«ENDIF»
 	'''
 	
-	def String getGroupedFeatureNames(Group g){
+	def String getGroupedFeaturesNameList(Group g){
 		var s = "";
 		for (gf : g.groupedFeatures){
 			s += "\""+gf.name+"\", "
@@ -571,7 +564,7 @@ class MyDslGenerator implements IGenerator {
 	def String getConstraintsText(Expression c, String name){
 		if(c instanceof BinaryOperation){
 			val binOp = c as BinaryOperation
-			return getVariableText(binOp.lexp, name)+getBinaryOperator(binOp.operator)+getVariableText(binOp.rexp, name)
+			return getVariableText(binOp.lexp, name)+" "+getBinaryOperator(binOp.operator)+" "+getVariableText(binOp.rexp, name)
 		}else if (c instanceof UnaryOperation){
 			val unOp = c as UnaryOperation
 			return getUnaryOperator(unOp.operator)+getVariableText(unOp.exp, name)

@@ -34,12 +34,12 @@ public class MyDslValidator extends AbstractMyDslValidator {
   private int count = 0;
   
   @Check
-  public void onlyOneSelectGroupPerFeature(final Feature it) {
+  public void onlyOneExclusiveSelectGroupPerFeature(final Feature it) {
     this.count = 0;
     EList<Group> _groups = it.getGroups();
     final Consumer<Group> _function = new Consumer<Group>() {
-      public void accept(final Group g) {
-        boolean _isInclusive = g.isInclusive();
+      public void accept(final Group group) {
+        boolean _isInclusive = group.isInclusive();
         boolean _not = (!_isInclusive);
         if (_not) {
           MyDslValidator.this.count++;
@@ -48,7 +48,7 @@ public class MyDslValidator extends AbstractMyDslValidator {
     };
     _groups.forEach(_function);
     if ((this.count > 1)) {
-      this.error("Only 1 exclusive select in a feature!", it, null, "");
+      this.error("Only one exclusive select in each feature!", it, null, "one exclusive select");
     }
   }
   
@@ -133,132 +133,115 @@ public class MyDslValidator extends AbstractMyDslValidator {
           SimpleType _xblockexpression_1 = null;
           {
             final BinaryOperation binOp = ((BinaryOperation) e);
-            final Expression left = binOp.getLexp();
-            final Expression right = binOp.getRexp();
             final BinaryOperator op = binOp.getOperator();
-            final SimpleType ltype = this.getType(left);
-            final SimpleType rtype = this.getType(right);
+            Expression _lexp = binOp.getLexp();
+            final SimpleType ltype = this.getType(_lexp);
+            Expression _rexp = binOp.getRexp();
+            final SimpleType rtype = this.getType(_rexp);
             SimpleType _xifexpression_2 = null;
-            boolean _or = false;
-            boolean _or_1 = false;
             boolean _equals = Objects.equal(ltype, rtype);
             if (_equals) {
-              _or_1 = true;
-            } else {
-              SimpleType _get = SimpleType.get("nulltype");
-              boolean _equals_1 = Objects.equal(ltype, _get);
-              _or_1 = _equals_1;
-            }
-            if (_or_1) {
-              _or = true;
-            } else {
-              SimpleType _get_1 = SimpleType.get("nulltype");
-              boolean _equals_2 = Objects.equal(rtype, _get_1);
-              _or = _equals_2;
-            }
-            if (_or) {
               SimpleType _xifexpression_3 = null;
-              boolean _or_2 = false;
-              BinaryOperator _get_2 = BinaryOperator.get("And");
-              boolean _equals_3 = Objects.equal(op, _get_2);
-              if (_equals_3) {
-                _or_2 = true;
+              boolean _or = false;
+              boolean _equals_1 = Objects.equal(op, BinaryOperator.AND);
+              if (_equals_1) {
+                _or = true;
               } else {
-                BinaryOperator _get_3 = BinaryOperator.get("Or");
-                boolean _equals_4 = Objects.equal(op, _get_3);
-                _or_2 = _equals_4;
+                boolean _equals_2 = Objects.equal(op, BinaryOperator.OR);
+                _or = _equals_2;
               }
-              if (_or_2) {
+              if (_or) {
                 SimpleType _xifexpression_4 = null;
-                SimpleType _get_4 = SimpleType.get("boolean");
-                boolean _equals_5 = Objects.equal(ltype, _get_4);
-                if (_equals_5) {
+                boolean _equals_3 = Objects.equal(ltype, SimpleType.BOOLEAN);
+                if (_equals_3) {
                   _xifexpression_4 = ltype;
                 } else {
-                  throw new Exception("invalid type, must be boolean with And or Or operator");
+                  SimpleType _xifexpression_5 = null;
+                  boolean _equals_4 = Objects.equal(rtype, SimpleType.BOOLEAN);
+                  if (_equals_4) {
+                    _xifexpression_5 = rtype;
+                  } else {
+                    this.error("top constraint must be boolean", e, null, "invalid type");
+                    throw new Exception("invalid type, must be boolean with And or Or operator");
+                  }
+                  _xifexpression_4 = _xifexpression_5;
                 }
                 _xifexpression_3 = _xifexpression_4;
               } else {
-                SimpleType _xifexpression_5 = null;
-                boolean _or_3 = false;
-                boolean _or_4 = false;
-                BinaryOperator _get_5 = BinaryOperator.get("Equals");
-                boolean _equals_6 = Objects.equal(op, _get_5);
-                if (_equals_6) {
-                  _or_4 = true;
+                SimpleType _xifexpression_6 = null;
+                boolean _or_1 = false;
+                boolean _or_2 = false;
+                boolean _equals_5 = Objects.equal(op, BinaryOperator.EQUALS);
+                if (_equals_5) {
+                  _or_2 = true;
                 } else {
-                  BinaryOperator _get_6 = BinaryOperator.get("Higher");
-                  boolean _equals_7 = Objects.equal(op, _get_6);
-                  _or_4 = _equals_7;
+                  boolean _equals_6 = Objects.equal(op, BinaryOperator.HIGHER);
+                  _or_2 = _equals_6;
                 }
-                if (_or_4) {
-                  _or_3 = true;
+                if (_or_2) {
+                  _or_1 = true;
                 } else {
-                  BinaryOperator _get_7 = BinaryOperator.get("Lower");
-                  boolean _equals_8 = Objects.equal(op, _get_7);
-                  _or_3 = _equals_8;
+                  boolean _equals_7 = Objects.equal(op, BinaryOperator.LOWER);
+                  _or_1 = _equals_7;
                 }
-                if (_or_3) {
-                  _xifexpression_5 = SimpleType.get("boolean");
+                if (_or_1) {
+                  _xifexpression_6 = SimpleType.BOOLEAN;
                 } else {
-                  SimpleType _xifexpression_6 = null;
+                  SimpleType _xifexpression_7 = null;
+                  boolean _or_3 = false;
+                  boolean _or_4 = false;
                   boolean _or_5 = false;
-                  boolean _or_6 = false;
-                  boolean _or_7 = false;
-                  BinaryOperator _get_8 = BinaryOperator.get("Divide");
-                  boolean _equals_9 = Objects.equal(op, _get_8);
-                  if (_equals_9) {
-                    _or_7 = true;
-                  } else {
-                    BinaryOperator _get_9 = BinaryOperator.get("Multiply");
-                    boolean _equals_10 = Objects.equal(op, _get_9);
-                    _or_7 = _equals_10;
-                  }
-                  if (_or_7) {
-                    _or_6 = true;
-                  } else {
-                    BinaryOperator _get_10 = BinaryOperator.get("Add");
-                    boolean _equals_11 = Objects.equal(op, _get_10);
-                    _or_6 = _equals_11;
-                  }
-                  if (_or_6) {
+                  boolean _equals_8 = Objects.equal(op, BinaryOperator.DIVIDE);
+                  if (_equals_8) {
                     _or_5 = true;
                   } else {
-                    BinaryOperator _get_11 = BinaryOperator.get("Subtract");
-                    boolean _equals_12 = Objects.equal(op, _get_11);
-                    _or_5 = _equals_12;
+                    boolean _equals_9 = Objects.equal(op, BinaryOperator.MULTIPLY);
+                    _or_5 = _equals_9;
                   }
                   if (_or_5) {
-                    SimpleType _xifexpression_7 = null;
-                    boolean _and = false;
-                    boolean _equals_13 = Objects.equal(ltype, rtype);
-                    if (!_equals_13) {
-                      _and = false;
+                    _or_4 = true;
+                  } else {
+                    boolean _equals_10 = Objects.equal(op, BinaryOperator.ADD);
+                    _or_4 = _equals_10;
+                  }
+                  if (_or_4) {
+                    _or_3 = true;
+                  } else {
+                    boolean _equals_11 = Objects.equal(op, BinaryOperator.SUBTRACT);
+                    _or_3 = _equals_11;
+                  }
+                  if (_or_3) {
+                    SimpleType _xifexpression_8 = null;
+                    boolean _or_6 = false;
+                    boolean _equals_12 = Objects.equal(ltype, SimpleType.INT);
+                    if (_equals_12) {
+                      _or_6 = true;
                     } else {
-                      boolean _or_8 = false;
-                      SimpleType _get_12 = SimpleType.get("int");
-                      boolean _equals_14 = Objects.equal(ltype, _get_12);
-                      if (_equals_14) {
-                        _or_8 = true;
-                      } else {
-                        SimpleType _get_13 = SimpleType.get("double");
-                        boolean _equals_15 = Objects.equal(ltype, _get_13);
-                        _or_8 = _equals_15;
-                      }
-                      _and = _or_8;
+                      boolean _equals_13 = Objects.equal(ltype, SimpleType.DOUBLE);
+                      _or_6 = _equals_13;
                     }
-                    if (_and) {
-                      _xifexpression_7 = ltype;
+                    if (_or_6) {
+                      _xifexpression_8 = ltype;
                     } else {
+                      this.error("division, multiply, addition or subtraction must be type int or Double", e, null, "invalid type");
                       throw new Exception("invalid type");
                     }
-                    _xifexpression_6 = _xifexpression_7;
+                    _xifexpression_7 = _xifexpression_8;
                   }
-                  _xifexpression_5 = _xifexpression_6;
+                  _xifexpression_6 = _xifexpression_7;
                 }
-                _xifexpression_3 = _xifexpression_5;
+                _xifexpression_3 = _xifexpression_6;
               }
               _xifexpression_2 = _xifexpression_3;
+            } else {
+              boolean _notEquals = (!Objects.equal(ltype, rtype));
+              if (_notEquals) {
+                this.error("left and right hand side of binary expression should be the same", e, null, "invalid type");
+                throw new Exception(((((("invalid type" + ltype) + " ") + rtype) + " ") + op));
+              } else {
+                this.error("something else went wrong", e, null, "invalid type");
+                throw new Exception("invalid type");
+              }
             }
             _xblockexpression_1 = _xifexpression_2;
           }
@@ -275,19 +258,16 @@ public class MyDslValidator extends AbstractMyDslValidator {
               boolean _or = false;
               boolean _and = false;
               UnaryOperator _operator = ex.getOperator();
-              UnaryOperator _get = UnaryOperator.get("Not");
-              boolean _equals = Objects.equal(_operator, _get);
+              boolean _equals = Objects.equal(_operator, UnaryOperator.NOT);
               if (!_equals) {
                 _and = false;
               } else {
                 boolean _or_1 = false;
-                SimpleType _get_1 = SimpleType.get("boolean");
-                boolean _equals_1 = Objects.equal(extype, _get_1);
+                boolean _equals_1 = Objects.equal(extype, SimpleType.BOOLEAN);
                 if (_equals_1) {
                   _or_1 = true;
                 } else {
-                  SimpleType _get_2 = SimpleType.get("nulltype");
-                  boolean _equals_2 = Objects.equal(extype, _get_2);
+                  boolean _equals_2 = Objects.equal(extype, SimpleType.NULLTYPE);
                   _or_1 = _equals_2;
                 }
                 _and = _or_1;
@@ -297,19 +277,16 @@ public class MyDslValidator extends AbstractMyDslValidator {
               } else {
                 boolean _and_1 = false;
                 UnaryOperator _operator_1 = ex.getOperator();
-                UnaryOperator _get_3 = UnaryOperator.get("Minus");
-                boolean _equals_3 = Objects.equal(_operator_1, _get_3);
+                boolean _equals_3 = Objects.equal(_operator_1, UnaryOperator.MINUS);
                 if (!_equals_3) {
                   _and_1 = false;
                 } else {
                   boolean _or_2 = false;
-                  SimpleType _get_4 = SimpleType.get("int");
-                  boolean _equals_4 = Objects.equal(extype, _get_4);
+                  boolean _equals_4 = Objects.equal(extype, SimpleType.INT);
                   if (_equals_4) {
                     _or_2 = true;
                   } else {
-                    SimpleType _get_5 = SimpleType.get("double");
-                    boolean _equals_5 = Objects.equal(extype, _get_5);
+                    boolean _equals_5 = Objects.equal(extype, SimpleType.DOUBLE);
                     _or_2 = _equals_5;
                   }
                   _and_1 = _or_2;
@@ -319,6 +296,7 @@ public class MyDslValidator extends AbstractMyDslValidator {
               if (_or) {
                 _xifexpression_3 = extype;
               } else {
+                this.error("top constraint must be boolean", e, null, "invalid type");
                 throw new Exception("invalid type");
               }
               _xblockexpression_2 = _xifexpression_3;
@@ -326,16 +304,10 @@ public class MyDslValidator extends AbstractMyDslValidator {
             _xifexpression_2 = _xblockexpression_2;
           } else {
             SimpleType _xifexpression_3 = null;
-            if ((e instanceof Number)) {
-              _xifexpression_3 = SimpleType.get("int");
+            if ((e instanceof NULL)) {
+              _xifexpression_3 = SimpleType.NULLTYPE;
             } else {
-              SimpleType _xifexpression_4 = null;
-              if ((e instanceof NULL)) {
-                _xifexpression_4 = SimpleType.get("nulltype");
-              } else {
-                _xifexpression_4 = SimpleType.get("nulltype");
-              }
-              _xifexpression_3 = _xifexpression_4;
+              _xifexpression_3 = SimpleType.INT;
             }
             _xifexpression_2 = _xifexpression_3;
           }

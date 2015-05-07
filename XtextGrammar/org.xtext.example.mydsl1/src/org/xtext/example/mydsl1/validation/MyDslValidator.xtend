@@ -24,11 +24,11 @@ class MyDslValidator extends AbstractMyDslValidator {
 
 	var count = 0;
 	@Check
-	def onlyOneSelectGroupPerFeature(Feature it){
+	def onlyOneExclusiveSelectGroupPerFeature(Feature it){
 		count = 0;
-		groups.forEach[g | if (!g.inclusive) count++ ]
+		groups.forEach[group | if (!group.inclusive) count++ ]
 		if(count > 1){
-			error('Only 1 exclusive select in a feature!', it, null, '')
+			error('Only one exclusive select in each feature!', it, null, 'one exclusive select')
 		}
 	}
 
@@ -39,11 +39,11 @@ class MyDslValidator extends AbstractMyDslValidator {
 			error('Put constraints after the last feature.', it, null, 'put constraints in root feature')
 		}
 	}
-	
+
 	def boolean check(Feature it){
 		features.forall[features | checkNotContainConstraints(features)]
 	}
-	
+
 	def boolean checkNotContainConstraints(Feature it) {
 		val r = constraints.isEmpty
 		if(!r){
@@ -70,52 +70,60 @@ class MyDslValidator extends AbstractMyDslValidator {
 	//BinaryOperation
 		}else if (e instanceof BinaryOperation) {
 			val binOp = e as BinaryOperation
-			val left = binOp.lexp
-			val right = binOp.rexp
 			val op = binOp.operator
-			val ltype = getType(left)
-			val rtype = getType(right)
-			if (ltype == rtype || ltype == SimpleType.get('nulltype') || rtype == SimpleType.get('nulltype')) {
-				if (op == BinaryOperator.get('And') || op == BinaryOperator.get('Or')) {
-					if (ltype == SimpleType.get('boolean')) {
+			val ltype = getType(binOp.lexp)
+			val rtype = getType(binOp.rexp)
+			//must be same type or one of the expresseions is nulltype
+			if (ltype == rtype) {
+//				|| (rtype == SimpleType.BOOLEAN && ltype == SimpleType.NULLTYPE) || (ltype == SimpleType.BOOLEAN && rtype == SimpleType.NULLTYPE)
+				if (op == BinaryOperator.AND || op == BinaryOperator.OR) {
+					if (ltype == SimpleType.BOOLEAN) {
 						ltype
+					} else if (rtype == SimpleType.BOOLEAN) {
+						rtype
 					} else {
+						error('top constraint must be boolean', e, null, 'invalid type')
 						throw new Exception("invalid type, must be boolean with And or Or operator")
 					}
-				} else if (op == BinaryOperator.get('Equals') || op == BinaryOperator.get('Higher') || op == BinaryOperator.get('Lower')) {
-					SimpleType.get('boolean')
-				} else if (	op == BinaryOperator.get('Divide') || op == BinaryOperator.get('Multiply') ||
-							op == BinaryOperator.get('Add') || op == BinaryOperator.get('Subtract')) {
-					if (ltype == rtype && 
-						(ltype == SimpleType.get('int') || ltype == SimpleType.get('double'))
-					) {
+				} else if (op == BinaryOperator.EQUALS || op == BinaryOperator.HIGHER || op == BinaryOperator.LOWER) {
+					SimpleType.BOOLEAN
+				
+				}else if (	op == BinaryOperator.DIVIDE || op == BinaryOperator.MULTIPLY || op == BinaryOperator.ADD || op == BinaryOperator.SUBTRACT) {
+					if (ltype == SimpleType.INT || ltype == SimpleType.DOUBLE) {
 						ltype
 					} else {
+						error('division, multiply, addition or subtraction must be type int or Double', e, null, 'invalid type')
 						throw new Exception("invalid type")
 					}
 				}
-			}
-	//UnaryOperation
-		}else if (e instanceof UnaryOperation) {
-			val ex = e as UnaryOperation
-			val extype = getType(ex.exp)
-			if( (ex.operator == UnaryOperator.get('Not') && (extype == SimpleType.get('boolean') || extype == SimpleType.get('nulltype') ))
-					|| 
-				(ex.operator == UnaryOperator.get('Minus') && (extype == SimpleType.get('int') || extype == SimpleType.get('double'))) ){
-				extype
+			} //END same type
+			else if(ltype != rtype){
+				error('left and right hand side of binary expression should be the same', e, null, 'invalid type')
+				throw new Exception("invalid type"+ltype+" "+rtype+" "+op)
 			}else{
+				error('something else went wrong', e, null, 'invalid type')
 				throw new Exception("invalid type")
 			}
-	//Number
-		}else if (e instanceof Number) {
-			SimpleType.get('int')
+
+	//UnaryOperation
+		} else if (e instanceof UnaryOperation) {
+			val ex = e as UnaryOperation
+			val extype = getType(ex.exp)
+			if( (ex.operator == UnaryOperator.NOT && (extype == SimpleType.BOOLEAN || extype == SimpleType.NULLTYPE ))
+					|| 
+				(ex.operator == UnaryOperator.MINUS && (extype == SimpleType.INT || extype == SimpleType.DOUBLE)) ){
+				extype
+			}else{
+				error('top constraint must be boolean', e, null, 'invalid type')
+				throw new Exception("invalid type")
+			}
+
 	//NULL
-		}else if(e instanceof NULL){
-			SimpleType.get('nulltype')
-		}else{
-			SimpleType.get('nulltype')
+		} else if(e instanceof NULL){
+			SimpleType.NULLTYPE
+	//Number
+		}else {
+			SimpleType.INT
 		}
-		//TODO add True and False as expressions
-	}
 
 }
