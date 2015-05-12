@@ -16,6 +16,7 @@ import featureModel.SimpleType;
 import featureModel.SolitaryFeature;
 import featureModel.UnaryOperation;
 import featureModel.UnaryOperator;
+import java.util.ArrayList;
 import java.util.function.Consumer;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.xtext.validation.Check;
@@ -31,6 +32,31 @@ import org.xtext.example.mydsl1.validation.AbstractMyDslValidator;
  */
 @SuppressWarnings("all")
 public class MyDslValidator extends AbstractMyDslValidator {
+  @Check
+  public void featureShouldHaveUniquelyNamedSubFeatures(final Feature it) {
+    final ArrayList<String> arr = new ArrayList<String>();
+    EList<SolitaryFeature> _features = it.getFeatures();
+    final Consumer<SolitaryFeature> _function = new Consumer<SolitaryFeature>() {
+      public void accept(final SolitaryFeature f) {
+        String _name = f.getName();
+        boolean _contains = arr.contains(_name);
+        boolean _not = (!_contains);
+        if (_not) {
+          String _name_1 = f.getName();
+          arr.add(_name_1);
+        } else {
+          String _name_2 = f.getName();
+          String _plus = ("feature: \"" + _name_2);
+          String _plus_1 = (_plus + "\" appear multiple times inside feature: ");
+          String _name_3 = it.getName();
+          String _plus_2 = (_plus_1 + _name_3);
+          MyDslValidator.this.error(_plus_2, f, null, "naming");
+        }
+      }
+    };
+    _features.forEach(_function);
+  }
+  
   private int count = 0;
   
   @Check
@@ -234,14 +260,56 @@ public class MyDslValidator extends AbstractMyDslValidator {
               }
               _xifexpression_2 = _xifexpression_3;
             } else {
-              boolean _notEquals = (!Objects.equal(ltype, rtype));
-              if (_notEquals) {
-                this.error("left and right hand side of binary expression should be the same", e, null, "invalid type");
-                throw new Exception(((((("invalid type" + ltype) + " ") + rtype) + " ") + op));
+              SimpleType _xifexpression_9 = null;
+              boolean _and = false;
+              boolean _and_1 = false;
+              boolean _equals_14 = Objects.equal(ltype, SimpleType.NULLTYPE);
+              if (!_equals_14) {
+                _and_1 = false;
               } else {
-                this.error("something else went wrong", e, null, "invalid type");
-                throw new Exception("invalid type");
+                boolean _equals_15 = Objects.equal(rtype, SimpleType.STRING);
+                _and_1 = _equals_15;
               }
+              if (!_and_1) {
+                _and = false;
+              } else {
+                boolean _equals_16 = Objects.equal(op, BinaryOperator.EQUALS);
+                _and = _equals_16;
+              }
+              if (_and) {
+                _xifexpression_9 = SimpleType.BOOLEAN;
+              } else {
+                SimpleType _xifexpression_10 = null;
+                boolean _and_2 = false;
+                boolean _and_3 = false;
+                boolean _equals_17 = Objects.equal(rtype, SimpleType.NULLTYPE);
+                if (!_equals_17) {
+                  _and_3 = false;
+                } else {
+                  boolean _equals_18 = Objects.equal(ltype, SimpleType.STRING);
+                  _and_3 = _equals_18;
+                }
+                if (!_and_3) {
+                  _and_2 = false;
+                } else {
+                  boolean _equals_19 = Objects.equal(op, BinaryOperator.EQUALS);
+                  _and_2 = _equals_19;
+                }
+                if (_and_2) {
+                  _xifexpression_10 = SimpleType.BOOLEAN;
+                } else {
+                  boolean _notEquals = (!Objects.equal(ltype, rtype));
+                  if (_notEquals) {
+                    this.error("left and right hand side of binary expression should be the same", e, null, "invalid type");
+                    throw new Exception(((((("invalid type" + ltype) + " ") + rtype) + " ") + op));
+                  } else {
+                    this.error("something else went wrong", e, null, "invalid type");
+                    throw new Exception("invalid type");
+                  }
+                }
+                _xifexpression_9 = _xifexpression_10;
+              }
+              _xifexpression_2 = _xifexpression_9;
             }
             _xblockexpression_1 = _xifexpression_2;
           }
@@ -251,52 +319,44 @@ public class MyDslValidator extends AbstractMyDslValidator {
           if ((e instanceof UnaryOperation)) {
             SimpleType _xblockexpression_2 = null;
             {
-              final UnaryOperation ex = ((UnaryOperation) e);
-              Expression _exp = ex.getExp();
-              final SimpleType extype = this.getType(_exp);
+              final UnaryOperation expression = ((UnaryOperation) e);
+              Expression _exp = expression.getExp();
+              final SimpleType eType = this.getType(_exp);
+              final UnaryOperator op = expression.getOperator();
               SimpleType _xifexpression_3 = null;
               boolean _or = false;
               boolean _and = false;
-              UnaryOperator _operator = ex.getOperator();
-              boolean _equals = Objects.equal(_operator, UnaryOperator.NOT);
+              boolean _equals = Objects.equal(op, UnaryOperator.NOT);
               if (!_equals) {
                 _and = false;
               } else {
-                boolean _or_1 = false;
-                boolean _equals_1 = Objects.equal(extype, SimpleType.BOOLEAN);
-                if (_equals_1) {
-                  _or_1 = true;
-                } else {
-                  boolean _equals_2 = Objects.equal(extype, SimpleType.NULLTYPE);
-                  _or_1 = _equals_2;
-                }
-                _and = _or_1;
+                boolean _equals_1 = Objects.equal(eType, SimpleType.BOOLEAN);
+                _and = _equals_1;
               }
               if (_and) {
                 _or = true;
               } else {
                 boolean _and_1 = false;
-                UnaryOperator _operator_1 = ex.getOperator();
-                boolean _equals_3 = Objects.equal(_operator_1, UnaryOperator.MINUS);
-                if (!_equals_3) {
+                boolean _equals_2 = Objects.equal(op, UnaryOperator.MINUS);
+                if (!_equals_2) {
                   _and_1 = false;
                 } else {
-                  boolean _or_2 = false;
-                  boolean _equals_4 = Objects.equal(extype, SimpleType.INT);
-                  if (_equals_4) {
-                    _or_2 = true;
+                  boolean _or_1 = false;
+                  boolean _equals_3 = Objects.equal(eType, SimpleType.INT);
+                  if (_equals_3) {
+                    _or_1 = true;
                   } else {
-                    boolean _equals_5 = Objects.equal(extype, SimpleType.DOUBLE);
-                    _or_2 = _equals_5;
+                    boolean _equals_4 = Objects.equal(eType, SimpleType.DOUBLE);
+                    _or_1 = _equals_4;
                   }
-                  _and_1 = _or_2;
+                  _and_1 = _or_1;
                 }
                 _or = _and_1;
               }
               if (_or) {
-                _xifexpression_3 = extype;
+                _xifexpression_3 = eType;
               } else {
-                this.error("top constraint must be boolean", e, null, "invalid type");
+                this.error("not correct type in unary expression", e, null, "invalid type");
                 throw new Exception("invalid type");
               }
               _xblockexpression_2 = _xifexpression_3;

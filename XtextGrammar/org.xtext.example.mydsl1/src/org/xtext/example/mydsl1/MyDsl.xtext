@@ -124,4 +124,4 @@ enum SolitaryType returns SolitaryType:
 	Optional = 'Optional' | Mandatory = 'Mandatory';
 
 EString returns ecore::EString:
-	STRING | ID;
+	ID;

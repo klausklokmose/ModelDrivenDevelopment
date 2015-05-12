@@ -290,26 +290,16 @@ public class MyDslGrammarAccess extends AbstractGrammarElementFinder {
 		private final Assignment cNameAssignment_1 = (Assignment)cGroup.eContents().get(1);
 		private final RuleCall cNameEStringParserRuleCall_1_0 = (RuleCall)cNameAssignment_1.eContents().get(0);
 		
-		////	(
-		////	'{'
-		////			(groups += Group ( groups+=Group)* )?
-		////			(features += SolitaryFeature ( features += SolitaryFeature)* )?
-		////		('#' constraints+=Expression ( '#' constraints += Expression )* )?
-		////	'}'
-		////	)?
 		//GroupedFeature:
-		//	{GroupedFeature} //	(type=SimpleType)?
-		//	name=EString;
+		//	{GroupedFeature} name=EString;
 		public ParserRule getRule() { return rule; }
 
-		//{GroupedFeature} //	(type=SimpleType)?
-		//name=EString
+		//{GroupedFeature} name=EString
 		public Group getGroup() { return cGroup; }
 
 		//{GroupedFeature}
 		public Action getGroupedFeatureAction_0() { return cGroupedFeatureAction_0; }
 
-		////	(type=SimpleType)?
 		//name=EString
 		public Assignment getNameAssignment_1() { return cNameAssignment_1; }
 
@@ -631,22 +621,14 @@ public class MyDslGrammarAccess extends AbstractGrammarElementFinder {
 
 	public class EStringElements extends AbstractParserRuleElementFinder {
 		private final ParserRule rule = (ParserRule) GrammarUtil.findRuleForName(getGrammar(), "EString");
-		private final Alternatives cAlternatives = (Alternatives)rule.eContents().get(1);
-		private final RuleCall cSTRINGTerminalRuleCall_0 = (RuleCall)cAlternatives.eContents().get(0);
-		private final RuleCall cIDTerminalRuleCall_1 = (RuleCall)cAlternatives.eContents().get(1);
+		private final RuleCall cIDTerminalRuleCall = (RuleCall)rule.eContents().get(1);
 		
 		//EString returns ecore::EString:
-		//	STRING | ID;
+		//	ID;
 		public ParserRule getRule() { return rule; }
 
-		//STRING | ID
-		public Alternatives getAlternatives() { return cAlternatives; }
-
-		//STRING
-		public RuleCall getSTRINGTerminalRuleCall_0() { return cSTRINGTerminalRuleCall_0; }
-
 		//ID
-		public RuleCall getIDTerminalRuleCall_1() { return cIDTerminalRuleCall_1; }
+		public RuleCall getIDTerminalRuleCall() { return cIDTerminalRuleCall; }
 	}
 	
 	
@@ -961,16 +943,8 @@ public class MyDslGrammarAccess extends AbstractGrammarElementFinder {
 		return getGroupAccess().getRule();
 	}
 
-	////	(
-	////	'{'
-	////			(groups += Group ( groups+=Group)* )?
-	////			(features += SolitaryFeature ( features += SolitaryFeature)* )?
-	////		('#' constraints+=Expression ( '#' constraints += Expression )* )?
-	////	'}'
-	////	)?
 	//GroupedFeature:
-	//	{GroupedFeature} //	(type=SimpleType)?
-	//	name=EString;
+	//	{GroupedFeature} name=EString;
 	public GroupedFeatureElements getGroupedFeatureAccess() {
 		return (pGroupedFeature != null) ? pGroupedFeature : (pGroupedFeature = new GroupedFeatureElements());
 	}
@@ -1140,7 +1114,7 @@ public class MyDslGrammarAccess extends AbstractGrammarElementFinder {
 	}
 
 	//EString returns ecore::EString:
-	//	STRING | ID;
+	//	ID;
 	public EStringElements getEStringAccess() {
 		return (pEString != null) ? pEString : (pEString = new EStringElements());
 	}

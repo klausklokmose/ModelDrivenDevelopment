@@ -8,12 +8,13 @@ import featureModel.BinaryOperator
 import featureModel.Expression
 import featureModel.Feature
 import featureModel.Identifier
+import featureModel.Model
 import featureModel.NULL
 import featureModel.SimpleType
 import featureModel.UnaryOperation
 import featureModel.UnaryOperator
+import java.util.ArrayList
 import org.eclipse.xtext.validation.Check
-import featureModel.Model
 
 /**
  * Custom validation rules. 
@@ -22,6 +23,25 @@ import featureModel.Model
  */
 class MyDslValidator extends AbstractMyDslValidator {
 
+//	@Check
+//	def namesMustBeOnlyString(Feature it){
+//		if(!name.matches("[A-Za-z](\\w|[' '])*")){
+//			error("names must be strings only", it, null, 'naming')
+//		}
+//	}
+	
+	@Check
+	def featureShouldHaveUniquelyNamedSubFeatures(Feature it){
+		val arr = new ArrayList<String>()
+		features.forEach[f | 
+			if(!arr.contains(f.name)){
+				arr.add(f.name)
+			}else{
+				error("feature: \""+f.name+"\" appear multiple times inside feature: "+name, f, null, 'naming')
+			}
+		]
+	}
+	
 	var count = 0;
 	@Check
 	def onlyOneExclusiveSelectGroupPerFeature(Feature it){
@@ -73,7 +93,7 @@ class MyDslValidator extends AbstractMyDslValidator {
 			val op = binOp.operator
 			val ltype = getType(binOp.lexp)
 			val rtype = getType(binOp.rexp)
-			//must be same type or one of the expresseions is nulltype
+			//must be same type
 			if (ltype == rtype) {
 //				|| (rtype == SimpleType.BOOLEAN && ltype == SimpleType.NULLTYPE) || (ltype == SimpleType.BOOLEAN && rtype == SimpleType.NULLTYPE)
 				if (op == BinaryOperator.AND || op == BinaryOperator.OR) {
@@ -97,9 +117,20 @@ class MyDslValidator extends AbstractMyDslValidator {
 					}
 				}
 			} //END same type
+			else if(ltype == SimpleType.NULLTYPE && rtype == SimpleType.STRING && op == BinaryOperator.EQUALS){
+			//left type is null and right type is string
+				SimpleType.BOOLEAN
+				
+			}
+			else if(rtype == SimpleType.NULLTYPE && ltype == SimpleType.STRING && op == BinaryOperator.EQUALS){
+			//left type is null and right type is string
+				SimpleType.BOOLEAN
+				
+			}
 			else if(ltype != rtype){
 				error('left and right hand side of binary expression should be the same', e, null, 'invalid type')
 				throw new Exception("invalid type"+ltype+" "+rtype+" "+op)
+				
 			}else{
 				error('something else went wrong', e, null, 'invalid type')
 				throw new Exception("invalid type")
@@ -107,14 +138,15 @@ class MyDslValidator extends AbstractMyDslValidator {
 
 	//UnaryOperation
 		} else if (e instanceof UnaryOperation) {
-			val ex = e as UnaryOperation
-			val extype = getType(ex.exp)
-			if( (ex.operator == UnaryOperator.NOT && (extype == SimpleType.BOOLEAN || extype == SimpleType.NULLTYPE ))
+			val expression = e as UnaryOperation
+			val eType = getType(expression.exp)
+			val op = expression.operator
+			if( (op == UnaryOperator.NOT && (eType == SimpleType.BOOLEAN))
 					|| 
-				(ex.operator == UnaryOperator.MINUS && (extype == SimpleType.INT || extype == SimpleType.DOUBLE)) ){
-				extype
+				(op == UnaryOperator.MINUS && (eType == SimpleType.INT || eType == SimpleType.DOUBLE)) ){
+				eType
 			}else{
-				error('top constraint must be boolean', e, null, 'invalid type')
+				error('not correct type in unary expression', e, null, 'invalid type')
 				throw new Exception("invalid type")
 			}
 
@@ -125,5 +157,5 @@ class MyDslValidator extends AbstractMyDslValidator {
 		}else {
 			SimpleType.INT
 		}
-
+	}
 }

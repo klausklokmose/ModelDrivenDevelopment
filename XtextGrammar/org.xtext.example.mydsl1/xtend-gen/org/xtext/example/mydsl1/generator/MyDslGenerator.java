@@ -25,6 +25,7 @@ import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.xtend2.lib.StringConcatenation;
 import org.eclipse.xtext.generator.IFileSystemAccess;
 import org.eclipse.xtext.generator.IGenerator;
+import org.eclipse.xtext.xbase.lib.Exceptions;
 import org.eclipse.xtext.xbase.lib.IterableExtensions;
 import org.eclipse.xtext.xbase.lib.StringExtensions;
 
@@ -182,7 +183,8 @@ public class MyDslGenerator implements IGenerator {
     _builder.append("\t\t");
     String _name_3 = it.getName();
     String _firstLower = StringExtensions.toFirstLower(_name_3);
-    _builder.append(_firstLower, "\t\t");
+    String _replaceAll = _firstLower.replaceAll(" ", "");
+    _builder.append(_replaceAll, "\t\t");
     _builder.append("Panel = createPanel(\"");
     String _name_4 = it.getName();
     _builder.append(_name_4, "\t\t");
@@ -262,9 +264,6 @@ public class MyDslGenerator implements IGenerator {
     _builder.append("\t\t");
     _builder.append("setMinimumSize(new Dimension(400, 700));");
     _builder.newLine();
-    _builder.append("        ");
-    _builder.append("pack();");
-    _builder.newLine();
     _builder.append("    ");
     _builder.append("}");
     _builder.newLine();
@@ -281,12 +280,98 @@ public class MyDslGenerator implements IGenerator {
     _builder.append("\t\t");
     _builder.append("if(check.length() == 0){");
     _builder.newLine();
-    _builder.append("\t        ");
-    _builder.append("JOptionPane.showMessageDialog(null, \"you have created a ");
+    _builder.append("\t\t\t");
+    _builder.append("String m = \"Congratulations!\\n\\nDetails of new ");
     String _name_9 = it.getName();
-    _builder.append(_name_9, "\t        ");
-    _builder.append("\");");
+    _builder.append(_name_9, "\t\t\t");
+    _builder.append(":\";");
     _builder.newLineIfNotEmpty();
+    {
+      for(final String c : this.javaFields) {
+        _builder.append("\t\t\t");
+        final String[] field = c.split(" ");
+        _builder.newLineIfNotEmpty();
+        {
+          boolean _contains = c.contains("JTextField");
+          if (_contains) {
+            _builder.append("\t\t\t");
+            _builder.append("m += \"\\n");
+            String _get = field[1];
+            String _trim = _get.trim();
+            String[] _split = _trim.split("Field");
+            String _get_1 = _split[0];
+            _builder.append(_get_1, "\t\t\t");
+            _builder.append(": \"+ ");
+            String _get_2 = field[1];
+            _builder.append(_get_2, "\t\t\t");
+            _builder.append(".getText();");
+            _builder.newLineIfNotEmpty();
+          } else {
+            boolean _contains_1 = c.contains("JComboBox");
+            if (_contains_1) {
+              _builder.append("\t\t\t");
+              _builder.append("m += \"\\n");
+              String _get_3 = field[1];
+              String _trim_1 = _get_3.trim();
+              String[] _split_1 = _trim_1.split("Select");
+              String _get_4 = _split_1[0];
+              _builder.append(_get_4, "\t\t\t");
+              _builder.append(": \"+ ");
+              String _get_5 = field[1];
+              _builder.append(_get_5, "\t\t\t");
+              _builder.append(".getSelectedItem();");
+              _builder.newLineIfNotEmpty();
+            } else {
+              boolean _contains_2 = c.contains("JCheckBox");
+              if (_contains_2) {
+                _builder.append("\t\t\t");
+                _builder.append("if(");
+                String _get_6 = field[1];
+                _builder.append(_get_6, "\t\t\t");
+                _builder.append(".isSelected()){");
+                _builder.newLineIfNotEmpty();
+                _builder.append("\t\t\t");
+                _builder.append("\t");
+                _builder.append("m += \"\\n");
+                String _get_7 = field[1];
+                String _trim_2 = _get_7.trim();
+                String[] _split_2 = _trim_2.split("Option");
+                String _get_8 = _split_2[0];
+                _builder.append(_get_8, "\t\t\t\t");
+                _builder.append(": selected\";");
+                _builder.newLineIfNotEmpty();
+                _builder.append("\t\t\t");
+                _builder.append("}");
+                _builder.newLine();
+                _builder.append("\t\t\t");
+                _builder.newLine();
+              }
+            }
+          }
+        }
+      }
+    }
+    _builder.append("\t\t\t");
+    _builder.append("JTextArea ta = new JTextArea(30, 30);");
+    _builder.newLine();
+    _builder.append("\t\t\t");
+    _builder.append("ta.setText(m);");
+    _builder.newLine();
+    _builder.append("\t\t\t");
+    _builder.append("ta.setWrapStyleWord(true);");
+    _builder.newLine();
+    _builder.append("\t\t\t");
+    _builder.append("ta.setLineWrap(true);");
+    _builder.newLine();
+    _builder.append("\t\t\t");
+    _builder.append("ta.setCaretPosition(0);");
+    _builder.newLine();
+    _builder.append("\t\t\t");
+    _builder.append("ta.setEditable(false);");
+    _builder.newLine();
+    _builder.append("\t        ");
+    _builder.append("JOptionPane.showMessageDialog(null, new JScrollPane(ta), \"RESULT\", JOptionPane.INFORMATION_MESSAGE);");
+    _builder.newLine();
     _builder.append("\t\t");
     _builder.append("}else{");
     _builder.newLine();
@@ -391,35 +476,48 @@ public class MyDslGenerator implements IGenerator {
     _builder.newLine();
     {
       EList<Expression> _constraints = it.getConstraints();
-      for(final Expression c : _constraints) {
+      for(final Expression c_1 : _constraints) {
         _builder.append("\t\t");
         _builder.append("//constraint");
         _builder.newLine();
         _builder.append("\t\t");
+        _builder.append("if(!");
         String _name_12 = it.getName();
         String _firstLower_4 = StringExtensions.toFirstLower(_name_12);
-        String _constraintsJavaCode = this.getConstraintsJavaCode(c, _firstLower_4);
-        _builder.append(_constraintsJavaCode, "\t\t");
+        String _variableJavaCode = this.getVariableJavaCode(c_1, _firstLower_4);
+        _builder.append(_variableJavaCode, "\t\t");
+        _builder.append("){");
         _builder.newLineIfNotEmpty();
+        _builder.append("\t\t");
+        _builder.append("\t");
+        _builder.append("message += \"Error: ");
+        String _name_13 = it.getName();
+        String _constraintsText = this.getConstraintsText(c_1, _name_13);
+        _builder.append(_constraintsText, "\t\t\t");
+        _builder.append("\\n\";");
+        _builder.newLineIfNotEmpty();
+        _builder.append("\t\t");
+        _builder.append("}");
+        _builder.newLine();
       }
     }
     _builder.append("\t\t");
     _builder.newLine();
     {
-      for(final String c_1 : this.javaRequired) {
+      for(final String c_2 : this.javaRequired) {
         _builder.append("\t\t");
         _builder.append("//mandatory field constraint");
         _builder.newLine();
         _builder.append("\t\t");
         _builder.append("\t");
         _builder.append("if(");
-        _builder.append(c_1, "\t\t\t");
+        _builder.append(c_2, "\t\t\t");
         _builder.append(".getText().equals(\"\")){");
         _builder.newLineIfNotEmpty();
         _builder.append("\t\t");
         _builder.append("\t\t");
         _builder.append("message += \"Error: ");
-        _builder.append(c_1, "\t\t\t\t");
+        _builder.append(c_2, "\t\t\t\t");
         _builder.append(" must be filled!\\n\";");
         _builder.newLineIfNotEmpty();
         _builder.append("\t\t");
@@ -468,10 +566,10 @@ public class MyDslGenerator implements IGenerator {
     _builder.append("//field for swing componenets");
     _builder.newLine();
     {
-      for(final String field : this.javaFields) {
+      for(final String field_1 : this.javaFields) {
         _builder.append("\t");
         _builder.append("private ");
-        _builder.append(field, "\t");
+        _builder.append(field_1, "\t");
         _builder.append(";");
         _builder.newLineIfNotEmpty();
       }
@@ -481,7 +579,9 @@ public class MyDslGenerator implements IGenerator {
   }
   
   public void addToJavaFields(final String type, final String name) {
-    this.javaFields.add(((type + " ") + name));
+    String _replaceAll = name.replaceAll(" ", "");
+    String _plus = ((type + " ") + _replaceAll);
+    this.javaFields.add(_plus);
   }
   
   public void addToJavaRequired(final String s) {
@@ -490,7 +590,8 @@ public class MyDslGenerator implements IGenerator {
   
   public String getFeatureJava(final Feature f, final String name) {
     StringConcatenation _builder = new StringConcatenation();
-    final String lname = StringExtensions.toFirstLower(name);
+    String _firstLower = StringExtensions.toFirstLower(name);
+    final String lname = _firstLower.replaceAll(" ", "");
     _builder.newLineIfNotEmpty();
     {
       boolean _notEquals = (!Objects.equal(f, null));
@@ -499,17 +600,15 @@ public class MyDslGenerator implements IGenerator {
           EList<SolitaryFeature> _features = f.getFeatures();
           for(final SolitaryFeature feature : _features) {
             String _name = feature.getName();
-            String _plus = (lname + _name);
-            _builder.append(_plus, "");
+            final String n = _name.replaceAll(" ", "");
+            _builder.newLineIfNotEmpty();
+            _builder.append((lname + n), "");
             _builder.append("Panel = createPanel(\"");
             String _name_1 = feature.getName();
             _builder.append(_name_1, "");
             _builder.append("\");");
             _builder.newLineIfNotEmpty();
-            String _name_2 = feature.getName();
-            String _plus_1 = (lname + _name_2);
-            String _plus_2 = (_plus_1 + "Panel");
-            this.addToJavaFields("JPanel", _plus_2);
+            this.addToJavaFields("JPanel", ((lname + n) + "Panel"));
             _builder.newLineIfNotEmpty();
             {
               SimpleType _type = feature.getType();
@@ -519,28 +618,19 @@ public class MyDslGenerator implements IGenerator {
                   SolitaryType _required = feature.getRequired();
                   boolean _equals_1 = Objects.equal(_required, SolitaryType.OPTIONAL);
                   if (_equals_1) {
-                    String _name_3 = feature.getName();
-                    String _plus_3 = (lname + _name_3);
-                    _builder.append(_plus_3, "");
+                    _builder.append((lname + n), "");
                     _builder.append("Option = new JCheckBox(\"");
-                    String _name_4 = feature.getName();
-                    _builder.append(_name_4, "");
+                    String _name_2 = feature.getName();
+                    _builder.append(_name_2, "");
                     _builder.append("\");");
                     _builder.newLineIfNotEmpty();
                     _builder.append("\t\t\t\t\t");
-                    String _name_5 = feature.getName();
-                    String _plus_4 = (lname + _name_5);
-                    _builder.append(_plus_4, "\t\t\t\t\t");
+                    _builder.append((lname + n), "\t\t\t\t\t");
                     _builder.append("Panel.add(");
-                    String _name_6 = feature.getName();
-                    String _plus_5 = (lname + _name_6);
-                    _builder.append(_plus_5, "\t\t\t\t\t");
+                    _builder.append((lname + n), "\t\t\t\t\t");
                     _builder.append("Option);");
                     _builder.newLineIfNotEmpty();
-                    String _name_7 = feature.getName();
-                    String _plus_6 = (lname + _name_7);
-                    String _plus_7 = (_plus_6 + "Option");
-                    this.addToJavaFields("JCheckBox", _plus_7);
+                    this.addToJavaFields("JCheckBox", ((lname + n) + "Option"));
                     _builder.newLineIfNotEmpty();
                   }
                 }
@@ -548,49 +638,30 @@ public class MyDslGenerator implements IGenerator {
                 SolitaryType _required_1 = feature.getRequired();
                 boolean _equals_2 = Objects.equal(_required_1, SolitaryType.MANDATORY);
                 if (_equals_2) {
-                  String _name_8 = feature.getName();
-                  String _plus_8 = (lname + _name_8);
-                  _builder.append(_plus_8, "");
+                  _builder.append((lname + n), "");
                   _builder.append("Field = new JTextField();");
                   _builder.newLineIfNotEmpty();
-                  String _name_9 = feature.getName();
-                  String _plus_9 = (lname + _name_9);
-                  _builder.append(_plus_9, "");
+                  _builder.append((lname + n), "");
                   _builder.append("Panel.add(");
-                  String _name_10 = feature.getName();
-                  String _plus_10 = (lname + _name_10);
-                  _builder.append(_plus_10, "");
+                  String _name_3 = feature.getName();
+                  String _plus = (lname + _name_3);
+                  _builder.append(_plus, "");
                   _builder.append("Field);");
                   _builder.newLineIfNotEmpty();
-                  String _name_11 = feature.getName();
-                  String _plus_11 = (lname + _name_11);
-                  String _plus_12 = (_plus_11 + "Field");
-                  this.addToJavaFields("JTextField", _plus_12);
+                  this.addToJavaFields("JTextField", ((lname + n) + "Field"));
                   _builder.newLineIfNotEmpty();
-                  String _name_12 = feature.getName();
-                  String _plus_13 = (lname + _name_12);
-                  String _plus_14 = (_plus_13 + "Field");
-                  this.addToJavaRequired(_plus_14);
+                  this.addToJavaRequired(((lname + n) + "Field"));
                   _builder.newLineIfNotEmpty();
                 } else {
-                  String _name_13 = feature.getName();
-                  String _plus_15 = (lname + _name_13);
-                  _builder.append(_plus_15, "");
+                  _builder.append((lname + n), "");
                   _builder.append("Field = new JTextField();");
                   _builder.newLineIfNotEmpty();
-                  String _name_14 = feature.getName();
-                  String _plus_16 = (lname + _name_14);
-                  _builder.append(_plus_16, "");
+                  _builder.append((lname + n), "");
                   _builder.append("Panel.add(");
-                  String _name_15 = feature.getName();
-                  String _plus_17 = (lname + _name_15);
-                  _builder.append(_plus_17, "");
+                  _builder.append((lname + n), "");
                   _builder.append("Field);");
                   _builder.newLineIfNotEmpty();
-                  String _name_16 = feature.getName();
-                  String _plus_18 = (lname + _name_16);
-                  String _plus_19 = (_plus_18 + "Field");
-                  this.addToJavaFields("JTextField", _plus_19);
+                  this.addToJavaFields("JTextField", ((lname + n) + "Field"));
                   _builder.newLineIfNotEmpty();
                 }
               }
@@ -599,34 +670,28 @@ public class MyDslGenerator implements IGenerator {
               SimpleType _type_1 = feature.getType();
               boolean _equals_3 = Objects.equal(_type_1, SimpleType.INT);
               if (_equals_3) {
-                String _name_17 = feature.getName();
-                String _plus_20 = (lname + _name_17);
-                _builder.append(_plus_20, "");
+                _builder.append((lname + n), "");
                 _builder.append("Field.setInputVerifier(intVerifier);");
                 _builder.newLineIfNotEmpty();
               } else {
                 SimpleType _type_2 = feature.getType();
                 boolean _equals_4 = Objects.equal(_type_2, SimpleType.DOUBLE);
                 if (_equals_4) {
-                  String _name_18 = feature.getName();
-                  String _plus_21 = (lname + _name_18);
-                  _builder.append(_plus_21, "");
+                  _builder.append((lname + n), "");
                   _builder.append("Field.setInputVerifier(doubleVerifier);");
                   _builder.newLineIfNotEmpty();
                 }
               }
             }
-            String _name_19 = feature.getName();
-            String _plus_22 = (lname + _name_19);
-            String _featureJava = this.getFeatureJava(feature, _plus_22);
+            String _name_4 = feature.getName();
+            String _plus_1 = (lname + _name_4);
+            String _featureJava = this.getFeatureJava(feature, _plus_1);
             _builder.append(_featureJava, "");
             _builder.newLineIfNotEmpty();
-            String _firstLower = StringExtensions.toFirstLower(name);
-            _builder.append(_firstLower, "");
+            String _firstLower_1 = StringExtensions.toFirstLower(name);
+            _builder.append(_firstLower_1, "");
             _builder.append("Panel.add(");
-            String _name_20 = feature.getName();
-            String _plus_23 = (lname + _name_20);
-            _builder.append(_plus_23, "");
+            _builder.append((lname + n), "");
             _builder.append("Panel);");
             _builder.newLineIfNotEmpty();
           }
@@ -659,7 +724,8 @@ public class MyDslGenerator implements IGenerator {
               for(final GroupedFeature groupedFeature : _groupedFeatures) {
                 String _name = groupedFeature.getName();
                 String _firstUpper = StringExtensions.toFirstUpper(_name);
-                String _plus = (name + _firstUpper);
+                String _replaceAll = _firstUpper.replaceAll(" ", "");
+                String _plus = (name + _replaceAll);
                 final String gName = (_plus + "Option");
                 _builder.newLineIfNotEmpty();
                 _builder.append(gName, "");
@@ -679,8 +745,7 @@ public class MyDslGenerator implements IGenerator {
               }
             }
           } else {
-            _builder.append("\t\t\t");
-            _builder.append(name, "\t\t\t");
+            _builder.append(name, "");
             _builder.append("Select = new JComboBox();");
             _builder.newLineIfNotEmpty();
             this.addToJavaFields("JComboBox", (name + "Select"));
@@ -702,6 +767,7 @@ public class MyDslGenerator implements IGenerator {
             _builder.append(name, "");
             _builder.append("Select);");
             _builder.newLineIfNotEmpty();
+            _builder.newLine();
           }
         }
       }
@@ -724,175 +790,206 @@ public class MyDslGenerator implements IGenerator {
     return s.substring(0, _minus);
   }
   
-  public String getConstraintsJavaCode(final Expression c, final String name) {
-    StringConcatenation _builder = new StringConcatenation();
-    {
-      if ((c instanceof BinaryOperation)) {
-        _builder.newLineIfNotEmpty();
-        final BinaryOperation binOp = ((BinaryOperation) c);
-        _builder.newLineIfNotEmpty();
-        _builder.append("\t");
-        _builder.append("if(!(");
-        Expression _lexp = binOp.getLexp();
-        String _variableJavaCode = this.getvariableJavaCode(_lexp, name);
-        _builder.append(_variableJavaCode, "\t");
-        _builder.append(" ");
-        BinaryOperator _operator = binOp.getOperator();
-        String _binaryOperator = this.getBinaryOperator(_operator);
-        _builder.append(_binaryOperator, "\t");
-        _builder.append(" ");
-        Expression _rexp = binOp.getRexp();
-        String _variableJavaCode_1 = this.getvariableJavaCode(_rexp, name);
-        _builder.append(_variableJavaCode_1, "\t");
-        _builder.append(")){");
-        _builder.newLineIfNotEmpty();
-        _builder.append("\t\t");
-        _builder.append("message += \"Error: ");
-        String _constraintsText = this.getConstraintsText(c, name);
-        _builder.append(_constraintsText, "\t\t");
-        _builder.append("\\n\";");
-        _builder.newLineIfNotEmpty();
-        _builder.append("\t");
-        _builder.append("}");
-        _builder.newLine();
-      } else {
-        if ((c instanceof UnaryOperation)) {
-          final UnaryOperation unOp = ((UnaryOperation) c);
-          _builder.newLineIfNotEmpty();
-          _builder.append("\t");
-          _builder.append("if(!(");
-          UnaryOperator _operator_1 = unOp.getOperator();
-          String _unaryOperator = this.getUnaryOperator(_operator_1);
-          _builder.append(_unaryOperator, "\t");
-          Expression _exp = unOp.getExp();
-          String _variableJavaCode_2 = this.getvariableJavaCode(_exp, name);
-          _builder.append(_variableJavaCode_2, "\t");
-          _builder.append(")){");
-          _builder.newLineIfNotEmpty();
-          _builder.append("\t\t");
-          _builder.append("message += \"Error: ");
-          String _constraintsText_1 = this.getConstraintsText(c, name);
-          _builder.append(_constraintsText_1, "\t\t");
-          _builder.append("\\n\";");
-          _builder.newLineIfNotEmpty();
-          _builder.append("\t");
-          _builder.append("}");
-          _builder.newLine();
-          _builder.append("\t\t");
-        }
-      }
-    }
-    return _builder.toString();
-  }
-  
-  public String getvariableJavaCode(final Expression ex, final String name) {
+  public String getVariableJavaCode(final Expression ex, final String name) {
     String _xifexpression = null;
     if ((ex instanceof BinaryOperation)) {
-      final BinaryOperation e = ((BinaryOperation) ex);
-      Expression _lexp = e.getLexp();
-      String _variableJavaCode = this.getvariableJavaCode(_lexp, name);
-      String _plus = ("(" + _variableJavaCode);
-      String _plus_1 = (_plus + " ");
-      BinaryOperator _operator = e.getOperator();
-      String _binaryOperator = this.getBinaryOperator(_operator);
-      String _plus_2 = (_plus_1 + _binaryOperator);
-      String _plus_3 = (_plus_2 + " ");
-      Expression _rexp = e.getRexp();
-      String _variableJavaCode_1 = this.getvariableJavaCode(_rexp, name);
-      String _plus_4 = (_plus_3 + _variableJavaCode_1);
-      return (_plus_4 + ")");
+      String _xblockexpression = null;
+      {
+        final BinaryOperation binOp = ((BinaryOperation) ex);
+        Expression _lexp = binOp.getLexp();
+        final SimpleType ltype = this.getType(_lexp);
+        Expression _rexp = binOp.getRexp();
+        final SimpleType rtype = this.getType(_rexp);
+        String _xifexpression_1 = null;
+        boolean _and = false;
+        BinaryOperator _operator = binOp.getOperator();
+        boolean _equals = Objects.equal(_operator, BinaryOperator.EQUALS);
+        if (!_equals) {
+          _and = false;
+        } else {
+          boolean _and_1 = false;
+          boolean _equals_1 = Objects.equal(ltype, SimpleType.STRING);
+          if (!_equals_1) {
+            _and_1 = false;
+          } else {
+            boolean _equals_2 = Objects.equal(rtype, SimpleType.NULLTYPE);
+            _and_1 = _equals_2;
+          }
+          _and = _and_1;
+        }
+        if (_and) {
+          Expression _lexp_1 = binOp.getLexp();
+          String _variableJavaCode = this.getVariableJavaCode(_lexp_1, name);
+          String _plus = ("(" + _variableJavaCode);
+          _xifexpression_1 = (_plus + ".isEmpty())");
+        } else {
+          String _xifexpression_2 = null;
+          boolean _and_2 = false;
+          BinaryOperator _operator_1 = binOp.getOperator();
+          boolean _equals_3 = Objects.equal(_operator_1, BinaryOperator.EQUALS);
+          if (!_equals_3) {
+            _and_2 = false;
+          } else {
+            boolean _and_3 = false;
+            boolean _equals_4 = Objects.equal(rtype, SimpleType.STRING);
+            if (!_equals_4) {
+              _and_3 = false;
+            } else {
+              boolean _equals_5 = Objects.equal(ltype, SimpleType.NULLTYPE);
+              _and_3 = _equals_5;
+            }
+            _and_2 = _and_3;
+          }
+          if (_and_2) {
+            Expression _rexp_1 = binOp.getRexp();
+            String _variableJavaCode_1 = this.getVariableJavaCode(_rexp_1, name);
+            String _plus_1 = ("(" + _variableJavaCode_1);
+            _xifexpression_2 = (_plus_1 + ".isEmpty())");
+          } else {
+            Expression _lexp_2 = binOp.getLexp();
+            String _variableJavaCode_2 = this.getVariableJavaCode(_lexp_2, name);
+            String _plus_2 = ("(" + _variableJavaCode_2);
+            String _plus_3 = (_plus_2 + " ");
+            BinaryOperator _operator_2 = binOp.getOperator();
+            String _binaryOperator = this.getBinaryOperator(_operator_2, Boolean.valueOf(false));
+            String _plus_4 = (_plus_3 + _binaryOperator);
+            String _plus_5 = (_plus_4 + " ");
+            Expression _rexp_2 = binOp.getRexp();
+            String _variableJavaCode_3 = this.getVariableJavaCode(_rexp_2, name);
+            String _plus_6 = (_plus_5 + _variableJavaCode_3);
+            _xifexpression_2 = (_plus_6 + ")");
+          }
+          _xifexpression_1 = _xifexpression_2;
+        }
+        _xblockexpression = _xifexpression_1;
+      }
+      _xifexpression = _xblockexpression;
     } else {
       String _xifexpression_1 = null;
       if ((ex instanceof UnaryOperation)) {
-        final UnaryOperation e_1 = ((UnaryOperation) ex);
-        UnaryOperator _operator_1 = e_1.getOperator();
-        String _unaryOperator = this.getUnaryOperator(_operator_1);
-        String _plus_5 = ("(" + _unaryOperator);
-        Expression _exp = e_1.getExp();
-        String _variableJavaCode_2 = this.getvariableJavaCode(_exp, name);
-        String _plus_6 = (_plus_5 + _variableJavaCode_2);
-        return (_plus_6 + ")");
+        String _xblockexpression_1 = null;
+        {
+          final UnaryOperation e = ((UnaryOperation) ex);
+          UnaryOperator _operator = e.getOperator();
+          String _unaryOperator = this.getUnaryOperator(_operator);
+          String _plus = ("(" + _unaryOperator);
+          Expression _exp = e.getExp();
+          String _variableJavaCode = this.getVariableJavaCode(_exp, name);
+          String _plus_1 = (_plus + _variableJavaCode);
+          _xblockexpression_1 = (_plus_1 + ")");
+        }
+        _xifexpression_1 = _xblockexpression_1;
       } else {
         String _xifexpression_2 = null;
         if ((ex instanceof Identifier)) {
-          final Identifier id = ((Identifier) ex);
-          EList<Feature> _ref = id.getRef();
-          EList<Feature> _ref_1 = id.getRef();
-          int _size = _ref_1.size();
-          int _minus = (_size - 1);
-          final Feature ref = _ref.get(_minus);
-          EList<Feature> _ref_2 = id.getRef();
-          final String newName = this.concatJavaNames(_ref_2);
-          String _firstLower = StringExtensions.toFirstLower(name);
-          String _plus_7 = (_firstLower + newName);
-          final String text = (_plus_7 + "Field.getText()");
-          if ((ref instanceof SolitaryFeature)) {
-            final SolitaryFeature feat = ((SolitaryFeature) ref);
-            SimpleType _type = feat.getType();
-            boolean _equals = Objects.equal(_type, SimpleType.BOOLEAN);
-            if (_equals) {
-              SolitaryType _required = feat.getRequired();
-              boolean _equals_1 = Objects.equal(_required, SolitaryType.MANDATORY);
-              if (_equals_1) {
-                return "true";
-              } else {
-                String _firstLower_1 = StringExtensions.toFirstLower(name);
-                String _plus_8 = (_firstLower_1 + newName);
-                return (_plus_8 + "Option.isSelected()");
-              }
-            } else {
-              SimpleType _type_1 = feat.getType();
-              boolean _equals_2 = Objects.equal(_type_1, SimpleType.STRING);
-              if (_equals_2) {
-                String _name = ((SolitaryFeature)ref).getName();
-                String _plus_9 = ((text + ".equals(\"") + _name);
-                return (_plus_9 + "\")");
-              } else {
-                SimpleType _type_2 = feat.getType();
-                boolean _equals_3 = Objects.equal(_type_2, SimpleType.INT);
-                if (_equals_3) {
-                  return (((("!" + text) + ".equals(\"\") && Integer.parseInt(") + text) + ")");
-                } else {
-                  SimpleType _type_3 = feat.getType();
-                  boolean _equals_4 = Objects.equal(_type_3, SimpleType.DOUBLE);
-                  if (_equals_4) {
-                    return (((("!" + text) + ".equals(\"\") && Double.parseDouble(") + text) + ")");
+          String _xblockexpression_2 = null;
+          {
+            final Identifier id = ((Identifier) ex);
+            EList<Feature> _ref = id.getRef();
+            EList<Feature> _ref_1 = id.getRef();
+            int _size = _ref_1.size();
+            int _minus = (_size - 1);
+            final Feature ref = _ref.get(_minus);
+            EList<Feature> _ref_2 = id.getRef();
+            final String newName = this.concatJavaNames(_ref_2);
+            String _firstLower = StringExtensions.toFirstLower(name);
+            String _plus = (_firstLower + newName);
+            final String text = (_plus + "Field.getText()");
+            String _xifexpression_3 = null;
+            if ((ref instanceof SolitaryFeature)) {
+              String _xblockexpression_3 = null;
+              {
+                final SolitaryFeature feat = ((SolitaryFeature) ref);
+                String _xifexpression_4 = null;
+                SimpleType _type = feat.getType();
+                boolean _equals = Objects.equal(_type, SimpleType.BOOLEAN);
+                if (_equals) {
+                  String _xifexpression_5 = null;
+                  SolitaryType _required = feat.getRequired();
+                  boolean _equals_1 = Objects.equal(_required, SolitaryType.MANDATORY);
+                  if (_equals_1) {
+                    _xifexpression_5 = "true";
+                  } else {
+                    String _firstLower_1 = StringExtensions.toFirstLower(name);
+                    String _plus_1 = (_firstLower_1 + newName);
+                    _xifexpression_5 = (_plus_1 + "Option.isSelected()");
                   }
+                  _xifexpression_4 = _xifexpression_5;
+                } else {
+                  String _xifexpression_6 = null;
+                  SimpleType _type_1 = feat.getType();
+                  boolean _equals_2 = Objects.equal(_type_1, SimpleType.STRING);
+                  if (_equals_2) {
+                    _xifexpression_6 = text;
+                  } else {
+                    String _xifexpression_7 = null;
+                    SimpleType _type_2 = feat.getType();
+                    boolean _equals_3 = Objects.equal(_type_2, SimpleType.INT);
+                    if (_equals_3) {
+                      _xifexpression_7 = (((("!" + text) + ".equals(\"\") && Integer.parseInt(") + text) + ")");
+                    } else {
+                      String _xifexpression_8 = null;
+                      SimpleType _type_3 = feat.getType();
+                      boolean _equals_4 = Objects.equal(_type_3, SimpleType.DOUBLE);
+                      if (_equals_4) {
+                        _xifexpression_8 = (((("!" + text) + ".equals(\"\") && Double.parseDouble(") + text) + ")");
+                      }
+                      _xifexpression_7 = _xifexpression_8;
+                    }
+                    _xifexpression_6 = _xifexpression_7;
+                  }
+                  _xifexpression_4 = _xifexpression_6;
                 }
+                _xblockexpression_3 = _xifexpression_4;
               }
-            }
-          } else {
-            if ((ref instanceof GroupedFeature)) {
-              String _firstLower_2 = StringExtensions.toFirstLower(name);
-              String _plus_10 = ("JCheckBox " + _firstLower_2);
-              String _plus_11 = (_plus_10 + newName);
-              String _plus_12 = (_plus_11 + "Option");
-              boolean _contains = this.javaFields.contains(_plus_12);
-              if (_contains) {
-                String _firstLower_3 = StringExtensions.toFirstLower(name);
-                String _plus_13 = (_firstLower_3 + newName);
-                return (_plus_13 + "Option.isSelected()");
-              } else {
-                String _firstLower_4 = StringExtensions.toFirstLower(name);
-                String _name_1 = ((GroupedFeature)ref).getName();
-                String _replace = newName.replace(_name_1, "");
-                final String variable = (_firstLower_4 + _replace);
-                String _name_2 = ((GroupedFeature)ref).getName();
-                String _plus_14 = ((variable + "Select.getSelectedItem().equals(\"") + _name_2);
-                return (_plus_14 + "\")");
+              _xifexpression_3 = _xblockexpression_3;
+            } else {
+              String _xifexpression_4 = null;
+              if ((ref instanceof GroupedFeature)) {
+                String _xifexpression_5 = null;
+                String _firstLower_1 = StringExtensions.toFirstLower(name);
+                String _plus_1 = ("JCheckBox " + _firstLower_1);
+                String _plus_2 = (_plus_1 + newName);
+                String _plus_3 = (_plus_2 + "Option");
+                boolean _contains = this.javaFields.contains(_plus_3);
+                if (_contains) {
+                  String _firstLower_2 = StringExtensions.toFirstLower(name);
+                  String _plus_4 = (_firstLower_2 + newName);
+                  _xifexpression_5 = (_plus_4 + "Option.isSelected()");
+                } else {
+                  String _xblockexpression_4 = null;
+                  {
+                    String _firstLower_3 = StringExtensions.toFirstLower(name);
+                    String _name = ((GroupedFeature)ref).getName();
+                    String _replace = newName.replace(_name, "");
+                    final String variable = (_firstLower_3 + _replace);
+                    String _name_1 = ((GroupedFeature)ref).getName();
+                    String _plus_5 = ((variable + "Select.getSelectedItem().equals(\"") + _name_1);
+                    _xblockexpression_4 = (_plus_5 + "\")");
+                  }
+                  _xifexpression_5 = _xblockexpression_4;
+                }
+                _xifexpression_4 = _xifexpression_5;
               }
+              _xifexpression_3 = _xifexpression_4;
             }
+            _xblockexpression_2 = _xifexpression_3;
           }
+          _xifexpression_2 = _xblockexpression_2;
         } else {
           String _xifexpression_3 = null;
           if ((ex instanceof featureModel.Number)) {
-            final featureModel.Number e_2 = ((featureModel.Number) ex);
-            int _value = e_2.getValue();
-            return ("" + Integer.valueOf(_value));
+            String _xblockexpression_3 = null;
+            {
+              final featureModel.Number e = ((featureModel.Number) ex);
+              int _value = e.getValue();
+              _xblockexpression_3 = ("" + Integer.valueOf(_value));
+            }
+            _xifexpression_3 = _xblockexpression_3;
           } else {
             String _xifexpression_4 = null;
             if ((ex instanceof NULL)) {
-              _xifexpression_4 = null;
+              _xifexpression_4 = "null";
             }
             _xifexpression_3 = _xifexpression_4;
           }
@@ -939,8 +1036,8 @@ public class MyDslGenerator implements IGenerator {
     _builder.append("\t\t\t\t");
     String _name_2 = it.getName();
     String _lowerCase = _name_2.toLowerCase();
-    String _featureCode = this.getFeatureCode(it, _lowerCase);
-    _builder.append(_featureCode, "\t\t\t\t");
+    String _featureHTMLCode = this.getFeatureHTMLCode(it, _lowerCase);
+    _builder.append(_featureHTMLCode, "\t\t\t\t");
     _builder.append("<br>");
     _builder.newLineIfNotEmpty();
     _builder.append("\t\t\t\t");
@@ -963,13 +1060,31 @@ public class MyDslGenerator implements IGenerator {
     {
       EList<Expression> _constraints = it.getConstraints();
       for(final Expression c : _constraints) {
+        _builder.append("\t\t\t\t\t");
         _builder.append("//constraint");
         _builder.newLine();
+        _builder.append("\t\t\t\t\t");
+        _builder.append("if(!");
         String _name_3 = it.getName();
         String _lowerCase_1 = _name_3.toLowerCase();
-        String _constraintsCode = this.getConstraintsCode(c, _lowerCase_1);
-        _builder.append(_constraintsCode, "");
+        String _variableHTMLCode = this.getVariableHTMLCode(c, _lowerCase_1);
+        _builder.append(_variableHTMLCode, "\t\t\t\t\t");
+        _builder.append("){");
         _builder.newLineIfNotEmpty();
+        _builder.append("\t\t\t\t\t");
+        _builder.append("\t");
+        _builder.append("message += \"error: ");
+        String _name_4 = it.getName();
+        String _constraintsText = this.getConstraintsText(c, _name_4);
+        _builder.append(_constraintsText, "\t\t\t\t\t\t");
+        _builder.append("\";");
+        _builder.newLineIfNotEmpty();
+        _builder.append("\t\t\t\t\t");
+        _builder.append("\t");
+        _builder.append("message += \"\\n\";");
+        _builder.newLine();
+        _builder.append("\t\t\t\t\t");
+        _builder.append("}");
         _builder.newLine();
       }
     }
@@ -1141,6 +1256,15 @@ public class MyDslGenerator implements IGenerator {
     _builder.append("\t\t\t\t");
     _builder.newLine();
     _builder.append("\t\t\t\t");
+    _builder.append("function isEmpty(str) {");
+    _builder.newLine();
+    _builder.append("\t\t\t\t\t");
+    _builder.append("return (!str || 0 === str.length);");
+    _builder.newLine();
+    _builder.append("\t\t\t\t");
+    _builder.append("}");
+    _builder.newLine();
+    _builder.append("\t\t\t\t\t\t\t\t\t\t");
     _builder.newLine();
     _builder.append("\t\t\t");
     _builder.append("</script>");
@@ -1190,8 +1314,10 @@ public class MyDslGenerator implements IGenerator {
     return _builder;
   }
   
-  public String getFeatureCode(final Feature f, final String name) {
+  public String getFeatureHTMLCode(final Feature f, final String name) {
     StringConcatenation _builder = new StringConcatenation();
+    final String n = name.replaceAll(" ", "");
+    _builder.newLineIfNotEmpty();
     {
       boolean _notEquals = (!Objects.equal(f, null));
       if (_notEquals) {
@@ -1209,10 +1335,11 @@ public class MyDslGenerator implements IGenerator {
                   boolean _equals_1 = Objects.equal(_required, SolitaryType.OPTIONAL);
                   if (_equals_1) {
                     _builder.append("<br> <input type=\"checkbox\" id=\"");
-                    _builder.append(name, "");
+                    _builder.append(n, "");
                     String _name = feature.getName();
                     String _lowerCase = _name.toLowerCase();
-                    _builder.append(_lowerCase, "");
+                    String _replaceAll = _lowerCase.replaceAll(" ", "");
+                    _builder.append(_replaceAll, "");
                     _builder.append("\" name=\"");
                     String _name_1 = f.getName();
                     _builder.append(_name_1, "");
@@ -1236,34 +1363,36 @@ public class MyDslGenerator implements IGenerator {
                   String _name_4 = feature.getName();
                   _builder.append(_name_4, "");
                   _builder.append("*: <input type=\"text\" id=\"");
-                  _builder.append(name, "");
+                  _builder.append(n, "");
                   String _name_5 = feature.getName();
                   String _lowerCase_1 = _name_5.toLowerCase();
-                  _builder.append(_lowerCase_1, "");
+                  String _replaceAll_1 = _lowerCase_1.replaceAll(" ", "");
+                  _builder.append(_replaceAll_1, "");
                   _builder.append("\" name=\"");
                   String _name_6 = feature.getName();
                   String _lowerCase_2 = _name_6.toLowerCase();
                   _builder.append(_lowerCase_2, "");
                   _builder.append("\" ");
-                  String _inputValidation = this.getInputValidation(feature);
-                  _builder.append(_inputValidation, "");
+                  String _hTMLInputValidation = this.getHTMLInputValidation(feature);
+                  _builder.append(_hTMLInputValidation, "");
                   _builder.append(" required><br>");
                   _builder.newLineIfNotEmpty();
                 } else {
                   String _name_7 = feature.getName();
                   _builder.append(_name_7, "");
                   _builder.append(": <input type=\"text\" id=\"");
-                  _builder.append(name, "");
+                  _builder.append(n, "");
                   String _name_8 = feature.getName();
                   String _lowerCase_3 = _name_8.toLowerCase();
-                  _builder.append(_lowerCase_3, "");
+                  String _replaceAll_2 = _lowerCase_3.replaceAll(" ", "");
+                  _builder.append(_replaceAll_2, "");
                   _builder.append("\" name=\"");
                   String _name_9 = feature.getName();
                   String _lowerCase_4 = _name_9.toLowerCase();
                   _builder.append(_lowerCase_4, "");
                   _builder.append("\" ");
-                  String _inputValidation_1 = this.getInputValidation(feature);
-                  _builder.append(_inputValidation_1, "");
+                  String _hTMLInputValidation_1 = this.getHTMLInputValidation(feature);
+                  _builder.append(_hTMLInputValidation_1, "");
                   _builder.append("><br>");
                   _builder.newLineIfNotEmpty();
                 }
@@ -1271,9 +1400,10 @@ public class MyDslGenerator implements IGenerator {
             }
             String _name_10 = feature.getName();
             String _lowerCase_5 = _name_10.toLowerCase();
-            String _plus = (name + _lowerCase_5);
-            String _featureCode = this.getFeatureCode(feature, _plus);
-            _builder.append(_featureCode, "");
+            String _replaceAll_3 = _lowerCase_5.replaceAll(" ", "");
+            String _plus = (n + _replaceAll_3);
+            String _featureHTMLCode = this.getFeatureHTMLCode(feature, _plus);
+            _builder.append(_featureHTMLCode, "");
             _builder.append("</fieldset>");
             _builder.newLineIfNotEmpty();
           }
@@ -1281,8 +1411,8 @@ public class MyDslGenerator implements IGenerator {
         {
           EList<Group> _groups = f.getGroups();
           for(final Group g : _groups) {
-            String _groupCode = this.getGroupCode(g, f, name);
-            _builder.append(_groupCode, "");
+            String _groupHTMLCode = this.getGroupHTMLCode(g, f, n);
+            _builder.append(_groupHTMLCode, "");
             _builder.newLineIfNotEmpty();
           }
         }
@@ -1292,7 +1422,7 @@ public class MyDslGenerator implements IGenerator {
     return _builder.toString();
   }
   
-  public String getInputValidation(final Feature f) {
+  public String getHTMLInputValidation(final Feature f) {
     String _xifexpression = null;
     SimpleType _type = f.getType();
     boolean _equals = Objects.equal(_type, SimpleType.INT);
@@ -1312,7 +1442,7 @@ public class MyDslGenerator implements IGenerator {
     return _xifexpression;
   }
   
-  public String getGroupCode(final Group g, final Feature f, final String name) {
+  public String getGroupHTMLCode(final Group g, final Feature f, final String name) {
     StringConcatenation _builder = new StringConcatenation();
     {
       boolean _notEquals = (!Objects.equal(g, null));
@@ -1327,11 +1457,12 @@ public class MyDslGenerator implements IGenerator {
                 _builder.append(name, "");
                 String _name = gf.getName();
                 String _lowerCase = _name.toLowerCase();
-                _builder.append(_lowerCase, "");
+                String _replaceAll = _lowerCase.replaceAll(" ", "");
+                _builder.append(_replaceAll, "");
                 _builder.append("\" name=\"");
                 String _name_1 = f.getName();
                 _builder.append(_name_1, "");
-                _builder.append("\" value=\"");
+                _builder.append("[]\" value=\"");
                 String _name_2 = gf.getName();
                 _builder.append(_name_2, "");
                 _builder.append("\"> ");
@@ -1341,8 +1472,8 @@ public class MyDslGenerator implements IGenerator {
                 String _name_4 = gf.getName();
                 String _lowerCase_1 = _name_4.toLowerCase();
                 String _plus = (name + _lowerCase_1);
-                String _featureCode = this.getFeatureCode(gf, _plus);
-                _builder.append(_featureCode, "");
+                String _featureHTMLCode = this.getFeatureHTMLCode(gf, _plus);
+                _builder.append(_featureHTMLCode, "");
                 _builder.newLineIfNotEmpty();
               }
             }
@@ -1350,8 +1481,7 @@ public class MyDslGenerator implements IGenerator {
             _builder.append("<select id=\"");
             _builder.append(name, "");
             _builder.append("\" name=\"");
-            String _name_5 = f.getName();
-            _builder.append(_name_5, "");
+            _builder.append(name, "");
             _builder.append("\">");
             _builder.newLineIfNotEmpty();
             {
@@ -1360,25 +1490,28 @@ public class MyDslGenerator implements IGenerator {
                 _builder.append("\t");
                 _builder.append("<br> <option id=\"");
                 _builder.append(name, "\t");
-                String _name_6 = gf_1.getName();
-                String _lowerCase_2 = _name_6.toLowerCase();
-                _builder.append(_lowerCase_2, "\t");
+                String _name_5 = gf_1.getName();
+                String _lowerCase_2 = _name_5.toLowerCase();
+                String _replaceAll_1 = _lowerCase_2.replaceAll(" ", "");
+                _builder.append(_replaceAll_1, "\t");
                 _builder.append("\" value=\"");
-                String _name_7 = gf_1.getName();
-                String _lowerCase_3 = _name_7.toLowerCase();
+                String _name_6 = gf_1.getName();
+                String _lowerCase_3 = _name_6.toLowerCase();
                 _builder.append(_lowerCase_3, "\t");
                 _builder.append("\" name=\"");
+                String _name_7 = gf_1.getName();
+                String _lowerCase_4 = _name_7.toLowerCase();
+                String _plus_1 = (name + _lowerCase_4);
+                _builder.append(_plus_1, "\t");
+                _builder.append("\">");
                 String _name_8 = gf_1.getName();
                 _builder.append(_name_8, "\t");
-                _builder.append("\">");
-                String _name_9 = gf_1.getName();
-                _builder.append(_name_9, "\t");
                 _builder.append("</option> ");
-                String _name_10 = gf_1.getName();
-                String _lowerCase_4 = _name_10.toLowerCase();
-                String _plus_1 = (name + _lowerCase_4);
-                String _featureCode_1 = this.getFeatureCode(gf_1, _plus_1);
-                _builder.append(_featureCode_1, "\t");
+                String _name_9 = gf_1.getName();
+                String _lowerCase_5 = _name_9.toLowerCase();
+                String _plus_2 = (name + _lowerCase_5);
+                String _featureHTMLCode_1 = this.getFeatureHTMLCode(gf_1, _plus_2);
+                _builder.append(_featureHTMLCode_1, "\t");
                 _builder.newLineIfNotEmpty();
               }
             }
@@ -1391,75 +1524,7 @@ public class MyDslGenerator implements IGenerator {
     return _builder.toString();
   }
   
-  public String getConstraintsCode(final Expression c, final String name) {
-    StringConcatenation _builder = new StringConcatenation();
-    {
-      if ((c instanceof BinaryOperation)) {
-        _builder.newLineIfNotEmpty();
-        final BinaryOperation binOp = ((BinaryOperation) c);
-        _builder.newLineIfNotEmpty();
-        _builder.append("\t");
-        _builder.append("if(!(");
-        Expression _lexp = binOp.getLexp();
-        String _variableCode = this.getvariableCode(_lexp, name);
-        _builder.append(_variableCode, "\t");
-        _builder.append(" ");
-        BinaryOperator _operator = binOp.getOperator();
-        String _binaryOperator = this.getBinaryOperator(_operator);
-        _builder.append(_binaryOperator, "\t");
-        _builder.append(" ");
-        Expression _rexp = binOp.getRexp();
-        String _variableCode_1 = this.getvariableCode(_rexp, name);
-        _builder.append(_variableCode_1, "\t");
-        _builder.append(")){");
-        _builder.newLineIfNotEmpty();
-        _builder.append("\t\t");
-        _builder.append("message += \"error: ");
-        String _constraintsText = this.getConstraintsText(c, name);
-        _builder.append(_constraintsText, "\t\t");
-        _builder.append("\";");
-        _builder.newLineIfNotEmpty();
-        _builder.append("\t\t");
-        _builder.append("message += \"\\n\";");
-        _builder.newLine();
-        _builder.append("\t");
-        _builder.append("}");
-        _builder.newLine();
-      } else {
-        if ((c instanceof UnaryOperation)) {
-          final UnaryOperation unOp = ((UnaryOperation) c);
-          _builder.newLineIfNotEmpty();
-          _builder.append("\t");
-          _builder.append("if(!(");
-          UnaryOperator _operator_1 = unOp.getOperator();
-          String _unaryOperator = this.getUnaryOperator(_operator_1);
-          _builder.append(_unaryOperator, "\t");
-          Expression _exp = unOp.getExp();
-          String _variableCode_2 = this.getvariableCode(_exp, name);
-          _builder.append(_variableCode_2, "\t");
-          _builder.append(")){");
-          _builder.newLineIfNotEmpty();
-          _builder.append("\t\t");
-          _builder.append("message += \"error: ");
-          String _constraintsText_1 = this.getConstraintsText(c, name);
-          _builder.append(_constraintsText_1, "\t\t");
-          _builder.append("\";");
-          _builder.newLineIfNotEmpty();
-          _builder.append("\t\t");
-          _builder.append("message += \"\\n\";");
-          _builder.newLine();
-          _builder.append("\t");
-          _builder.append("}");
-          _builder.newLine();
-          _builder.newLine();
-          _builder.append("\t\t");
-        }
-      }
-    }
-    return _builder.toString();
-  }
-  
-  public String getBinaryOperator(final BinaryOperator op) {
+  public String getBinaryOperator(final BinaryOperator op, final Boolean isHTML) {
     boolean _equals = Objects.equal(op, BinaryOperator.AND);
     if (_equals) {
       return "&&";
@@ -1470,7 +1535,13 @@ public class MyDslGenerator implements IGenerator {
       } else {
         boolean _equals_2 = Objects.equal(op, BinaryOperator.EQUALS);
         if (_equals_2) {
-          return "==";
+          String _xifexpression = null;
+          if ((isHTML).booleanValue()) {
+            _xifexpression = "===";
+          } else {
+            _xifexpression = "==";
+          }
+          return _xifexpression;
         } else {
           boolean _equals_3 = Objects.equal(op, BinaryOperator.LOWER);
           if (_equals_3) {
@@ -1500,74 +1571,156 @@ public class MyDslGenerator implements IGenerator {
     return null;
   }
   
-  public String getvariableCode(final Expression ex, final String name) {
+  public String getVariableHTMLCode(final Expression ex, final String name) {
     String _xifexpression = null;
     if ((ex instanceof BinaryOperation)) {
-      final BinaryOperation e = ((BinaryOperation) ex);
-      Expression _lexp = e.getLexp();
-      String _variableCode = this.getvariableCode(_lexp, name);
-      String _plus = ("(" + _variableCode);
-      String _plus_1 = (_plus + " ");
-      BinaryOperator _operator = e.getOperator();
-      String _binaryOperator = this.getBinaryOperator(_operator);
-      String _plus_2 = (_plus_1 + _binaryOperator);
-      String _plus_3 = (_plus_2 + " ");
-      Expression _rexp = e.getRexp();
-      String _variableCode_1 = this.getvariableCode(_rexp, name);
-      String _plus_4 = (_plus_3 + _variableCode_1);
-      return (_plus_4 + ")");
+      String _xblockexpression = null;
+      {
+        final BinaryOperation binOp = ((BinaryOperation) ex);
+        Expression _lexp = binOp.getLexp();
+        final SimpleType ltype = this.getType(_lexp);
+        Expression _rexp = binOp.getRexp();
+        final SimpleType rtype = this.getType(_rexp);
+        String _xifexpression_1 = null;
+        boolean _and = false;
+        BinaryOperator _operator = binOp.getOperator();
+        boolean _equals = Objects.equal(_operator, BinaryOperator.EQUALS);
+        if (!_equals) {
+          _and = false;
+        } else {
+          boolean _and_1 = false;
+          boolean _equals_1 = Objects.equal(ltype, SimpleType.STRING);
+          if (!_equals_1) {
+            _and_1 = false;
+          } else {
+            boolean _equals_2 = Objects.equal(rtype, SimpleType.NULLTYPE);
+            _and_1 = _equals_2;
+          }
+          _and = _and_1;
+        }
+        if (_and) {
+          Expression _lexp_1 = binOp.getLexp();
+          String _variableHTMLCode = this.getVariableHTMLCode(_lexp_1, name);
+          String _plus = ("(isEmpty(" + _variableHTMLCode);
+          _xifexpression_1 = (_plus + ") )");
+        } else {
+          String _xifexpression_2 = null;
+          boolean _and_2 = false;
+          BinaryOperator _operator_1 = binOp.getOperator();
+          boolean _equals_3 = Objects.equal(_operator_1, BinaryOperator.EQUALS);
+          if (!_equals_3) {
+            _and_2 = false;
+          } else {
+            boolean _and_3 = false;
+            boolean _equals_4 = Objects.equal(rtype, SimpleType.STRING);
+            if (!_equals_4) {
+              _and_3 = false;
+            } else {
+              boolean _equals_5 = Objects.equal(ltype, SimpleType.NULLTYPE);
+              _and_3 = _equals_5;
+            }
+            _and_2 = _and_3;
+          }
+          if (_and_2) {
+            Expression _rexp_1 = binOp.getRexp();
+            String _variableHTMLCode_1 = this.getVariableHTMLCode(_rexp_1, name);
+            String _plus_1 = ("(isEmpty(" + _variableHTMLCode_1);
+            _xifexpression_2 = (_plus_1 + ") )");
+          } else {
+            Expression _lexp_2 = binOp.getLexp();
+            String _variableHTMLCode_2 = this.getVariableHTMLCode(_lexp_2, name);
+            String _plus_2 = ("(" + _variableHTMLCode_2);
+            String _plus_3 = (_plus_2 + " ");
+            BinaryOperator _operator_2 = binOp.getOperator();
+            String _binaryOperator = this.getBinaryOperator(_operator_2, Boolean.valueOf(true));
+            String _plus_4 = (_plus_3 + _binaryOperator);
+            String _plus_5 = (_plus_4 + " ");
+            Expression _rexp_2 = binOp.getRexp();
+            String _variableHTMLCode_3 = this.getVariableHTMLCode(_rexp_2, name);
+            String _plus_6 = (_plus_5 + _variableHTMLCode_3);
+            _xifexpression_2 = (_plus_6 + ")");
+          }
+          _xifexpression_1 = _xifexpression_2;
+        }
+        _xblockexpression = _xifexpression_1;
+      }
+      _xifexpression = _xblockexpression;
     } else {
       String _xifexpression_1 = null;
       if ((ex instanceof UnaryOperation)) {
-        final UnaryOperation e_1 = ((UnaryOperation) ex);
-        UnaryOperator _operator_1 = e_1.getOperator();
-        String _unaryOperator = this.getUnaryOperator(_operator_1);
-        String _plus_5 = ("(" + _unaryOperator);
-        Expression _exp = e_1.getExp();
-        String _variableCode_2 = this.getvariableCode(_exp, name);
-        String _plus_6 = (_plus_5 + _variableCode_2);
-        return (_plus_6 + ")");
+        String _xblockexpression_1 = null;
+        {
+          final UnaryOperation e = ((UnaryOperation) ex);
+          UnaryOperator _operator = e.getOperator();
+          String _unaryOperator = this.getUnaryOperator(_operator);
+          String _plus = ("(" + _unaryOperator);
+          Expression _exp = e.getExp();
+          String _variableHTMLCode = this.getVariableHTMLCode(_exp, name);
+          String _plus_1 = (_plus + _variableHTMLCode);
+          _xblockexpression_1 = (_plus_1 + ")");
+        }
+        _xifexpression_1 = _xblockexpression_1;
       } else {
         String _xifexpression_2 = null;
         if ((ex instanceof Identifier)) {
-          final Identifier id = ((Identifier) ex);
-          EList<Feature> _ref = id.getRef();
-          EList<Feature> _ref_1 = id.getRef();
-          int _size = _ref_1.size();
-          int _minus = (_size - 1);
-          final Feature ref = _ref.get(_minus);
-          EList<Feature> _ref_2 = id.getRef();
-          final String newName = this.concatNames(_ref_2);
-          if ((ref instanceof SolitaryFeature)) {
-            final SolitaryFeature feat = ((SolitaryFeature) ref);
-            SimpleType _type = feat.getType();
-            boolean _equals = Objects.equal(_type, SimpleType.BOOLEAN);
-            if (_equals) {
-              SolitaryType _required = feat.getRequired();
-              boolean _equals_1 = Objects.equal(_required, SolitaryType.MANDATORY);
-              if (_equals_1) {
-                return "true";
-              } else {
-                return (((("getItem(getID(\"" + name) + ".") + newName) + "\")).checked");
+          String _xblockexpression_2 = null;
+          {
+            final Identifier id = ((Identifier) ex);
+            EList<Feature> _ref = id.getRef();
+            EList<Feature> _ref_1 = id.getRef();
+            int _size = _ref_1.size();
+            int _minus = (_size - 1);
+            final Feature ref = _ref.get(_minus);
+            EList<Feature> _ref_2 = id.getRef();
+            final String newName = this.concatHTMLNames(_ref_2);
+            String _xifexpression_3 = null;
+            if ((ref instanceof SolitaryFeature)) {
+              String _xblockexpression_3 = null;
+              {
+                final SolitaryFeature feat = ((SolitaryFeature) ref);
+                String _xifexpression_4 = null;
+                SimpleType _type = feat.getType();
+                boolean _equals = Objects.equal(_type, SimpleType.BOOLEAN);
+                if (_equals) {
+                  String _xifexpression_5 = null;
+                  SolitaryType _required = feat.getRequired();
+                  boolean _equals_1 = Objects.equal(_required, SolitaryType.MANDATORY);
+                  if (_equals_1) {
+                    _xifexpression_5 = "true";
+                  } else {
+                    _xifexpression_5 = (((("getItem(getID(\"" + name) + ".") + newName) + "\")).checked");
+                  }
+                  _xifexpression_4 = _xifexpression_5;
+                } else {
+                  _xifexpression_4 = (((("getItem(getID(\"" + name) + ".") + newName) + "\")).value");
+                }
+                _xblockexpression_3 = _xifexpression_4;
               }
+              _xifexpression_3 = _xblockexpression_3;
             } else {
-              return (((("getItem(getID(\"" + name) + ".") + newName) + "\")).value");
+              String _xifexpression_4 = null;
+              if ((ref instanceof GroupedFeature)) {
+                _xifexpression_4 = (((("getS(\"" + name) + ".") + newName) + "\")");
+              }
+              _xifexpression_3 = _xifexpression_4;
             }
-          } else {
-            if ((ref instanceof GroupedFeature)) {
-              return (((("getS(\"" + name) + ".") + newName) + "\")");
-            }
+            _xblockexpression_2 = _xifexpression_3;
           }
+          _xifexpression_2 = _xblockexpression_2;
         } else {
           String _xifexpression_3 = null;
           if ((ex instanceof featureModel.Number)) {
-            final featureModel.Number e_2 = ((featureModel.Number) ex);
-            int _value = e_2.getValue();
-            return ("" + Integer.valueOf(_value));
+            String _xblockexpression_3 = null;
+            {
+              final featureModel.Number e = ((featureModel.Number) ex);
+              int _value = e.getValue();
+              _xblockexpression_3 = ("" + Integer.valueOf(_value));
+            }
+            _xifexpression_3 = _xblockexpression_3;
           } else {
             String _xifexpression_4 = null;
             if ((ex instanceof NULL)) {
-              _xifexpression_4 = null;
+              _xifexpression_4 = "null";
             }
             _xifexpression_3 = _xifexpression_4;
           }
@@ -1580,7 +1733,7 @@ public class MyDslGenerator implements IGenerator {
     return _xifexpression;
   }
   
-  public String concatNames(final EList<Feature> list) {
+  public String concatHTMLNames(final EList<Feature> list) {
     String result = "";
     for (final Feature f : list) {
       String _result = result;
@@ -1604,127 +1757,180 @@ public class MyDslGenerator implements IGenerator {
   }
   
   public String getConstraintsText(final Expression c, final String name) {
+    String _xifexpression = null;
     if ((c instanceof BinaryOperation)) {
-      final BinaryOperation binOp = ((BinaryOperation) c);
-      Expression _lexp = binOp.getLexp();
-      String _variableText = this.getVariableText(_lexp, name);
-      String _plus = (_variableText + " ");
-      BinaryOperator _operator = binOp.getOperator();
-      String _binaryOperator = this.getBinaryOperator(_operator);
-      String _plus_1 = (_plus + _binaryOperator);
-      String _plus_2 = (_plus_1 + " ");
-      Expression _rexp = binOp.getRexp();
-      String _variableText_1 = this.getVariableText(_rexp, name);
-      return (_plus_2 + _variableText_1);
-    } else {
-      if ((c instanceof UnaryOperation)) {
-        final UnaryOperation unOp = ((UnaryOperation) c);
-        UnaryOperator _operator_1 = unOp.getOperator();
-        String _unaryOperator = this.getUnaryOperator(_operator_1);
-        Expression _exp = unOp.getExp();
-        String _variableText_2 = this.getVariableText(_exp, name);
-        return (_unaryOperator + _variableText_2);
-      } else {
-        if ((c instanceof Identifier)) {
-          final Identifier id = ((Identifier) c);
-          EList<Feature> _ref = id.getRef();
-          EList<Feature> _ref_1 = id.getRef();
-          int _size = _ref_1.size();
-          int _minus = (_size - 1);
-          Feature _get = _ref.get(_minus);
-          SimpleType _type = _get.getType();
-          boolean _equals = Objects.equal(_type, SimpleType.BOOLEAN);
-          if (_equals) {
-            EList<Feature> _ref_2 = id.getRef();
-            EList<Feature> _ref_3 = id.getRef();
-            int _size_1 = _ref_3.size();
-            int _minus_1 = (_size_1 - 1);
-            Feature _get_1 = _ref_2.get(_minus_1);
-            final SolitaryFeature i = ((SolitaryFeature) _get_1);
-            SolitaryType _required = i.getRequired();
-            SolitaryType _get_2 = SolitaryType.get("Mandatory");
-            boolean _equals_1 = Objects.equal(_required, _get_2);
-            if (_equals_1) {
-              return i.getName();
-            } else {
-              String _name = i.getName();
-              return ((name + ".") + _name);
-            }
-          }
-        }
+      String _xblockexpression = null;
+      {
+        final BinaryOperation binOp = ((BinaryOperation) c);
+        Expression _lexp = binOp.getLexp();
+        String _variableText = this.getVariableText(_lexp, name);
+        String _plus = (_variableText + " ");
+        BinaryOperator _operator = binOp.getOperator();
+        String _binaryOperator = this.getBinaryOperator(_operator, Boolean.valueOf(false));
+        String _plus_1 = (_plus + _binaryOperator);
+        String _plus_2 = (_plus_1 + " ");
+        Expression _rexp = binOp.getRexp();
+        String _variableText_1 = this.getVariableText(_rexp, name);
+        _xblockexpression = (_plus_2 + _variableText_1);
       }
+      _xifexpression = _xblockexpression;
+    } else {
+      String _xifexpression_1 = null;
+      if ((c instanceof UnaryOperation)) {
+        String _xblockexpression_1 = null;
+        {
+          final UnaryOperation unOp = ((UnaryOperation) c);
+          UnaryOperator _operator = unOp.getOperator();
+          String _unaryOperator = this.getUnaryOperator(_operator);
+          Expression _exp = unOp.getExp();
+          String _variableText = this.getVariableText(_exp, name);
+          _xblockexpression_1 = (_unaryOperator + _variableText);
+        }
+        _xifexpression_1 = _xblockexpression_1;
+      } else {
+        String _xifexpression_2 = null;
+        if ((c instanceof Identifier)) {
+          String _xblockexpression_2 = null;
+          {
+            final Identifier id = ((Identifier) c);
+            String _xifexpression_3 = null;
+            EList<Feature> _ref = id.getRef();
+            EList<Feature> _ref_1 = id.getRef();
+            int _size = _ref_1.size();
+            int _minus = (_size - 1);
+            Feature _get = _ref.get(_minus);
+            SimpleType _type = _get.getType();
+            boolean _equals = Objects.equal(_type, SimpleType.BOOLEAN);
+            if (_equals) {
+              String _xblockexpression_3 = null;
+              {
+                EList<Feature> _ref_2 = id.getRef();
+                EList<Feature> _ref_3 = id.getRef();
+                int _size_1 = _ref_3.size();
+                int _minus_1 = (_size_1 - 1);
+                Feature _get_1 = _ref_2.get(_minus_1);
+                final SolitaryFeature i = ((SolitaryFeature) _get_1);
+                String _xifexpression_4 = null;
+                SolitaryType _required = i.getRequired();
+                SolitaryType _get_2 = SolitaryType.get("Mandatory");
+                boolean _equals_1 = Objects.equal(_required, _get_2);
+                if (_equals_1) {
+                  _xifexpression_4 = i.getName();
+                } else {
+                  String _name = i.getName();
+                  _xifexpression_4 = ((name + ".") + _name);
+                }
+                _xblockexpression_3 = _xifexpression_4;
+              }
+              _xifexpression_3 = _xblockexpression_3;
+            }
+            _xblockexpression_2 = _xifexpression_3;
+          }
+          _xifexpression_2 = _xblockexpression_2;
+        }
+        _xifexpression_1 = _xifexpression_2;
+      }
+      _xifexpression = _xifexpression_1;
     }
-    return null;
+    return _xifexpression;
   }
   
   public String getVariableText(final Expression ex, final String name) {
     String _xifexpression = null;
     if ((ex instanceof BinaryOperation)) {
-      final BinaryOperation e = ((BinaryOperation) ex);
-      Expression _lexp = e.getLexp();
-      String _variableText = this.getVariableText(_lexp, name);
-      String _plus = ("(" + _variableText);
-      String _plus_1 = (_plus + " ");
-      BinaryOperator _operator = e.getOperator();
-      String _binaryOperator = this.getBinaryOperator(_operator);
-      String _plus_2 = (_plus_1 + _binaryOperator);
-      String _plus_3 = (_plus_2 + " ");
-      Expression _rexp = e.getRexp();
-      String _variableText_1 = this.getVariableText(_rexp, name);
-      String _plus_4 = (_plus_3 + _variableText_1);
-      return (_plus_4 + ")");
+      String _xblockexpression = null;
+      {
+        final BinaryOperation e = ((BinaryOperation) ex);
+        Expression _lexp = e.getLexp();
+        String _variableText = this.getVariableText(_lexp, name);
+        String _plus = ("(" + _variableText);
+        String _plus_1 = (_plus + " ");
+        BinaryOperator _operator = e.getOperator();
+        String _binaryOperator = this.getBinaryOperator(_operator, Boolean.valueOf(false));
+        String _plus_2 = (_plus_1 + _binaryOperator);
+        String _plus_3 = (_plus_2 + " ");
+        Expression _rexp = e.getRexp();
+        String _variableText_1 = this.getVariableText(_rexp, name);
+        String _plus_4 = (_plus_3 + _variableText_1);
+        _xblockexpression = (_plus_4 + ")");
+      }
+      _xifexpression = _xblockexpression;
     } else {
       String _xifexpression_1 = null;
       if ((ex instanceof UnaryOperation)) {
-        final UnaryOperation e_1 = ((UnaryOperation) ex);
-        UnaryOperator _operator_1 = e_1.getOperator();
-        String _unaryOperator = this.getUnaryOperator(_operator_1);
-        String _plus_5 = ("(" + _unaryOperator);
-        Expression _exp = e_1.getExp();
-        String _variableText_2 = this.getVariableText(_exp, name);
-        String _plus_6 = (_plus_5 + _variableText_2);
-        return (_plus_6 + ")");
+        String _xblockexpression_1 = null;
+        {
+          final UnaryOperation e = ((UnaryOperation) ex);
+          UnaryOperator _operator = e.getOperator();
+          String _unaryOperator = this.getUnaryOperator(_operator);
+          String _plus = ("(" + _unaryOperator);
+          Expression _exp = e.getExp();
+          String _variableText = this.getVariableText(_exp, name);
+          String _plus_1 = (_plus + _variableText);
+          _xblockexpression_1 = (_plus_1 + ")");
+        }
+        _xifexpression_1 = _xblockexpression_1;
       } else {
         String _xifexpression_2 = null;
         if ((ex instanceof Identifier)) {
-          final Identifier id = ((Identifier) ex);
-          EList<Feature> _ref = id.getRef();
-          EList<Feature> _ref_1 = id.getRef();
-          int _size = _ref_1.size();
-          int _minus = (_size - 1);
-          final Feature ref = _ref.get(_minus);
-          EList<Feature> _ref_2 = id.getRef();
-          final String newName = this.concatNames(_ref_2);
-          if ((ref instanceof SolitaryFeature)) {
-            final SolitaryFeature feat = ((SolitaryFeature) ref);
-            SimpleType _type = feat.getType();
-            boolean _equals = Objects.equal(_type, SimpleType.BOOLEAN);
-            if (_equals) {
-              SolitaryType _required = feat.getRequired();
-              boolean _equals_1 = Objects.equal(_required, SolitaryType.MANDATORY);
-              if (_equals_1) {
-                return "true";
-              } else {
-                return ((name + ".") + newName);
+          String _xblockexpression_2 = null;
+          {
+            final Identifier id = ((Identifier) ex);
+            EList<Feature> _ref = id.getRef();
+            EList<Feature> _ref_1 = id.getRef();
+            int _size = _ref_1.size();
+            int _minus = (_size - 1);
+            final Feature ref = _ref.get(_minus);
+            EList<Feature> _ref_2 = id.getRef();
+            final String newName = this.concatHTMLNames(_ref_2);
+            String _xifexpression_3 = null;
+            if ((ref instanceof SolitaryFeature)) {
+              String _xblockexpression_3 = null;
+              {
+                final SolitaryFeature feat = ((SolitaryFeature) ref);
+                String _xifexpression_4 = null;
+                SimpleType _type = feat.getType();
+                boolean _equals = Objects.equal(_type, SimpleType.BOOLEAN);
+                if (_equals) {
+                  String _xifexpression_5 = null;
+                  SolitaryType _required = feat.getRequired();
+                  boolean _equals_1 = Objects.equal(_required, SolitaryType.MANDATORY);
+                  if (_equals_1) {
+                    _xifexpression_5 = "true";
+                  } else {
+                    _xifexpression_5 = ((name + ".") + newName);
+                  }
+                  _xifexpression_4 = _xifexpression_5;
+                } else {
+                  _xifexpression_4 = ((name + ".") + newName);
+                }
+                _xblockexpression_3 = _xifexpression_4;
               }
+              _xifexpression_3 = _xblockexpression_3;
             } else {
-              return ((name + ".") + newName);
+              String _xifexpression_4 = null;
+              if ((ref instanceof GroupedFeature)) {
+                _xifexpression_4 = ((name + ".") + newName);
+              }
+              _xifexpression_3 = _xifexpression_4;
             }
-          } else {
-            if ((ref instanceof GroupedFeature)) {
-              return ((name + ".") + newName);
-            }
+            _xblockexpression_2 = _xifexpression_3;
           }
+          _xifexpression_2 = _xblockexpression_2;
         } else {
           String _xifexpression_3 = null;
           if ((ex instanceof featureModel.Number)) {
-            final featureModel.Number e_2 = ((featureModel.Number) ex);
-            int _value = e_2.getValue();
-            return ("" + Integer.valueOf(_value));
+            String _xblockexpression_3 = null;
+            {
+              final featureModel.Number e = ((featureModel.Number) ex);
+              int _value = e.getValue();
+              _xblockexpression_3 = ("" + Integer.valueOf(_value));
+            }
+            _xifexpression_3 = _xblockexpression_3;
           } else {
             String _xifexpression_4 = null;
             if ((ex instanceof NULL)) {
-              _xifexpression_4 = null;
+              _xifexpression_4 = "null";
             }
             _xifexpression_3 = _xifexpression_4;
           }
@@ -1735,5 +1941,243 @@ public class MyDslGenerator implements IGenerator {
       _xifexpression = _xifexpression_1;
     }
     return _xifexpression;
+  }
+  
+  public SimpleType getType(final Expression e) {
+    try {
+      SimpleType _xifexpression = null;
+      if ((e instanceof Identifier)) {
+        SimpleType _xblockexpression = null;
+        {
+          final Identifier id = ((Identifier) e);
+          EList<Feature> _ref = id.getRef();
+          EList<Feature> _ref_1 = id.getRef();
+          int _size = _ref_1.size();
+          int _minus = (_size - 1);
+          Feature _get = _ref.get(_minus);
+          _xblockexpression = _get.getType();
+        }
+        _xifexpression = _xblockexpression;
+      } else {
+        SimpleType _xifexpression_1 = null;
+        if ((e instanceof BinaryOperation)) {
+          SimpleType _xblockexpression_1 = null;
+          {
+            final BinaryOperation binOp = ((BinaryOperation) e);
+            final BinaryOperator op = binOp.getOperator();
+            Expression _lexp = binOp.getLexp();
+            final SimpleType ltype = this.getType(_lexp);
+            Expression _rexp = binOp.getRexp();
+            final SimpleType rtype = this.getType(_rexp);
+            SimpleType _xifexpression_2 = null;
+            boolean _equals = Objects.equal(ltype, rtype);
+            if (_equals) {
+              SimpleType _xifexpression_3 = null;
+              boolean _or = false;
+              boolean _equals_1 = Objects.equal(op, BinaryOperator.AND);
+              if (_equals_1) {
+                _or = true;
+              } else {
+                boolean _equals_2 = Objects.equal(op, BinaryOperator.OR);
+                _or = _equals_2;
+              }
+              if (_or) {
+                SimpleType _xifexpression_4 = null;
+                boolean _equals_3 = Objects.equal(ltype, SimpleType.BOOLEAN);
+                if (_equals_3) {
+                  _xifexpression_4 = ltype;
+                } else {
+                  SimpleType _xifexpression_5 = null;
+                  boolean _equals_4 = Objects.equal(rtype, SimpleType.BOOLEAN);
+                  if (_equals_4) {
+                    _xifexpression_5 = rtype;
+                  } else {
+                    throw new Exception("invalid type, must be boolean with And or Or operator");
+                  }
+                  _xifexpression_4 = _xifexpression_5;
+                }
+                _xifexpression_3 = _xifexpression_4;
+              } else {
+                SimpleType _xifexpression_6 = null;
+                boolean _or_1 = false;
+                boolean _or_2 = false;
+                boolean _equals_5 = Objects.equal(op, BinaryOperator.EQUALS);
+                if (_equals_5) {
+                  _or_2 = true;
+                } else {
+                  boolean _equals_6 = Objects.equal(op, BinaryOperator.HIGHER);
+                  _or_2 = _equals_6;
+                }
+                if (_or_2) {
+                  _or_1 = true;
+                } else {
+                  boolean _equals_7 = Objects.equal(op, BinaryOperator.LOWER);
+                  _or_1 = _equals_7;
+                }
+                if (_or_1) {
+                  _xifexpression_6 = SimpleType.BOOLEAN;
+                } else {
+                  SimpleType _xifexpression_7 = null;
+                  boolean _or_3 = false;
+                  boolean _or_4 = false;
+                  boolean _or_5 = false;
+                  boolean _equals_8 = Objects.equal(op, BinaryOperator.DIVIDE);
+                  if (_equals_8) {
+                    _or_5 = true;
+                  } else {
+                    boolean _equals_9 = Objects.equal(op, BinaryOperator.MULTIPLY);
+                    _or_5 = _equals_9;
+                  }
+                  if (_or_5) {
+                    _or_4 = true;
+                  } else {
+                    boolean _equals_10 = Objects.equal(op, BinaryOperator.ADD);
+                    _or_4 = _equals_10;
+                  }
+                  if (_or_4) {
+                    _or_3 = true;
+                  } else {
+                    boolean _equals_11 = Objects.equal(op, BinaryOperator.SUBTRACT);
+                    _or_3 = _equals_11;
+                  }
+                  if (_or_3) {
+                    SimpleType _xifexpression_8 = null;
+                    boolean _or_6 = false;
+                    boolean _equals_12 = Objects.equal(ltype, SimpleType.INT);
+                    if (_equals_12) {
+                      _or_6 = true;
+                    } else {
+                      boolean _equals_13 = Objects.equal(ltype, SimpleType.DOUBLE);
+                      _or_6 = _equals_13;
+                    }
+                    if (_or_6) {
+                      _xifexpression_8 = ltype;
+                    } else {
+                      throw new Exception("invalid type");
+                    }
+                    _xifexpression_7 = _xifexpression_8;
+                  }
+                  _xifexpression_6 = _xifexpression_7;
+                }
+                _xifexpression_3 = _xifexpression_6;
+              }
+              _xifexpression_2 = _xifexpression_3;
+            } else {
+              SimpleType _xifexpression_9 = null;
+              boolean _and = false;
+              boolean _and_1 = false;
+              boolean _equals_14 = Objects.equal(ltype, SimpleType.NULLTYPE);
+              if (!_equals_14) {
+                _and_1 = false;
+              } else {
+                boolean _equals_15 = Objects.equal(rtype, SimpleType.STRING);
+                _and_1 = _equals_15;
+              }
+              if (!_and_1) {
+                _and = false;
+              } else {
+                boolean _equals_16 = Objects.equal(op, BinaryOperator.EQUALS);
+                _and = _equals_16;
+              }
+              if (_and) {
+                _xifexpression_9 = SimpleType.BOOLEAN;
+              } else {
+                SimpleType _xifexpression_10 = null;
+                boolean _and_2 = false;
+                boolean _and_3 = false;
+                boolean _equals_17 = Objects.equal(rtype, SimpleType.NULLTYPE);
+                if (!_equals_17) {
+                  _and_3 = false;
+                } else {
+                  boolean _equals_18 = Objects.equal(ltype, SimpleType.STRING);
+                  _and_3 = _equals_18;
+                }
+                if (!_and_3) {
+                  _and_2 = false;
+                } else {
+                  boolean _equals_19 = Objects.equal(op, BinaryOperator.EQUALS);
+                  _and_2 = _equals_19;
+                }
+                if (_and_2) {
+                  _xifexpression_10 = SimpleType.BOOLEAN;
+                } else {
+                  boolean _notEquals = (!Objects.equal(ltype, rtype));
+                  if (_notEquals) {
+                    throw new Exception(((((("invalid type" + ltype) + " ") + rtype) + " ") + op));
+                  } else {
+                    throw new Exception("other type error");
+                  }
+                }
+                _xifexpression_9 = _xifexpression_10;
+              }
+              _xifexpression_2 = _xifexpression_9;
+            }
+            _xblockexpression_1 = _xifexpression_2;
+          }
+          _xifexpression_1 = _xblockexpression_1;
+        } else {
+          SimpleType _xifexpression_2 = null;
+          if ((e instanceof UnaryOperation)) {
+            SimpleType _xblockexpression_2 = null;
+            {
+              final UnaryOperation expression = ((UnaryOperation) e);
+              Expression _exp = expression.getExp();
+              final SimpleType eType = this.getType(_exp);
+              final UnaryOperator op = expression.getOperator();
+              SimpleType _xifexpression_3 = null;
+              boolean _or = false;
+              boolean _and = false;
+              boolean _equals = Objects.equal(op, UnaryOperator.NOT);
+              if (!_equals) {
+                _and = false;
+              } else {
+                boolean _equals_1 = Objects.equal(eType, SimpleType.BOOLEAN);
+                _and = _equals_1;
+              }
+              if (_and) {
+                _or = true;
+              } else {
+                boolean _and_1 = false;
+                boolean _equals_2 = Objects.equal(op, UnaryOperator.MINUS);
+                if (!_equals_2) {
+                  _and_1 = false;
+                } else {
+                  boolean _or_1 = false;
+                  boolean _equals_3 = Objects.equal(eType, SimpleType.INT);
+                  if (_equals_3) {
+                    _or_1 = true;
+                  } else {
+                    boolean _equals_4 = Objects.equal(eType, SimpleType.DOUBLE);
+                    _or_1 = _equals_4;
+                  }
+                  _and_1 = _or_1;
+                }
+                _or = _and_1;
+              }
+              if (_or) {
+                _xifexpression_3 = eType;
+              } else {
+                throw new Exception("invalid type");
+              }
+              _xblockexpression_2 = _xifexpression_3;
+            }
+            _xifexpression_2 = _xblockexpression_2;
+          } else {
+            SimpleType _xifexpression_3 = null;
+            if ((e instanceof NULL)) {
+              _xifexpression_3 = SimpleType.NULLTYPE;
+            } else {
+              _xifexpression_3 = SimpleType.INT;
+            }
+            _xifexpression_2 = _xifexpression_3;
+          }
+          _xifexpression_1 = _xifexpression_2;
+        }
+        _xifexpression = _xifexpression_1;
+      }
+      return _xifexpression;
+    } catch (Throwable _e) {
+      throw Exceptions.sneakyThrow(_e);
+    }
   }
 }

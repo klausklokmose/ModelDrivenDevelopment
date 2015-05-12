@@ -33,7 +33,6 @@ class MyDslGenerator implements IGenerator {
 		var m = resource.contents.head as Model
 		for(Feature root : m.rootFeature)
 		{
-			
 			fsa.generateFile(root.name+'.php', toHTML(root))
 			fsa.generateFile(root.name+'.java', toJava(root))
 		}
@@ -84,7 +83,7 @@ class MyDslGenerator implements IGenerator {
 				};
 				
 		//Features of the root feature
-				«name.toFirstLower»Panel = createPanel("«name»");
+				«name.toFirstLower.replaceAll(" ", "")»Panel = createPanel("«name»");
 				«addToJavaFields("JPanel", name.toFirstLower+"Panel")»
 				«getFeatureJava(it, name)»
 				getContentPane().add(«name.toFirstLower»Panel);
@@ -107,7 +106,7 @@ class MyDslGenerator implements IGenerator {
 		        submitPanel.add(submitButton);
 		        getContentPane().add(submitPanel);
 				setMinimumSize(new Dimension(400, 700));
-		        pack();
+«««		        pack();
 		    }
 		
 		    private void submitButtonActionPerformed(ActionEvent evt) {
@@ -115,7 +114,27 @@ class MyDslGenerator implements IGenerator {
 «««		        put constraint checking call
 				String check = check();
 				if(check.length() == 0){
-			        JOptionPane.showMessageDialog(null, "you have created a «name»");
+					String m = "Congratulations!\n\nDetails of new «name»:";
+					«FOR c : javaFields»
+						«val field = c.split(" ")»
+						«IF c.contains("JTextField")»
+							m += "\n«field.get(1).trim().split("Field").get(0)»: "+ «field.get(1)».getText();
+						«ELSEIF c.contains("JComboBox")»
+							m += "\n«field.get(1).trim().split("Select").get(0)»: "+ «field.get(1)».getSelectedItem();
+						«ELSEIF c.contains("JCheckBox")»
+							if(«field.get(1)».isSelected()){
+								m += "\n«field.get(1).trim().split("Option").get(0)»: selected";
+							}
+							
+						«ENDIF»
+					«ENDFOR»
+					JTextArea ta = new JTextArea(30, 30);
+					ta.setText(m);
+					ta.setWrapStyleWord(true);
+					ta.setLineWrap(true);
+					ta.setCaretPosition(0);
+					ta.setEditable(false);
+			        JOptionPane.showMessageDialog(null, new JScrollPane(ta), "RESULT", JOptionPane.INFORMATION_MESSAGE);
 				}else{
 					JOptionPane.showMessageDialog(null, check);
 				}
@@ -152,7 +171,9 @@ class MyDslGenerator implements IGenerator {
 				String message = "";
 				«FOR c : it.constraints»
 				//constraint
-				«getConstraintsJavaCode(c, name.toFirstLower)»
+				if(!«getVariableJavaCode(c, name.toFirstLower)»){
+					message += "Error: «getConstraintsText(c, name)»\n";
+				}
 				«ENDFOR»
 				
 				«FOR c : javaRequired»
@@ -181,7 +202,7 @@ class MyDslGenerator implements IGenerator {
 		}'''
 	
 	def void addToJavaFields(String type, String name){
-		javaFields.add(type+" "+name);
+		javaFields.add(type+" "+name.replaceAll(" ", ""));
 	}
 	
 	def void addToJavaRequired(String s){	
@@ -189,35 +210,36 @@ class MyDslGenerator implements IGenerator {
 	}
 
 	def String getFeatureJava(Feature f, String name)'''
-		«val lname = name.toFirstLower»
+		«val lname = name.toFirstLower.replaceAll(" ", "")»
 		«IF (f != null)»
 			«FOR feature : f.features»
-				«lname+feature.name»Panel = createPanel("«feature.name»");
-				«addToJavaFields("JPanel",lname+feature.name+"Panel")»
+				«val n = feature.name.replaceAll(" ", "")»
+				«lname+n»Panel = createPanel("«feature.name»");
+				«addToJavaFields("JPanel",lname+n+"Panel")»
 				«IF (feature.type == SimpleType.BOOLEAN)»
 					«IF feature.required == SolitaryType.OPTIONAL»
-						 «lname+feature.name»Option = new JCheckBox("«feature.name»");
-					«lname+feature.name»Panel.add(«lname+feature.name»Option);
-						 «addToJavaFields("JCheckBox", lname+feature.name+"Option")»
+						 «lname+n»Option = new JCheckBox("«feature.name»");
+					«lname+n»Panel.add(«lname+n»Option);
+						 «addToJavaFields("JCheckBox", lname+n+"Option")»
 					«ENDIF»
 				«ELSEIF feature.required == SolitaryType.MANDATORY»
-					«lname+feature.name»Field = new JTextField();
-					«lname+feature.name»Panel.add(«lname+feature.name»Field);
-					«addToJavaFields("JTextField", lname+feature.name+"Field")»
-					«addToJavaRequired(lname+feature.name+"Field")»
+					«lname+n»Field = new JTextField();
+					«lname+n»Panel.add(«lname+feature.name»Field);
+					«addToJavaFields("JTextField", lname+n+"Field")»
+					«addToJavaRequired(lname+n+"Field")»
 				«ELSE»
-					«lname+feature.name»Field = new JTextField();
-					«lname+feature.name»Panel.add(«lname+feature.name»Field);
-					«addToJavaFields("JTextField", lname+feature.name+"Field")»
+					«lname+n»Field = new JTextField();
+					«lname+n»Panel.add(«lname+n»Field);
+					«addToJavaFields("JTextField", lname+n+"Field")»
 				«ENDIF»
 					«IF feature.type == SimpleType.INT»
-				«lname+feature.name»Field.setInputVerifier(intVerifier);
+				«lname+n»Field.setInputVerifier(intVerifier);
 					«ELSEIF feature.type == SimpleType.DOUBLE»
-				«lname+feature.name»Field.setInputVerifier(doubleVerifier);
+				«lname+n»Field.setInputVerifier(doubleVerifier);
 					«ENDIF»
 				«getFeatureJava(feature, lname+feature.name)»
 «««				getContentPane().add(«lname+feature.name»Panel);
-				«name.toFirstLower»Panel.add(«lname+feature.name»Panel);
+				«name.toFirstLower»Panel.add(«lname+n»Panel);
 			«ENDFOR»
 			
 			«FOR g : f.groups»
@@ -229,24 +251,23 @@ class MyDslGenerator implements IGenerator {
 	
 	def getGroupJavaCode(Group group, Feature f, String name)'''
 		«IF (group != null)»
-			«IF group.inclusive»
-			««« select any (inclusive)
+			«IF group.inclusive» ««« select any (inclusive)
 				«FOR groupedFeature : group.groupedFeatures»
-					«val gName = name+groupedFeature.name.toFirstUpper+"Option"»
+					«val gName = name+groupedFeature.name.toFirstUpper.replaceAll(" ", "")+"Option"»
 					«gName» = new JCheckBox("«groupedFeature.name»");
 					«name»Panel.add(«gName»);
 					«addToJavaFields("JCheckBox", gName)»
 					
 				«ENDFOR»
-			«ELSE»
-			«««	select one (exclusive)
-				«name»Select = new JComboBox();
-				«addToJavaFields("JComboBox", name+"Select")»
-				«name»Select.setModel(new javax.swing.DefaultComboBoxModel(
-					new String[] {
-						«getGroupedFeaturesNameList(group)»
-				}));
-				«name»Panel.add(«name»Select);
+			«ELSE»«««	select one (exclusive)
+«name»Select = new JComboBox();
+			«addToJavaFields("JComboBox", name+"Select")»
+			«name»Select.setModel(new javax.swing.DefaultComboBoxModel(
+				new String[] {
+					«getGroupedFeaturesNameList(group)»
+			}));
+			«name»Panel.add(«name»Select);
+			
 			«ENDIF»
 		«ENDIF»
 	'''
@@ -258,30 +279,24 @@ class MyDslGenerator implements IGenerator {
 		}
 		return s.substring(0, s.length-2);
 	}
-	
-	def String getConstraintsJavaCode(Expression c, String name)
-	'''«IF(c instanceof BinaryOperation)»
-			«val binOp = c as BinaryOperation»
-				if(!(«getvariableJavaCode(binOp.lexp, name)» «getBinaryOperator(binOp.operator)» «getvariableJavaCode(binOp.rexp, name)»)){
-					message += "Error: «getConstraintsText(c, name)»\n";
-				}
-		«ELSEIF (c instanceof UnaryOperation)»
-			«val unOp = c as UnaryOperation»
-				if(!(«getUnaryOperator(unOp.operator)»«getvariableJavaCode(unOp.exp, name)»)){
-«««					alert('error2Unary');
-					message += "Error: «getConstraintsText(c, name)»\n";
-				}
-		«ENDIF»'''
-		
-	def String getvariableJavaCode(Expression ex, String name){
+
+	def String getVariableJavaCode(Expression ex, String name){
 		if(ex instanceof BinaryOperation){
-			val e = ex as BinaryOperation
+			val binOp = ex as BinaryOperation
+			val ltype = getType(binOp.lexp)
+			val rtype = getType(binOp.rexp)
 //			(lexp op rexp)
-			return "("+getvariableJavaCode(e.lexp, name)+" "+getBinaryOperator(e.operator)+" "+getvariableJavaCode(e.rexp, name)+")"
+			if ((binOp.operator == BinaryOperator.EQUALS) && (ltype == SimpleType.STRING && rtype == SimpleType.NULLTYPE)) {
+				"("+getVariableJavaCode(binOp.lexp, name)+".isEmpty())"
+			}else if ((binOp.operator == BinaryOperator.EQUALS) && (rtype == SimpleType.STRING && ltype == SimpleType.NULLTYPE)) {
+				"("+getVariableJavaCode(binOp.rexp, name)+".isEmpty())"
+			}else {
+				"("+getVariableJavaCode(binOp.lexp, name)+" "+getBinaryOperator(binOp.operator, false)+" "+getVariableJavaCode(binOp.rexp, name)+")"
+			}
 		}else if(ex instanceof UnaryOperation){
 			val e = ex as UnaryOperation
 //			(op exp)
-			return "("+getUnaryOperator(e.operator)+getvariableJavaCode(e.exp, name)+")"
+			"("+getUnaryOperator(e.operator)+getVariableJavaCode(e.exp, name)+")"
 		}else if (ex instanceof Identifier){
 			val id = ex as Identifier
 			val ref = id.ref.get(id.ref.size - 1)
@@ -292,32 +307,32 @@ class MyDslGenerator implements IGenerator {
 				val feat = ref as SolitaryFeature
 				if (feat.type == SimpleType.BOOLEAN){
 					if(feat.required == SolitaryType.MANDATORY) 
-						return "true"
+						"true"
 					else{
-						return name.toFirstLower+newName+"Option.isSelected()"
+						name.toFirstLower+newName+"Option.isSelected()"
 					}
 				}else if(feat.type == SimpleType.STRING){
-					return text+".equals(\""+ref.name+"\")"
+//					return text+".equals(\""+ref.name+"\")"
+					text
 				}else if(feat.type == SimpleType.INT){
-					return "!"+text+".equals(\"\") && Integer.parseInt("+text+")"
+					"!"+text+".equals(\"\") && Integer.parseInt("+text+")"
 				}else if(feat.type == SimpleType.DOUBLE){
-					return "!"+text+".equals(\"\") && Double.parseDouble("+text+")"
+					"!"+text+".equals(\"\") && Double.parseDouble("+text+")"
 				}
 			}else if(ref instanceof GroupedFeature){
 					if(javaFields.contains("JCheckBox "+name.toFirstLower+newName+"Option")){
-						return name.toFirstLower+newName+"Option.isSelected()"
+						name.toFirstLower+newName+"Option.isSelected()"
 					}else{
 						val variable = name.toFirstLower+newName.replace(ref.name, "")
-						return variable+"Select.getSelectedItem().equals(\""+ref.name+"\")"
+						variable+"Select.getSelectedItem().equals(\""+ref.name+"\")"
 					}
-//				return "getS(\""+name+"."+newName+"\")"
 			}
 		}else if(ex instanceof Number){
 			val e = ex as Number
-			return ""+e.value
+			""+e.value
 		}
 		else if(ex instanceof NULL){
-			null
+			"null"
 		}
 	}
 	
@@ -331,18 +346,20 @@ class MyDslGenerator implements IGenerator {
 					<h1>«it.name»</h1>
 					<form action="<?php echo $_SERVER['PHP_SELF'];?>" method="POST" onsubmit="return check()">
 «««						feature code
-						«getFeatureCode(it, it.name.toLowerCase)»<br>
+						«getFeatureHTMLCode(it, it.name.toLowerCase)»<br>
 						<input type="submit" name="form" value="Update">
 					</form>
 					
 					<script>
 						function check(){
 							var message = "";
-	«««						constraints javascript go here
 							«FOR c : constraints»
-								//constraint
-								«getConstraintsCode(c, it.name.toLowerCase)»
-								
+							//constraint
+							if(!«getVariableHTMLCode(c, name.toLowerCase)»){
+								message += "error: «getConstraintsText(c, name)»";
+								message += "\n";
+							}
+«««							«getConstraintsHTMLCode(c, it.name.toLowerCase)»
 							«ENDFOR»
 							if( message != "" ){
 								alert(message);
@@ -404,7 +421,10 @@ class MyDslGenerator implements IGenerator {
 							}
 						}
 						
-						
+						function isEmpty(str) {
+							return (!str || 0 === str.length);
+						}
+												
 					</script>
 					<?php
 						foreach($_POST as $k => $v) {
@@ -421,32 +441,33 @@ class MyDslGenerator implements IGenerator {
 				</body>
 			</html>
 	'''
-	
-	def String getFeatureCode(Feature f, String name)'''
+
+	def String getFeatureHTMLCode(Feature f, String name)'''
+		«val n = name.replaceAll(" ", "")»
 		«IF (f != null)»
 			«FOR feature : f.features»
 				<fieldset>
 				«IF (feature.type == SimpleType.BOOLEAN)»
 					«IF feature.required == SolitaryType.OPTIONAL»
-						<br> <input type="checkbox" id="«name»«feature.name.toLowerCase()»" name="«f.name»"> «feature.name» <br>
+						<br> <input type="checkbox" id="«n»«feature.name.toLowerCase().replaceAll(" ", "")»" name="«f.name»"> «feature.name» <br>
 					«ELSE»
 						<legend>«feature.name»*</legend>
 					«ENDIF»
 				«ELSEIF feature.required == SolitaryType.MANDATORY»
-					«feature.name»*: <input type="text" id="«name»«feature.name.toLowerCase»" name="«feature.name.toLowerCase»" «getInputValidation(feature)» required><br>
+					«feature.name»*: <input type="text" id="«n»«feature.name.toLowerCase.replaceAll(" ", "")»" name="«feature.name.toLowerCase»" «getHTMLInputValidation(feature)» required><br>
 				«ELSE»
-					«feature.name»: <input type="text" id="«name»«feature.name.toLowerCase»" name="«feature.name.toLowerCase»" «getInputValidation(feature)»><br>
+					«feature.name»: <input type="text" id="«n»«feature.name.toLowerCase.replaceAll(" ", "")»" name="«feature.name.toLowerCase»" «getHTMLInputValidation(feature)»><br>
 				«ENDIF»
-				«getFeatureCode(feature, name+feature.name.toLowerCase)»</fieldset>
+				«getFeatureHTMLCode(feature, n+feature.name.toLowerCase.replaceAll(" ", ""))»</fieldset>
 			«ENDFOR»
 			«FOR g : f.groups»
-				«getGroupCode(g, f, name)»
+				«getGroupHTMLCode(g, f, n)»
 			«ENDFOR»
 			
 		«ENDIF»
 	'''
 	
-	def String getInputValidation(Feature f){
+	def String getHTMLInputValidation(Feature f){
 		if(f.type == SimpleType.INT)
 			"onChange=\"validateInteger(value)\""
 		else if(f.type == SimpleType.DOUBLE)
@@ -455,46 +476,29 @@ class MyDslGenerator implements IGenerator {
 			""
 	}
 	
-	def String getGroupCode(Group g, Feature f, String name)'''
+	def String getGroupHTMLCode(Group g, Feature f, String name)'''
 		«IF (g != null)»
-			«IF g.inclusive» ««« select any 
+			«IF g.inclusive» ««« select any
 				«FOR gf : g.groupedFeatures»
-					<br> <input type="checkbox" id="«name»«gf.name.toLowerCase»" name="«f.name»" value="«gf.name»"> «gf.name» «getFeatureCode(gf, name+gf.name.toLowerCase)»
+					<br> <input type="checkbox" id="«name»«gf.name.toLowerCase.replaceAll(" ", "")»" name="«f.name»[]" value="«gf.name»"> «gf.name» «getFeatureHTMLCode(gf, name+gf.name.toLowerCase)»
 				«ENDFOR»
 			«ELSE»«««	select one
-<select id="«name»" name="«f.name»">
+<select id="«name»" name="«name»">
 				«FOR gf : g.groupedFeatures»
-				<br> <option id="«name»«gf.name.toLowerCase»" value="«gf.name.toLowerCase»" name="«gf.name»">«gf.name»</option> «getFeatureCode(gf, name+gf.name.toLowerCase)»
+				<br> <option id="«name»«gf.name.toLowerCase.replaceAll(" ", "")»" value="«gf.name.toLowerCase»" name="«name+gf.name.toLowerCase»">«gf.name»</option> «getFeatureHTMLCode(gf, name+gf.name.toLowerCase)»
 				«ENDFOR»
 </select><br>
 			«ENDIF»
 		«ENDIF»
 	'''
 	
-	def String getConstraintsCode(Expression c, String name)
-	'''«IF(c instanceof BinaryOperation)»
-			«val binOp = c as BinaryOperation»
-				if(!(«getvariableCode(binOp.lexp, name)» «getBinaryOperator(binOp.operator)» «getvariableCode(binOp.rexp, name)»)){
-					message += "error: «getConstraintsText(c, name)»";
-					message += "\n";
-				}
-		«ELSEIF (c instanceof UnaryOperation)»
-			«val unOp = c as UnaryOperation»
-				if(!(«getUnaryOperator(unOp.operator)»«getvariableCode(unOp.exp, name)»)){
-«««					alert('error2Unary');
-					message += "error: «getConstraintsText(c, name)»";
-					message += "\n";
-				}
-			
-		«ENDIF»'''
-	
-	def String getBinaryOperator(BinaryOperator op){
+	def String getBinaryOperator(BinaryOperator op, Boolean isHTML){
 		if(op == BinaryOperator.AND)
 			return "&&"
 		else if(op == BinaryOperator.OR)
 			return "||"
 		else if(op == BinaryOperator.EQUALS)
-			return "=="
+			return if (isHTML) "===" else "=="
 		else if(op == BinaryOperator.LOWER)
 			return "<"
 		else if(op == BinaryOperator.HIGHER)
@@ -508,44 +512,53 @@ class MyDslGenerator implements IGenerator {
 			return "-"
 	}
 	
-	def String getvariableCode(Expression ex, String name){
+	def String getVariableHTMLCode(Expression ex, String name){
 		if(ex instanceof BinaryOperation){
-			val e = ex as BinaryOperation
+			val binOp = ex as BinaryOperation
+			val ltype = getType(binOp.lexp)
+			val rtype = getType(binOp.rexp)
 //			(lexp op rexp)
-			return "("+getvariableCode(e.lexp, name)+" "+getBinaryOperator(e.operator)+" "+getvariableCode(e.rexp, name)+")"
+			if ((binOp.operator == BinaryOperator.EQUALS) && (ltype == SimpleType.STRING && rtype == SimpleType.NULLTYPE)) {
+				"(isEmpty("+getVariableHTMLCode(binOp.lexp, name)+") )"
+			}else if ((binOp.operator == BinaryOperator.EQUALS) && (rtype == SimpleType.STRING && ltype == SimpleType.NULLTYPE)) {
+				"(isEmpty("+getVariableHTMLCode(binOp.rexp, name)+") )"
+			}else {
+				"("+getVariableHTMLCode(binOp.lexp, name)+" "+getBinaryOperator(binOp.operator, true)+" "+getVariableHTMLCode(binOp.rexp, name)+")"
+			}
+//			return "("+getVariableHTMLCode(e.lexp, name)+" "+getBinaryOperator(e.operator, true)+" "+getVariableHTMLCode(e.rexp, name)+")"
 		}else if(ex instanceof UnaryOperation){
 			val e = ex as UnaryOperation
 //			(op exp)
-			return "("+getUnaryOperator(e.operator)+getvariableCode(e.exp, name)+")"
+			"("+getUnaryOperator(e.operator)+getVariableHTMLCode(e.exp, name)+")"
 		}else if (ex instanceof Identifier){
 			val id = ex as Identifier
 			val ref = id.ref.get(id.ref.size - 1)
-			val newName = concatNames(id.ref)
+			val newName = concatHTMLNames(id.ref)
 //			SOLITARY
 			if (ref instanceof SolitaryFeature){
 				val feat = ref as SolitaryFeature
 				if (feat.type == SimpleType.BOOLEAN){
 					if(feat.required == SolitaryType.MANDATORY) 
-						return "true"
+						"true"
 					else{
-						return "getItem(getID(\""+name+"."+newName+"\")).checked"
+						"getItem(getID(\""+name+"."+newName+"\")).checked"
 					}
 				}else{
-					return "getItem(getID(\""+name+"."+newName+"\")).value"
+					"getItem(getID(\""+name+"."+newName+"\")).value"
 				}
 			}else if(ref instanceof GroupedFeature){
-				return "getS(\""+name+"."+newName+"\")"
+				"getS(\""+name+"."+newName+"\")"
 			}
 		}else if(ex instanceof Number){
 			val e = ex as Number
-			return ""+e.value
+			""+e.value
 		}
 		else if(ex instanceof NULL){
-			null
+			"null"
 		}
 	}
 	
-	def concatNames(EList<Feature> list) {
+	def concatHTMLNames(EList<Feature> list) {
 		var result = ""
 		for(Feature f: list){
 			result +=f.name+'.'
@@ -564,18 +577,18 @@ class MyDslGenerator implements IGenerator {
 	def String getConstraintsText(Expression c, String name){
 		if(c instanceof BinaryOperation){
 			val binOp = c as BinaryOperation
-			return getVariableText(binOp.lexp, name)+" "+getBinaryOperator(binOp.operator)+" "+getVariableText(binOp.rexp, name)
+			getVariableText(binOp.lexp, name)+" "+getBinaryOperator(binOp.operator, false)+" "+getVariableText(binOp.rexp, name)
 		}else if (c instanceof UnaryOperation){
 			val unOp = c as UnaryOperation
-			return getUnaryOperator(unOp.operator)+getVariableText(unOp.exp, name)
+			getUnaryOperator(unOp.operator)+getVariableText(unOp.exp, name)
 		}else if(c instanceof Identifier){
 			val id = c as Identifier
 			if (id.ref.get(id.ref.size - 1).type == SimpleType.BOOLEAN){
 				val i = id.ref.get(id.ref.size - 1) as SolitaryFeature
 				if(i.required == SolitaryType.get("Mandatory"))	
-					return i.name
+					i.name
 				else
-					return name+"."+i.name
+					name+"."+i.name
 			}
 		}
 	}
@@ -584,36 +597,105 @@ class MyDslGenerator implements IGenerator {
 		if(ex instanceof BinaryOperation){
 			val e = ex as BinaryOperation
 //			(lexp op rexp)
-			return "("+getVariableText(e.lexp, name)+" "+getBinaryOperator(e.operator)+" "+getVariableText(e.rexp, name)+")"
+			"("+getVariableText(e.lexp, name)+" "+getBinaryOperator(e.operator, false)+" "+getVariableText(e.rexp, name)+")"
 		}else if(ex instanceof UnaryOperation){
 			val e = ex as UnaryOperation
 //			(op exp)
-			return "("+getUnaryOperator(e.operator)+getVariableText(e.exp, name)+")"
+			"("+getUnaryOperator(e.operator)+getVariableText(e.exp, name)+")"
 		}else if (ex instanceof Identifier){
 			val id = ex as Identifier
 			val ref = id.ref.get(id.ref.size - 1)
-			val newName = concatNames(id.ref)
+			val newName = concatHTMLNames(id.ref)
 //			SOLITARY
 			if (ref instanceof SolitaryFeature){
 				val feat = ref as SolitaryFeature
 				if (feat.type == SimpleType.BOOLEAN){
 					if(feat.required == SolitaryType.MANDATORY) 
-						return "true"
+						"true"
 					else{
-						return name+"."+newName
+						name+"."+newName
 					}
 				}else{
-					return name+"."+newName
+					name+"."+newName
 				}
 			}else if(ref instanceof GroupedFeature){
-				return name+"."+newName
+				name+"."+newName
 			}
 		}else if(ex instanceof Number){
 			val e = ex as Number
-			return ""+e.value
+			""+e.value
 		}
 		else if(ex instanceof NULL){
-			null
+			"null"
+		}
+	}
+	
+	def SimpleType getType(Expression e) {
+	//Identifier
+		if (e instanceof Identifier) {
+			val id = e as Identifier
+			id.ref.get(id.ref.size - 1).type
+	//BinaryOperation
+		}else if (e instanceof BinaryOperation) {
+			val binOp = e as BinaryOperation
+			val op = binOp.operator
+			val ltype = getType(binOp.lexp)
+			val rtype = getType(binOp.rexp)
+			//must be same type
+			if (ltype == rtype) {
+				if (op == BinaryOperator.AND || op == BinaryOperator.OR) {
+					if (ltype == SimpleType.BOOLEAN) {
+						ltype
+					} else if (rtype == SimpleType.BOOLEAN) {
+						rtype
+					} else {
+						throw new Exception("invalid type, must be boolean with And or Or operator")
+					}
+				} else if (op == BinaryOperator.EQUALS || op == BinaryOperator.HIGHER || op == BinaryOperator.LOWER) {
+					SimpleType.BOOLEAN
+				
+				}else if (	op == BinaryOperator.DIVIDE || op == BinaryOperator.MULTIPLY || op == BinaryOperator.ADD || op == BinaryOperator.SUBTRACT) {
+					if (ltype == SimpleType.INT || ltype == SimpleType.DOUBLE) {
+						ltype
+					} else {
+						throw new Exception("invalid type")
+					}
+				}
+			} //END same type
+			else if(ltype == SimpleType.NULLTYPE && rtype == SimpleType.STRING && op == BinaryOperator.EQUALS){
+			//left type is null and right type is string
+				SimpleType.BOOLEAN
+			}
+			else if(rtype == SimpleType.NULLTYPE && ltype == SimpleType.STRING && op == BinaryOperator.EQUALS){
+			//left type is null and right type is string
+				SimpleType.BOOLEAN
+			}
+			else if(ltype != rtype){
+				throw new Exception("invalid type"+ltype+" "+rtype+" "+op)
+				
+			}else{
+				throw new Exception("other type error")
+			}
+
+	//UnaryOperation
+		} else if (e instanceof UnaryOperation) {
+			val expression = e as UnaryOperation
+			val eType = getType(expression.exp)
+			val op = expression.operator
+			if( (op == UnaryOperator.NOT && (eType == SimpleType.BOOLEAN))
+					|| 
+				(op == UnaryOperator.MINUS && (eType == SimpleType.INT || eType == SimpleType.DOUBLE)) ){
+				eType
+			}else{
+				throw new Exception("invalid type")
+			}
+
+	//NULL
+		} else if(e instanceof NULL){
+			SimpleType.NULLTYPE
+	//Number
+		}else {
+			SimpleType.INT
 		}
 	}
 }
