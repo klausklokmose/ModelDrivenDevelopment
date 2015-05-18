@@ -22,7 +22,6 @@ SolitaryFeature returns SolitaryFeature:
 	(
 	'{'
 		(features += SolitaryFeature ( features += SolitaryFeature)* )?
-		//groups must be declared last
 		(groups += Group ( groups+=Group)* )?
 
 		('#' constraints+=Expression ( '#' constraints += Expression )* )?
@@ -82,7 +81,6 @@ AtomicExp returns Expression:
 Identifier returns Identifier:
 	ref+=[Feature]
 	('.' ref+=[Feature])*
-	
 ;
 
 enum LogicalOperator returns BinaryOperator:
@@ -100,7 +98,6 @@ enum ArithmicOperator returns BinaryOperator:
 enum UnaryOperator returns UnaryOperator:
 	Not = 'Not' | Minus = 'Minus'
 ;
-
 
 NULL returns NULL:
 	{NULL}
